@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.pingcap.shop.dao.tidb.ItemMapper">
-  <resultMap id="Item" type="com.pingcap.shop.model.Item">
+<mapper namespace="com.pingcap.ecommerce.dao.tidb.ItemMapper">
+  <resultMap id="Item" type="com.pingcap.ecommerce.model.Item">
     <result property="id" column="id" javaType="java.lang.Long" jdbcType="BIGINT" />
     <result property="itemPrice" column="item_price" javaType="java.math.BigDecimal" jdbcType="DECIMAL" />
     <result property="itemName" column="item_name" javaType="java.lang.String" jdbcType="VARCHAR" />

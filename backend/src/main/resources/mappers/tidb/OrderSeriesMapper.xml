@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.pingcap.shop.dao.tidb.OrderSeriesMapper">
-  <resultMap id="OrderSeries" type="com.pingcap.shop.model.OrderSeries">
+<mapper namespace="com.pingcap.ecommerce.dao.tidb.OrderSeriesMapper">
+  <resultMap id="OrderSeries" type="com.pingcap.ecommerce.model.OrderSeries">
     <constructor>
       <idArg column="ts" javaType="java.util.Date" jdbcType="VARCHAR" />
       <arg column="type" javaType="java.lang.String" jdbcType="VARCHAR" />
@@ -9,7 +9,7 @@
       <arg column="total" javaType="java.lang.Long" jdbcType="BIGINT" />
     </constructor>
   </resultMap>
-  <insert id="insertOrderSeries" parameterType="com.pingcap.shop.model.OrderSeries">
+  <insert id="insertOrderSeries" parameterType="com.pingcap.ecommerce.model.OrderSeries">
     INSERT INTO s_orders(ts, type, amount, total) VALUES (#{ts}, #{type}, #{amount}, #{total});
   </insert>
   <insert id="insertOrderSeriesList">

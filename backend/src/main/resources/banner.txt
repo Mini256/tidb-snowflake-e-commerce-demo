@@ -1,0 +1,7 @@
+ ______   __     _____     ______
+/\__  _\ /\ \   /\  __-.  /\  == \
+\/_/\ \/ \ \ \  \ \ \/\ \ \ \  __<
+   \ \_\  \ \_\  \ \____-  \ \_____\
+    \/_/   \/_/   \/____/   \/_____/
+${application.title} ${application.version}
+Powered by TiDB and Snowflake, and bootstrap with Spring Boot ${spring-boot.version}.

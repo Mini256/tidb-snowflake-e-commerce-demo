@@ -11,8 +11,8 @@
     <groupId>com.pingcap</groupId>
     <artifactId>shop</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>snowflake-demo-shop</name>
-    <description>snowflake-demo-shop</description>
+    <name>ecommerce-demo</name>
+    <description>An E-commerce demo application powered by TiDB and Snowflake.</description>
     <properties>
         <java.version>17</java.version>
         <springdoc.version>1.6.9</springdoc.version>

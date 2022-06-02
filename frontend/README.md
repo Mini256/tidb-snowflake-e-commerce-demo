@@ -1,4 +1,4 @@
-# Next.js with TypeScript example
+# Front-end Example
 
 ## How to use
 

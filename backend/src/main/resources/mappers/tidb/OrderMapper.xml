@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.pingcap.shop.dao.tidb.OrderMapper">
-  <resultMap id="OrderVO" type="com.pingcap.shop.vo.OrderVO">
+<mapper namespace="com.pingcap.ecommerce.dao.tidb.OrderMapper">
+  <resultMap id="OrderVO" type="com.pingcap.ecommerce.vo.OrderVO">
     <result property="orderId" column="order_id" javaType="java.lang.Long" jdbcType="BIGINT" />
     <result property="orderDate" column="order_date" javaType="java.util.Date" jdbcType="VARCHAR" />
     <result property="username" column="username" javaType="java.lang.String" jdbcType="VARCHAR" />
@@ -12,11 +12,11 @@
     <result property="status" column="status" javaType="java.lang.String" jdbcType="VARCHAR" />
     <result property="currentAddress" column="current_address" javaType="java.lang.String" jdbcType="VARCHAR" />
   </resultMap>
-  <resultMap id="OrderTotalVO" type="com.pingcap.shop.vo.OrderTotalVO">
+  <resultMap id="OrderTotalVO" type="com.pingcap.ecommerce.vo.OrderTotalVO">
     <result property="totalAmount" column="total_amount" javaType="java.math.BigDecimal" jdbcType="DECIMAL" />
     <result property="totalCount" column="total_cnt" javaType="java.lang.Long" jdbcType="BIGINT" />
   </resultMap>
-  <resultMap id="OrderTypeTotalVO" type="com.pingcap.shop.vo.OrderTypeTotalVO">
+  <resultMap id="OrderTypeTotalVO" type="com.pingcap.ecommerce.vo.OrderTypeTotalVO">
     <result property="totalAmount" column="total_type_amount" javaType="java.math.BigDecimal" jdbcType="DECIMAL" />
     <result property="totalCount" column="total_type_cnt" javaType="java.lang.Long" jdbcType="BIGINT" />
     <result property="itemType" column="item_type" javaType="java.lang.String" jdbcType="VARCHAR" />

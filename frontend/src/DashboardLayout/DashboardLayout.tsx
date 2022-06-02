@@ -63,7 +63,7 @@ export default function DashboardLayout(props: any) {
                 px: [1],
               }}
             >
-              <Box>TiSHOP</Box>
+              <Box>E-Commerce</Box>
               <IconButton onClick={toggleDrawer}>
                 <ChevronLeftIcon />
               </IconButton>

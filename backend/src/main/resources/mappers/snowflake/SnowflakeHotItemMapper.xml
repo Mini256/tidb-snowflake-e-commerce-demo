@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.pingcap.shop.dao.snowflake.SnowflakeHotItemMapper">
-  <resultMap id="HotItem" type="com.pingcap.shop.model.HotItem">
+<mapper namespace="com.pingcap.ecommerce.dao.snowflake.SnowflakeHotItemMapper">
+  <resultMap id="HotItem" type="com.pingcap.ecommerce.model.HotItem">
     <result property="itemId" column="ITEM_ID" javaType="java.lang.Long" jdbcType="BIGINT" />
     <result property="itemName" column="ITEM_NAME" javaType="java.lang.String" jdbcType="VARCHAR" />
     <result property="itemPrice" column="ITEM_PRICE" javaType="java.math.BigDecimal" jdbcType="DECIMAL" />
