@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pingcap.shop.dao.tidb.OrderMapper">
+  <resultMap id="OrderVO" type="com.pingcap.shop.vo.OrderVO">
+    <result property="orderId" column="order_id" javaType="java.lang.Long" jdbcType="BIGINT" />
+    <result property="orderDate" column="order_date" javaType="java.util.Date" jdbcType="VARCHAR" />
+    <result property="username" column="username" javaType="java.lang.String" jdbcType="VARCHAR" />
+    <result property="userId" column="user_id" javaType="java.lang.String" jdbcType="VARCHAR" />
+    <result property="itemId" column="item_id" javaType="java.lang.Long" jdbcType="BIGINT" />
+    <result property="itemName" column="item_name" javaType="java.lang.String" jdbcType="VARCHAR" />
+    <result property="amount" column="amount" javaType="java.math.BigDecimal" jdbcType="BIGINT" />
+    <result property="status" column="status" javaType="java.lang.String" jdbcType="VARCHAR" />
+    <result property="currentAddress" column="current_address" javaType="java.lang.String" jdbcType="VARCHAR" />
+  </resultMap>
+  <resultMap id="OrderTotalVO" type="com.pingcap.shop.vo.OrderTotalVO">
+    <result property="totalAmount" column="total_amount" javaType="java.math.BigDecimal" jdbcType="DECIMAL" />
+    <result property="totalCount" column="total_cnt" javaType="java.lang.Long" jdbcType="BIGINT" />
+  </resultMap>
+  <resultMap id="OrderTypeTotalVO" type="com.pingcap.shop.vo.OrderTypeTotalVO">
+    <result property="totalAmount" column="total_type_amount" javaType="java.math.BigDecimal" jdbcType="DECIMAL" />
+    <result property="totalCount" column="total_type_cnt" javaType="java.lang.Long" jdbcType="BIGINT" />
+    <result property="itemType" column="item_type" javaType="java.lang.String" jdbcType="VARCHAR" />
+  </resultMap>
+  <select id="existsAnyOrders" resultType="java.lang.Boolean">
+    SELECT 1 FROM orders LIMIT 1;
+  </select>
+  <select id="getOrders" resultMap="OrderVO">
+    SELECT
+      o.id AS order_id,
+      o.create_time AS order_date,
+      o.user_id,
+      u.username,
+      o.item_id,
+      o.item_name,
+      o.amount,
+      e.status,
+      e.current_address
+    FROM orders o
+    LEFT JOIN expresses e ON o.id = e.order_id
+    LEFT JOIN users u on o.user_id = u.id
+    <where>
+      <if test="username != null">
+        AND u.username = #{username}
+      </if>
+    </where>
+    ORDER BY o.create_time DESC
+    LIMIT #{pageable.offset}, #{pageable.pageSize};
+  </select>
+  <select id="getOrdersCount" resultType="_long">
+    SELECT count(*)
+    FROM orders o
+    LEFT JOIN expresses e ON o.id = e.order_id
+    LEFT JOIN users u on o.user_id = u.id
+    <where>
+      <if test="username != null">
+        AND u.username = #{username}
+      </if>
+    </where>
+    ORDER BY o.create_time DESC;
+  </select>
+  <select id="getOrdersByUserId" parameterType="java.lang.String" resultMap="OrderVO">
+    SELECT
+      o.id AS order_id,
+      o.create_time AS order_date,
+      o.user_id,
+      u.username,
+      o.item_id,
+      o.item_name,
+      o.amount,
+      e.status,
+      e.current_address
+    FROM orders o
+    LEFT JOIN expresses e ON o.id = e.order_id
+    LEFT JOIN users u on o.user_id = u.id
+    WHERE o.user_id = #{userId}
+    ORDER BY o.create_time DESC;
+  </select>
+  <select id="getOrderTotalAndAmount" resultMap="OrderTotalVO">
+    SELECT
+      coalesce(sum(amount), 0) as total_amount,
+      coalesce(count(id), 0) as total_cnt
+    FROM orders
+    WHERE create_time > current_date;
+  </select>
+  <select id="getOrderTotalAndAmountByType" resultMap="OrderTypeTotalVO">
+    SELECT
+      coalesce(sum(amount), 0) as total_type_amount,
+      coalesce(count(o.id), 0) as total_type_cnt,
+      item_type
+    FROM orders o
+    LEFT JOIN items i ON o.item_id = i.id
+    WHERE o.create_time > current_date
+    GROUP BY item_type
+  </select>
+</mapper>

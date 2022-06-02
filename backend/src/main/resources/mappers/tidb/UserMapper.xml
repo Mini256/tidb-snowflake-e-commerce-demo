@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pingcap.shop.dao.tidb.UserMapper">
+  <resultMap id="User" type="com.pingcap.shop.model.User">
+    <constructor>
+      <idArg column="id" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="username" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="password" javaType="java.lang.String" jdbcType="VARCHAR" />
+    </constructor>
+  </resultMap>
+  <resultMap id="UserVO" type="com.pingcap.shop.vo.UserVO">
+      <result property="userId" column="id" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <result property="username" column="username" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <result property="userLabel" column="user_label" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <result property="avgAmount" column="avg_amount" javaType="java.math.BigDecimal" jdbcType="DECIMAL" />
+      <result property="createTime" column="create_time" javaType="java.util.Date" jdbcType="VARCHAR" />
+      <result property="updateTime" column="update_time" javaType="java.util.Date" jdbcType="VARCHAR" />
+  </resultMap>
+  <select id="selectByUsername" parameterType="java.lang.String" resultMap="User">
+    SELECT
+      id, username, password
+    FROM users
+    WHERE username = #{username,jdbcType=VARCHAR};
+  </select>
+  <select id="existsAnyUsers" resultType="java.lang.Boolean">
+    SELECT 1 FROM users LIMIT 1;
+  </select>
+  <select id="getUsers" resultMap="UserVO">
+    SELECT * FROM users LIMIT 10;
+  </select>
+  <select id="getUsersWithLabel" resultMap="UserVO">
+    SELECT id, username, ul.user_label, ul.avg_amount, u.create_time, u.update_time
+    FROM users u
+    LEFT JOIN user_labels ul on u.id = ul.user_id
+    LIMIT #{offset}, #{pageSize};
+  </select>
+  <select id="getUsersWithLabelCount" resultType="_long">
+    SELECT count(*)
+    FROM users u
+    LEFT JOIN user_labels ul on u.id = ul.user_id;
+  </select>
+  <select id="searchUsersForAutoComplete" resultMap="UserVO">
+    SELECT id, username, ul.user_label, ul.avg_amount, u.create_time, u.update_time
+    FROM users u
+    LEFT JOIN user_labels ul on u.id = ul.user_id
+    <where>
+      <if test="username != null">
+        AND username LIKE CONCAT(#{username}, '%')
+      </if>
+    </where>
+    LIMIT 10;
+  </select>
+</mapper>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pingcap.shop.dao.tidb.ItemMapper">
+  <resultMap id="Item" type="com.pingcap.shop.model.Item">
+    <result property="id" column="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+    <result property="itemPrice" column="item_price" javaType="java.math.BigDecimal" jdbcType="DECIMAL" />
+    <result property="itemName" column="item_name" javaType="java.lang.String" jdbcType="VARCHAR" />
+    <result property="itemType" column="item_type" javaType="java.lang.String" jdbcType="VARCHAR" />
+    <result property="itemDesc" column="item_desc" javaType="java.lang.String" jdbcType="VARCHAR" />
+    <result property="updateTime" column="update_time" javaType="java.util.Date" jdbcType="VARCHAR" />
+    <result property="createTime" column="create_time" javaType="java.util.Date" jdbcType="VARCHAR" />
+  </resultMap>
+
+  <select id="getItems" resultMap="Item">
+    SELECT
+      i.id, item_price, item_name, item_type, item_desc, update_time, create_time
+    FROM items i
+    <where>
+      <if test="type != null">
+        AND u.type = #{type}
+      </if>
+    </where>
+    ORDER BY i.create_time DESC
+    LIMIT #{pageable.offset}, #{pageable.pageSize};
+  </select>
+  <select id="getItemsCount" resultType="_long">
+    SELECT count(*)
+    FROM items i
+    <where>
+      <if test="type != null">
+        AND u.type = #{type}
+      </if>
+    </where>
+    ORDER BY o.create_time DESC;
+  </select>
+</mapper>

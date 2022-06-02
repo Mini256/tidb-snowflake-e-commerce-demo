@@ -1,0 +1,37 @@
+spring:
+  datasource:
+    tidb:
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      url: ${TIDB_URL}
+      username: ${TIDB_USERNAME}
+      password: ${TIDB_PASSWORD}
+    snowflake:
+      driver-class-name: com.snowflake.client.jdbc.SnowflakeDriver
+      url:  ${SNOWSQL_URL}
+      username: ${SNOWSQL_USER}
+      password: ${SNOWSQL_PWD}
+
+mybatis:
+  mapper-locations: classpath*:**/mappers/*.xml
+
+pagehelper:
+    helperDialect: mysql
+    reasonable: true
+    supportMethodsArguments: true
+    params: count=countSql
+
+springdoc:
+  api-docs:
+    path: '/api-docs'
+    groups:
+      enabled: true
+  swagger-ui:
+    display-request-duration: true
+    groups-order: DESC
+    operationsSorter: method
+    disable-swagger-default-url: true
+    use-root-path: true
+    path: '/swagger-ui.html'
+    doc-expansion: none
+  show-actuator: true
+  default-produces-media-type: 'application/json'

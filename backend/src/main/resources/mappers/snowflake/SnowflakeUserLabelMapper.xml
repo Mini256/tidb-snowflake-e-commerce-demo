@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pingcap.shop.dao.snowflake.SnowflakeUserLabelMapper">
+  <resultMap id="UserLabel" type="com.pingcap.shop.model.UserLabel">
+    <result property="userId" column="USER_ID" javaType="java.lang.String" jdbcType="VARCHAR" />
+    <result property="userLabel" column="USER_LABEL" javaType="java.lang.String" jdbcType="VARCHAR" />
+    <result property="avgAmount" column="AVG_AMOUNT" javaType="java.math.BigDecimal" jdbcType="DECIMAL" />
+  </resultMap>
+
+  <select id="getUserLabels" resultMap="UserLabel">
+    SELECT user_id, user_label, avg_amount
+    FROM "user_labels"
+    LIMIT #{limit} OFFSET #{offset}
+  </select>
+
+  <insert id="calcUserLabels">
+    INSERT OVERWRITE INTO "user_labels" (user_id, user_label, avg_amount)
+    SELECT
+      user_id,
+      CASE
+        WHEN t1.user_avg_amount > t2.avg_amount THEN 'high'
+        ELSE 'low'
+      END AS user_label,
+      t1.user_avg_amount AS avg_amount
+    FROM (
+      SELECT avg(amount) AS user_avg_amount, user_id
+      FROM "orders"
+      GROUP BY user_id
+    ) t1
+    LEFT JOIN (SELECT avg(amount) AS avg_amount FROM "orders") t2 ON 1 = 1;
+  </insert>
+
+</mapper>
