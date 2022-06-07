@@ -11,8 +11,8 @@ import com.pingcap.ecommerce.model.ExpressStatus;
 import com.pingcap.ecommerce.model.Item;
 import com.pingcap.ecommerce.vo.PageMeta;
 import lombok.extern.slf4j.Slf4j;
+import me.tongfei.progressbar.ProgressBar;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.data.domain.PageRequest;
 
 import javax.sql.DataSource;
 import java.math.BigDecimal;
@@ -35,8 +35,6 @@ import static net.andreinc.mockneat.unit.types.Longs.longs;
     commandDescription = "Import incremental test data into database."
 )
 public class IncrementalDataCommand {
-
-    private static final int MAX_BATCH_COUNT = 2000;
 
     private static final String[] orderColumns = new String[]{
         "id", "user_id", "amount", "item_id", "item_name", "item_count", "create_time"
@@ -81,6 +79,9 @@ public class IncrementalDataCommand {
                         // this flag to allow insert explicit value to TiDB.
                         conn.createStatement().execute("set @@allow_auto_random_explicit_insert = true;");
 
+                        int bulkSize = ints().range(10, 2000).get();
+                        orderLoader.setBulkSize(bulkSize);
+
                         int i = 0;
                         while (true) {
                             List<Object> orderValues = getOrderValues(userIdList, itemList, orderIdSet);
@@ -101,8 +102,10 @@ public class IncrementalDataCommand {
 
                             expressLoader.insertValues(expressValues);
 
-                            if (i % 2000 == 0) {
-                                log.info("2000 orders and expresses are inserted into database.");
+                            if (i % bulkSize == 0) {
+                                bulkSize = ints().range(10, 2000).get();
+                                orderLoader.setBulkSize(bulkSize);
+                                log.info("{} orders and expresses are inserted into database.", bulkSize);
                             }
                             i++;
                         }
@@ -118,16 +121,21 @@ public class IncrementalDataCommand {
         int pageSize = 10000;
 
         List<PageMeta<String>> userPages = userMapper.getUserPages(pageSize);
-        for (PageMeta<String> userPage : userPages) {
-            List<String> userIds = userMapper.getUserIdsByPageMeta(userPage);
-            userIdList.addAll(userIds);
-            log.info(
-                "Loaded user IDs, page_number={}, page_size={}, start_key = {}, end_key = {}.",
-                userPage.getPageNum(), userPage.getPageSize(), userPage.getStartKey(), userPage.getEndKey()
-            );
+        int n = userPages.size();
+        try (ProgressBar pb = new ProgressBar("Importing User Data by Page", n)) {
+            for (PageMeta<String> userPage : userPages) {
+                List<String> userIds = userMapper.getUserIdsByPageMeta(userPage);
+                userIdList.addAll(userIds);
+                pb.step();
+                log.debug(
+                    "Loaded user IDs, page_number={}, page_size={}, start_key = {}, end_key = {}.",
+                    userPage.getPageNum(), userPage.getPageSize(), userPage.getStartKey(), userPage.getEndKey()
+                );
+            }
+            pb.stepTo(n);
+            log.info("\nLoaded {} user IDs.", userIdList.size());
         }
 
-        log.info("Loaded all {} user IDs.", userIdList.size());
         return userIdList;
     }
 
@@ -136,16 +144,21 @@ public class IncrementalDataCommand {
         int pageSize = 10000;
         List<PageMeta<Long>> itemPages = itemMapper.getItemsBaseInfoPage(pageSize);
 
-        for (PageMeta<Long> itemPage : itemPages) {
-            List<Item> items = itemMapper.getItemsBaseInfosByPageMeta(itemPage);
-            itemList.addAll(items);
-            log.info(
-                "Loaded item base infos, page_number={}, page_size={}, start_key = {}, end_key = {}.",
-                itemPage.getPageNum(), itemPage.getPageSize(), itemPage.getStartKey(), itemPage.getEndKey()
-            );
+        int n = itemPages.size();
+        try (ProgressBar pb = new ProgressBar("Importing Item Data by Page", n)) {
+            for (PageMeta<Long> itemPage : itemPages) {
+                List<Item> items = itemMapper.getItemsBaseInfosByPageMeta(itemPage);
+                itemList.addAll(items);
+                pb.step();
+                log.debug(
+                    "Loaded item base infos, page_number={}, page_size={}, start_key = {}, end_key = {}.",
+                    itemPage.getPageNum(), itemPage.getPageSize(), itemPage.getStartKey(), itemPage.getEndKey()
+                );
+            }
+            pb.stepTo(n);
+            log.info("\nLoaded {} item base infos.", itemList.size());
         }
 
-        log.info("Loaded all {} item base infos.", itemList.size());
         return itemList;
     }
 
@@ -154,16 +167,20 @@ public class IncrementalDataCommand {
         int pageSize = 10000;
 
         List<PageMeta<Long>> orderIdPages = orderMapper.getOrderIdPages(pageSize);
-        for (PageMeta<Long> orderIdPage : orderIdPages) {
-            List<Long> orderIds = orderMapper.getOrderIdsByPageMeta(orderIdPage);
-            orderIdSet.addAll(orderIds);
-            log.info(
-                "Loaded order ids, page_number={}, page_size={}, start_key = {}, end_key = {}.",
-                orderIdPage.getPageNum(), orderIdPage.getPageSize(), orderIdPage.getStartKey(), orderIdPage.getEndKey()
-            );
+        int n = orderIdPages.size();
+        try (ProgressBar pb = new ProgressBar("Importing Order Data by Page", n)) {
+            for (PageMeta<Long> orderIdPage : orderIdPages) {
+                List<Long> orderIds = orderMapper.getOrderIdsByPageMeta(orderIdPage);
+                orderIdSet.addAll(orderIds);
+                pb.step();
+                log.debug(
+                    "Loaded order ids, page_number={}, page_size={}, start_key = {}, end_key = {}.",
+                    orderIdPage.getPageNum(), orderIdPage.getPageSize(), orderIdPage.getStartKey(), orderIdPage.getEndKey()
+                );
+            }
+            pb.stepTo(n);
+            log.info("\nLoaded {} order IDs.", orderIdSet.size());
         }
-
-        log.info("Loaded all {} order IDs.", orderIdSet.size());
 
         return orderIdSet;
     }
@@ -173,16 +190,20 @@ public class IncrementalDataCommand {
         int pageSize = 10000;
 
         List<PageMeta<Long>> expressIdPages = expressMapper.getExpressIdPages(pageSize);
-        for (PageMeta<Long> expressIdPage : expressIdPages) {
-            List<Long> expressIds = expressMapper.getExpressIdsByPageMeta(expressIdPage);
-            expressIdSet.addAll(expressIds);
-            log.info(
-                "Loaded express ids, page_number={}, page_size={}, start_key = {}, end_key = {}.",
-                expressIdPage.getPageNum(), expressIdPage.getPageSize(), expressIdPage.getStartKey(), expressIdPage.getEndKey()
-            );
+        int n = expressIdPages.size();
+        try (ProgressBar pb = new ProgressBar("Importing Order Data by Page", n)) {
+            for (PageMeta<Long> expressIdPage : expressIdPages) {
+                List<Long> expressIds = expressMapper.getExpressIdsByPageMeta(expressIdPage);
+                expressIdSet.addAll(expressIds);
+                pb.step();
+                log.debug(
+                    "Loaded express ids, page_number={}, page_size={}, start_key = {}, end_key = {}.",
+                    expressIdPage.getPageNum(), expressIdPage.getPageSize(), expressIdPage.getStartKey(), expressIdPage.getEndKey()
+                );
+            }
+            pb.stepTo(n);
+            log.info("\nLoaded {} express IDs.", expressIdSet.size());
         }
-
-        log.info("Loaded all {} express IDs.", expressIdSet.size());
 
         return expressIdSet;
     }

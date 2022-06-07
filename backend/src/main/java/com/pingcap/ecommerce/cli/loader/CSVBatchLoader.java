@@ -27,6 +27,11 @@ public class CSVBatchLoader implements BatchLoader {
     this.csvPrinter.printRecord(values);
   }
 
+  @Override
+  public void setBulkSize(int bulkSize) {
+
+  }
+
   public void flush() throws IOException {
     this.csvPrinter.flush();
   }

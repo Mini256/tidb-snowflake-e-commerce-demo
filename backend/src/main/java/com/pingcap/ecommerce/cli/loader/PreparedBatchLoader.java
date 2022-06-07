@@ -46,7 +46,7 @@ public class PreparedBatchLoader implements BatchLoader {
     }
   }
 
-  public void bulkSize(int bulkSize) {
+  public void setBulkSize(int bulkSize) {
     this.bulkSize = bulkSize;
   }
 
