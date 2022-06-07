@@ -25,9 +25,15 @@
   <select id="existsAnyUsers" resultType="integer">
     SELECT 1 FROM users LIMIT 1;
   </select>
+
   <select id="getUsers" resultMap="UserVO">
-    SELECT * FROM users LIMIT 10;
+    SELECT * FROM users LIMIT #{pageable.offset}, #{pageable.pageSize};
   </select>
+
+  <select id="getUserIds" resultType="string">
+    SELECT id FROM users LIMIT #{offset}, #{pageSize};
+  </select>
+
   <select id="getUsersWithLabel" resultMap="UserVO">
     SELECT id, username, ul.user_label, ul.avg_amount, u.create_time, u.update_time
     FROM users u

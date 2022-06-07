@@ -18,6 +18,8 @@ public interface UserMapper {
 
     List<UserVO> getUsers(String username, Pageable pageable);
 
+    List<String> getUserIds(Pageable pageable);
+
     List<UserVO> searchUsersForAutoComplete(String keyword);
 
     List<UserVO> getUsersWithLabel(Pageable pageable);

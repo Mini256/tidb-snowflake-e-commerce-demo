@@ -3,6 +3,7 @@ package com.pingcap.ecommerce;
 import com.beust.jcommander.JCommander;
 import com.pingcap.ecommerce.cli.command.CheckEnvCommend;
 import com.pingcap.ecommerce.cli.command.ImportDataCommand;
+import com.pingcap.ecommerce.cli.command.IncrementalDataCommand;
 import com.pingcap.ecommerce.cli.loader.ConcurrentCSVBatchLoader;
 import com.pingcap.ecommerce.dao.tidb.ExpressMapper;
 import com.pingcap.ecommerce.dao.tidb.ItemMapper;
@@ -18,11 +19,13 @@ public class ECommerceDemoCLI {
 
   public static void main(String[] args) {
     ImportDataCommand importDataCommand = new ImportDataCommand();
+    IncrementalDataCommand incrementalDataCommand = new IncrementalDataCommand();
     CheckEnvCommend checkEnvCommend = new CheckEnvCommend();
 
     JCommander jc = JCommander.newBuilder()
             .addCommand(checkEnvCommend)
             .addCommand(importDataCommand)
+            .addCommand(incrementalDataCommand)
             .build();
     jc.parse(args);
     String parsedCmdStr = jc.getParsedCommand();
@@ -35,16 +38,23 @@ public class ECommerceDemoCLI {
 
     switch (parsedCmdStr) {
       case "import-data" -> {
-        SpringApplication app = new SpringApplication(ECommerceDemoCLI.class);
-        app.setWebApplicationType(WebApplicationType.NONE);
-        ConfigurableApplicationContext ctx = app.run(args);
+        ConfigurableApplicationContext ctx = getSpringIoCContext(args);
         importDataCommand.importData(ctx);
+      }
+      case "incremental-data" -> {
+        ConfigurableApplicationContext ctx = getSpringIoCContext(args);
+        incrementalDataCommand.incrementalData(ctx);
       }
       case "check-env" -> checkEnvCommend.checkEnv();
       default -> System.err.println("Invalid command: " + parsedCmdStr);
     }
 
+  }
 
+  private static ConfigurableApplicationContext getSpringIoCContext(String[] args) {
+    SpringApplication app = new SpringApplication(ECommerceDemoCLI.class);
+    app.setWebApplicationType(WebApplicationType.NONE);
+    return app.run(args);
   }
 
 }

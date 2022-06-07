@@ -46,6 +46,15 @@
     ORDER BY o.create_time DESC
     LIMIT #{pageable.offset}, #{pageable.pageSize};
   </select>
+
+  <select id="getOrderIds" resultType="long">
+    SELECT
+        o.id
+    FROM orders o
+    ORDER BY o.create_time DESC
+    LIMIT #{offset}, #{pageSize};
+  </select>
+
   <select id="getOrdersCount" resultType="_long">
     SELECT count(*)
     FROM orders o

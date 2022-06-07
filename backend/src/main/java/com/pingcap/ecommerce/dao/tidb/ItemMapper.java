@@ -13,6 +13,8 @@ public interface ItemMapper {
 
     List<Item> getItems(String type, Pageable pageable);
 
+    List<Item> getItemsBaseInfo(Pageable pageable);
+
     long getItemsCount(String type);
 
 }

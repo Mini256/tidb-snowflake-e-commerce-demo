@@ -11,4 +11,11 @@
   <select id="existsAnyExpresses" resultType="java.lang.Boolean">
     SELECT 1 FROM expresses LIMIT 1;
   </select>
+
+  <select id="getExpressIds" resultType="long">
+    SELECT id
+    FROM expresses
+    ORDER BY create_time DESC
+    LIMIT #{offset}, #{pageSize};
+  </select>
 </mapper>

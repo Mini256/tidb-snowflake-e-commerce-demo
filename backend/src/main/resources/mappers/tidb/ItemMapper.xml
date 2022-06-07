@@ -11,6 +11,11 @@
     <result property="createTime" column="create_time" javaType="java.util.Date" jdbcType="VARCHAR" />
   </resultMap>
 
+  <resultMap id="ItemBaseInfo" type="com.pingcap.ecommerce.model.Item">
+    <result property="id" column="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+    <result property="itemName" column="item_name" javaType="java.lang.String" jdbcType="VARCHAR" />
+  </resultMap>
+
   <select id="getItems" resultMap="Item">
     SELECT
       i.id, item_price, item_name, item_type, item_desc, update_time, create_time
@@ -23,6 +28,15 @@
     ORDER BY i.create_time DESC
     LIMIT #{pageable.offset}, #{pageable.pageSize};
   </select>
+
+  <select id="getItemsBaseInfo" resultMap="ItemBaseInfo">
+    SELECT
+        i.id, item_name
+    FROM items i
+    ORDER BY i.create_time DESC
+    LIMIT #{offset}, #{pageSize};
+  </select>
+
   <select id="getItemsCount" resultType="_long">
     SELECT count(*)
     FROM items i

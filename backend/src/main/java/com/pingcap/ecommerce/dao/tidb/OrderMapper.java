@@ -17,6 +17,8 @@ public interface OrderMapper {
 
     List<OrderVO> getOrders(String username, Pageable pageable);
 
+    List<Long> getOrderIds(Pageable pageable);
+
     long getOrdersCount(String username);
 
     List<OrderVO> getOrdersByUserId(String userId);
