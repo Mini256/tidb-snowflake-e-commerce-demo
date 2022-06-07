@@ -18,7 +18,7 @@ public class Item {
 
     private String itemType;
 
-    private BigDecimal itemPrice;
+    private BigDecimal itemPrice = BigDecimal.ZERO;
 
     private String itemDesc;
 

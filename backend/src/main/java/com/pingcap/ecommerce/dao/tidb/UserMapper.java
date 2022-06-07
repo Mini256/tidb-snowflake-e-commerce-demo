@@ -1,6 +1,7 @@
 package com.pingcap.ecommerce.dao.tidb;
 
 import com.pingcap.ecommerce.model.User;
+import com.pingcap.ecommerce.vo.PageMeta;
 import com.pingcap.ecommerce.vo.UserVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.data.domain.Pageable;
@@ -17,6 +18,10 @@ public interface UserMapper {
     Integer existsAnyUsers();
 
     List<UserVO> getUsers(String username, Pageable pageable);
+
+    List<PageMeta<String>> getUserPages(int pageSize);
+
+    List<String> getUserIdsByPageMeta(PageMeta<String> pageMeta);
 
     List<String> getUserIds(Pageable pageable);
 

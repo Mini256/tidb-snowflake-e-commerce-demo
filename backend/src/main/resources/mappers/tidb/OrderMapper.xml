@@ -21,9 +21,13 @@
     <result property="totalCount" column="total_type_cnt" javaType="java.lang.Long" jdbcType="BIGINT" />
     <result property="itemType" column="item_type" javaType="java.lang.String" jdbcType="VARCHAR" />
   </resultMap>
-  <select id="existsAnyOrders" resultType="java.lang.Boolean">
-    SELECT 1 FROM orders LIMIT 1;
-  </select>
+  <resultMap id="PageMeta" type="com.pingcap.ecommerce.vo.PageMeta" >
+    <result property="pageNum" column="page_num" javaType="java.lang.Integer" jdbcType="INTEGER" />
+    <result property="pageSize" column="page_size" javaType="java.lang.Integer" jdbcType="INTEGER" />
+    <result property="startKey" column="start_key" javaType="java.lang.Long" jdbcType="BIGINT" />
+    <result property="endKey" column="end_key" javaType="java.lang.Long" jdbcType="BIGINT" />
+  </resultMap>
+
   <select id="getOrders" resultMap="OrderVO">
     SELECT
       o.id AS order_id,
@@ -46,13 +50,42 @@
     ORDER BY o.create_time DESC
     LIMIT #{pageable.offset}, #{pageable.pageSize};
   </select>
-
+  <!--
+    If you use `LIMIT ... OFFSET ...` to paginate the query, the latency of the query will
+    also become larger as the OFFSET value gets larger and larger.
+  -->
   <select id="getOrderIds" resultType="long">
     SELECT
         o.id
     FROM orders o
     ORDER BY o.create_time DESC
     LIMIT #{offset}, #{pageSize};
+  </select>
+  <!--
+    We can use the window function of TiDB to paginate data according to a certain key value (Fox example: user_id).
+    and then we can use the index of the key to achieve faster paging processing of data.
+
+    For details about the pagination processing of TiDB when the amount of data is large, please
+    refer to the "Paginate Results" chapter in the TiDB Development Guide.
+    Reference: https://docs.pingcap.com/tidb/dev/dev-guide-paginate-results#paging-batches-for-single-field-primary-key-tables
+  -->
+  <select id="getOrderIdPages" resultMap="PageMeta">
+    SELECT
+      floor((t.row_num - 1) / #{pageSize}) + 1 AS page_num,
+      min(t.id) AS start_key,
+      max(t.id) AS end_key,
+      count(*) AS page_size
+    FROM (
+       SELECT id, row_number() OVER (ORDER BY id) AS row_num
+       FROM orders
+    ) t
+    GROUP BY page_num
+    ORDER BY page_num;
+  </select>
+  <select id="getOrderIdsByPageMeta" resultType="long">
+    SELECT id FROM orders
+    WHERE id BETWEEN #{startKey} AND #{endKey}
+    ORDER BY id
   </select>
 
   <select id="getOrdersCount" resultType="_long">

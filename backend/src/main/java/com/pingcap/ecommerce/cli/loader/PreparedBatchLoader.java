@@ -6,7 +6,7 @@ import java.util.List;
 
 public class PreparedBatchLoader implements BatchLoader {
 
-  private static final int MAX_BATCH_COUNT = 2000;
+  private int bulkSize = 2000;
 
   private final PreparedStatement pstmt;
 
@@ -41,9 +41,13 @@ public class PreparedBatchLoader implements BatchLoader {
     pstmt.addBatch();
 
     this.count++;
-    if (this.count >= MAX_BATCH_COUNT) {
+    if (this.count >= bulkSize) {
       this.flush();
     }
+  }
+
+  public void bulkSize(int bulkSize) {
+    this.bulkSize = bulkSize;
   }
 
   public void flush() throws SQLException {

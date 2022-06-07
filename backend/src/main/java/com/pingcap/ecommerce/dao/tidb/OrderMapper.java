@@ -3,6 +3,7 @@ package com.pingcap.ecommerce.dao.tidb;
 import com.pingcap.ecommerce.vo.OrderTotalVO;
 import com.pingcap.ecommerce.vo.OrderTypeTotalVO;
 import com.pingcap.ecommerce.vo.OrderVO;
+import com.pingcap.ecommerce.vo.PageMeta;
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
@@ -13,9 +14,11 @@ import java.util.List;
 @Component
 public interface OrderMapper {
 
-    Boolean existsAnyOrders();
-
     List<OrderVO> getOrders(String username, Pageable pageable);
+
+    List<PageMeta<Long>> getOrderIdPages(int pageSize);
+
+    List<Long> getOrderIdsByPageMeta(PageMeta<Long> pageMeta);
 
     List<Long> getOrderIds(Pageable pageable);
 

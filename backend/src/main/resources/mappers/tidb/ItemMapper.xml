@@ -10,10 +10,11 @@
     <result property="updateTime" column="update_time" javaType="java.util.Date" jdbcType="VARCHAR" />
     <result property="createTime" column="create_time" javaType="java.util.Date" jdbcType="VARCHAR" />
   </resultMap>
-
-  <resultMap id="ItemBaseInfo" type="com.pingcap.ecommerce.model.Item">
-    <result property="id" column="id" javaType="java.lang.Long" jdbcType="BIGINT" />
-    <result property="itemName" column="item_name" javaType="java.lang.String" jdbcType="VARCHAR" />
+  <resultMap id="PageMeta" type="com.pingcap.ecommerce.vo.PageMeta">
+    <result property="pageNum" column="page_num" javaType="java.lang.Integer" jdbcType="INTEGER" />
+    <result property="pageSize" column="page_size" javaType="java.lang.Integer" jdbcType="INTEGER" />
+    <result property="startKey" column="start_key" javaType="java.lang.Long" jdbcType="BIGINT" />
+    <result property="endKey" column="end_key" javaType="java.lang.Long" jdbcType="BIGINT" />
   </resultMap>
 
   <select id="getItems" resultMap="Item">
@@ -28,13 +29,44 @@
     ORDER BY i.create_time DESC
     LIMIT #{pageable.offset}, #{pageable.pageSize};
   </select>
-
-  <select id="getItemsBaseInfo" resultMap="ItemBaseInfo">
+  <!--
+    If you use `LIMIT ... OFFSET ...` to paginate the query, the latency of the query will
+    also become larger as the OFFSET value gets larger and larger.
+  -->
+  <select id="getItemsBaseInfos" resultMap="Item">
     SELECT
         i.id, item_name
     FROM items i
     ORDER BY i.create_time DESC
     LIMIT #{offset}, #{pageSize};
+  </select>
+  <!--
+    We can use the window function of TiDB to paginate data according to a certain key value (Fox example: user_id).
+    and then we can use the index of the key to achieve faster paging processing of data.
+
+    For details about the pagination processing of TiDB when the amount of data is large, please
+    refer to the "Paginate Results" chapter in the TiDB Development Guide.
+    Reference: https://docs.pingcap.com/tidb/dev/dev-guide-paginate-results#paging-batches-for-single-field-primary-key-tables
+  -->
+  <select id="getItemsBaseInfoPage" resultMap="PageMeta">
+    SELECT
+      floor((t.row_num - 1) / #{pageSize}) + 1 AS page_num,
+      min(t.id) AS start_key,
+      max(t.id) AS end_key,
+      count(*) AS page_size
+    FROM (
+       SELECT *, row_number() OVER (ORDER BY create_time) AS row_num
+       FROM items
+    ) t
+    GROUP BY page_num
+    ORDER BY page_num;
+  </select>
+  <select id="getItemsBaseInfosByPageMeta" resultMap="Item">
+    SELECT
+      i.id, item_name, item_price
+    FROM items i
+    WHERE id BETWEEN #{startKey} AND #{endKey}
+    ORDER BY i.create_time DESC
   </select>
 
   <select id="getItemsCount" resultType="_long">

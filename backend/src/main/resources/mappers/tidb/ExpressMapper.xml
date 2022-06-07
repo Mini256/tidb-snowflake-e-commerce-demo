@@ -1,21 +1,50 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.pingcap.ecommerce.dao.tidb.ExpressMapper">
-<!--  <resultMap id="User" type="com.pingcap.ecommerce.model.User">-->
-<!--    <constructor>-->
-<!--      <idArg column="id" javaType="java.lang.String" jdbcType="VARCHAR" />-->
-<!--      <arg column="username" javaType="java.lang.String" jdbcType="VARCHAR" />-->
-<!--      <arg column="password" javaType="java.lang.String" jdbcType="VARCHAR" />-->
-<!--    </constructor>-->
-<!--  </resultMap>-->
+  <resultMap id="PageMeta" type="com.pingcap.ecommerce.vo.PageMeta">
+    <result property="pageNum" column="page_num" javaType="java.lang.Integer" jdbcType="INTEGER" />
+    <result property="pageSize" column="page_size" javaType="java.lang.Integer" jdbcType="INTEGER" />
+    <result property="startKey" column="start_key" javaType="java.lang.Long" jdbcType="BIGINT" />
+    <result property="endKey" column="end_key" javaType="java.lang.Long" jdbcType="BIGINT" />
+  </resultMap>
+
   <select id="existsAnyExpresses" resultType="java.lang.Boolean">
     SELECT 1 FROM expresses LIMIT 1;
   </select>
-
+  <!--
+    If you use `LIMIT ... OFFSET ...` to paginate the query, the latency of the query will
+    also become larger as the OFFSET value gets larger and larger.
+  -->
   <select id="getExpressIds" resultType="long">
     SELECT id
     FROM expresses
     ORDER BY create_time DESC
     LIMIT #{offset}, #{pageSize};
+  </select>
+  <!--
+    We can use the window function of TiDB to paginate data according to a certain key value (Fox example: user_id).
+    and then we can use the index of the key to achieve faster paging processing of data.
+
+    For details about the pagination processing of TiDB when the amount of data is large, please
+    refer to the "Paginate Results" chapter in the TiDB Development Guide.
+    Reference: https://docs.pingcap.com/tidb/dev/dev-guide-paginate-results#paging-batches-for-single-field-primary-key-tables
+  -->
+  <select id="getExpressIdPages" resultMap="PageMeta">
+    SELECT
+      floor((t.row_num - 1) / #{pageSize}) + 1 AS page_num,
+      min(t.id) AS start_key,
+      max(t.id) AS end_key,
+      count(*) AS page_size
+    FROM (
+      SELECT id, row_number() OVER (ORDER BY id) AS row_num
+      FROM expresses
+    ) t
+    GROUP BY page_num
+    ORDER BY page_num;
+  </select>
+  <select id="getExpressIdsByPageMeta" resultType="long">
+    SELECT id FROM expresses
+    WHERE id BETWEEN #{startKey} AND #{endKey}
+    ORDER BY id
   </select>
 </mapper>

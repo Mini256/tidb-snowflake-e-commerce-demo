@@ -2,7 +2,6 @@ package com.pingcap.ecommerce.cli.command;
 
 import com.beust.jcommander.Parameters;
 import com.pingcap.ecommerce.cli.loader.BatchLoader;
-import com.pingcap.ecommerce.cli.loader.ConcurrentBatchLoader;
 import com.pingcap.ecommerce.cli.loader.PreparedBatchLoader;
 import com.pingcap.ecommerce.dao.tidb.ExpressMapper;
 import com.pingcap.ecommerce.dao.tidb.ItemMapper;
@@ -10,8 +9,7 @@ import com.pingcap.ecommerce.dao.tidb.OrderMapper;
 import com.pingcap.ecommerce.dao.tidb.UserMapper;
 import com.pingcap.ecommerce.model.ExpressStatus;
 import com.pingcap.ecommerce.model.Item;
-import com.pingcap.ecommerce.model.Order;
-import com.pingcap.ecommerce.model.UserLabel;
+import com.pingcap.ecommerce.vo.PageMeta;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.data.domain.PageRequest;
@@ -19,11 +17,8 @@ import org.springframework.data.domain.PageRequest;
 import javax.sql.DataSource;
 import java.math.BigDecimal;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.ConcurrentSkipListSet;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -31,7 +26,6 @@ import static net.andreinc.mockneat.types.enums.StringType.NUMBERS;
 import static net.andreinc.mockneat.unit.address.Addresses.addresses;
 import static net.andreinc.mockneat.unit.objects.From.from;
 import static net.andreinc.mockneat.unit.text.Strings.strings;
-import static net.andreinc.mockneat.unit.time.LocalDates.localDates;
 import static net.andreinc.mockneat.unit.types.Ints.ints;
 import static net.andreinc.mockneat.unit.types.Longs.longs;
 
@@ -121,52 +115,53 @@ public class IncrementalDataCommand {
 
     private List<String> loadUserIdList(UserMapper userMapper) {
         List<String> userIdList = new ArrayList<>();
-        List<String> userIds;
-        int pageNum = 0;
         int pageSize = 10000;
 
-        do {
-            userIds = userMapper.getUserIds(PageRequest.of(pageNum, pageSize));
+        List<PageMeta<String>> userPages = userMapper.getUserPages(pageSize);
+        for (PageMeta<String> userPage : userPages) {
+            List<String> userIds = userMapper.getUserIdsByPageMeta(userPage);
             userIdList.addAll(userIds);
-            log.info("Loaded user IDs, page {}.", pageNum);
-            pageNum++;
-        } while (userIds.size() > 0);
+            log.info(
+                "Loaded user IDs, page_number={}, page_size={}, start_key = {}, end_key = {}.",
+                userPage.getPageNum(), userPage.getPageSize(), userPage.getStartKey(), userPage.getEndKey()
+            );
+        }
 
         log.info("Loaded all {} user IDs.", userIdList.size());
-
         return userIdList;
     }
 
     private List<Item> loadItemList(ItemMapper itemMapper) {
         List<Item> itemList = new ArrayList<>();
-        List<Item> items;
-        int pageNum = 0;
         int pageSize = 10000;
+        List<PageMeta<Long>> itemPages = itemMapper.getItemsBaseInfoPage(pageSize);
 
-        do {
-            items = itemMapper.getItemsBaseInfo(PageRequest.of(pageNum, pageSize));
+        for (PageMeta<Long> itemPage : itemPages) {
+            List<Item> items = itemMapper.getItemsBaseInfosByPageMeta(itemPage);
             itemList.addAll(items);
-            log.info("Loaded items, page {}.", pageNum);
-            pageNum++;
-        } while (items.size() > 0);
+            log.info(
+                "Loaded item base infos, page_number={}, page_size={}, start_key = {}, end_key = {}.",
+                itemPage.getPageNum(), itemPage.getPageSize(), itemPage.getStartKey(), itemPage.getEndKey()
+            );
+        }
 
-        log.info("Loaded all {} items.", itemList.size());
-
+        log.info("Loaded all {} item base infos.", itemList.size());
         return itemList;
     }
 
     private Set<Long> loadOrderIdSet(OrderMapper orderMapper) {
         Set<Long> orderIdSet = new ConcurrentSkipListSet<>();
-        List<Long> orderIds;
-        int pageNum = 0;
         int pageSize = 10000;
 
-        do {
-            orderIds = orderMapper.getOrderIds(PageRequest.of(pageNum, pageSize));
+        List<PageMeta<Long>> orderIdPages = orderMapper.getOrderIdPages(pageSize);
+        for (PageMeta<Long> orderIdPage : orderIdPages) {
+            List<Long> orderIds = orderMapper.getOrderIdsByPageMeta(orderIdPage);
             orderIdSet.addAll(orderIds);
-            log.info("Loaded order IDs, page {}.", pageNum);
-            pageNum++;
-        } while (orderIds.size() > 0);
+            log.info(
+                "Loaded order ids, page_number={}, page_size={}, start_key = {}, end_key = {}.",
+                orderIdPage.getPageNum(), orderIdPage.getPageSize(), orderIdPage.getStartKey(), orderIdPage.getEndKey()
+            );
+        }
 
         log.info("Loaded all {} order IDs.", orderIdSet.size());
 
@@ -175,16 +170,17 @@ public class IncrementalDataCommand {
 
     private Set<Long> loadExpressIdSet(ExpressMapper expressMapper) {
         Set<Long> expressIdSet = new ConcurrentSkipListSet<>();
-        List<Long> expressIds;
-        int pageNum = 0;
         int pageSize = 10000;
 
-        do {
-            expressIds = expressMapper.getExpressIds(PageRequest.of(pageNum, pageSize));
+        List<PageMeta<Long>> expressIdPages = expressMapper.getExpressIdPages(pageSize);
+        for (PageMeta<Long> expressIdPage : expressIdPages) {
+            List<Long> expressIds = expressMapper.getExpressIdsByPageMeta(expressIdPage);
             expressIdSet.addAll(expressIds);
-            log.info("Loaded express IDs, page {}.", pageNum);
-            pageNum++;
-        } while (expressIds.size() > 0);
+            log.info(
+                "Loaded express ids, page_number={}, page_size={}, start_key = {}, end_key = {}.",
+                expressIdPage.getPageNum(), expressIdPage.getPageSize(), expressIdPage.getStartKey(), expressIdPage.getEndKey()
+            );
+        }
 
         log.info("Loaded all {} express IDs.", expressIdSet.size());
 
