@@ -12,7 +12,8 @@ tasks:
   - name: Front End
     openMode: tab-after
     init: cd frontend && npm install
-    command: npm run dev
+    command: |
+      NEXT_PUBLIC_BASE_URL=$(gp url 8080) npm run dev
   - name: Import Data
     openMode: tab-after
     command: |

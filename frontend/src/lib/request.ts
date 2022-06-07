@@ -1,9 +1,9 @@
 import axios, { AxiosInstance } from "axios";
 
-export const BASE_URL = 'http://localhost:8080/api'
+const baseURL = process.env.NEXT_PUBLIC_BASE_URL;
 
 export function createHttpClient(): AxiosInstance {
   return axios.create({
-    baseURL: BASE_URL
+    baseURL: baseURL,
   });
 }

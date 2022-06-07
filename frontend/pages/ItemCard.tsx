@@ -21,10 +21,10 @@ export default function ItemCard(props: ItemCardProps) {
         </Box>
         <Stack direction="column" m={2}>
             <Typography component="a" variant="subtitle1" color="text.primary" gutterBottom>
-                {item.itemName}
+                {item?.itemName}
             </Typography>
             <Typography component="p" variant="inherit" color="text.primary" gutterBottom>
-                $ {item.itemPrice}
+                $ {item?.itemPrice}
             </Typography>
         </Stack>
     </Card>

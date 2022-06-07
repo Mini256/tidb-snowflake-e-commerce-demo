@@ -6,7 +6,7 @@ import { createHttpClient } from '../../../src/lib/request'
 import { useEffect, useState } from 'react';
 import { DataGrid, GridColumns } from '@mui/x-data-grid';
 import { PageHeader } from '../../../src/DashboardLayout/PageHeader';
-import { usdPrice } from '../customer';
+import { usdPrice } from '../../../src/lib/formatter';
 
 const httpClient = createHttpClient();
 
