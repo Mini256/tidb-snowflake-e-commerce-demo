@@ -6,15 +6,22 @@ image:
   file: .gitpod.Dockerfile
 
 tasks:
-  - name: TiUP init playground
+  - name: TiDB Playground
     command: |
       $HOME/.tiup/bin/tiup playground
-  - name: FrontEnd
-    openMode: split-right
+  - name: Front End
+    openMode: tab-after
     init: cd frontend && npm install
     command: npm run dev
-  - name: BackEnd
-    openMode: split-right
+  - name: Import Data
+    openMode: tab-after
+    command: |
+      cd backend
+      gp await-port 8080
+      make tidb-import-data
+      make tidb-incremental-data
+  - name: Back End
+    openMode: tab-after
     command: |
       cd backend
       make run
@@ -23,8 +30,6 @@ ports:
   - port: 8080
     visibility: public
   - port: 3000
-    visibility: public
-  - port: 4000
     visibility: public
   - port: 2379-36663
     onOpen: ignore
