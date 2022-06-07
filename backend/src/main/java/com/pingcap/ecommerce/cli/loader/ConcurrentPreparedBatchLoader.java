@@ -1,4 +1,4 @@
-package com.pingcap.ecommerce.util;
+package com.pingcap.ecommerce.cli.loader;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -7,6 +7,7 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.springframework.stereotype.Component;
 
 import java.sql.Connection;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -15,11 +16,12 @@ import java.util.concurrent.Executors;
 @Slf4j
 @Component
 @AllArgsConstructor
-public class ConcurrentPreparedBatchLoader {
+public class ConcurrentPreparedBatchLoader implements ConcurrentBatchLoader {
 
   private final SqlSessionFactory sqlSessionFactory;
 
-  public void batchInsert(String name, String hint, int n, ValuesGenerator generator) {
+  public void batchInsert(String name, String tableName, String[] headers, int n, ValuesGenerator generator) {
+    String insertSQL = getInsertSQL(tableName, headers);
     try (ProgressBar pb = new ProgressBar(String.format("Importing %s Data", name), n)) {
       int nCores = Runtime.getRuntime().availableProcessors();
       int nWorkers = Math.min(Math.max(4, nCores), 16);
@@ -34,7 +36,7 @@ public class ConcurrentPreparedBatchLoader {
             () -> {
               try (
                   Connection conn = sqlSessionFactory.openSession().getConnection();
-                  BatchLoader loader = new PreparedBatchInsertLoader(conn, hint)
+                  BatchLoader loader = new PreparedBatchLoader(conn, insertSQL)
               ) {
                 // If the primary key use the auto random feature, we need to enable
                 // this flag to allow insert explicit value to TiDB.
@@ -51,8 +53,8 @@ public class ConcurrentPreparedBatchLoader {
                   loader.insertValues(values);
 
                   i++;
-                  if (i % 1000 == 0) {
-                    pb.stepBy(1000);
+                  if (i % 2000 == 0) {
+                    pb.stepBy(2000);
                   }
                 }
 
@@ -72,6 +74,12 @@ public class ConcurrentPreparedBatchLoader {
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
+  }
+
+  public String getInsertSQL(String tableName, String[] headers) {
+    String columns = String.join(", ", headers);
+    String values = String.join(", ", Arrays.stream(headers).map(header -> "?").toArray(String[]::new));
+    return String.format("INSERT INTO %s (%s) VALUES (%s);", tableName, columns, values);
   }
 
 }

@@ -12,19 +12,33 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-.PHONY: all tidb snowflake
+ifneq (,$(wildcard ./.env))
+    include .env
+    export
+endif
 
-all:
-	make build run
+.PHONY: build-cli build-app check-env tidb-init-schema snowflake-init-schema run tidb-import-data tidb-incremental-data
 
-tidb:
+build-cli:
+	mvn clean package -DskipTests -Dstart-class=com.pingcap.ecommerce.ECommerceDemoCLI -Dfinal-name=tidb-ecommerce-demo-cli
+
+build-app:
+	mvn clean package -DskipTests -Dstart-class=com.pingcap.ecommerce.ECommerceDemoApplication -Dfinal-name=tidb-ecommerce-demo-app
+
+check-env: build-cli
+	java -jar target/tidb-ecommerce-demo-cli.jar check-env
+
+tidb-init-schema: check-env
 	mysql -h ${TIDB_HOST} -u ${TIDB_USERNAME} --password=${TIDB_PASSWORD} -P 4000 <src/main/resources/tidb-init-schema.sql
 
-snowflake:
+snowflake-init-schema: check-env
 	snowsql -f ./src/main/resources/snowflake-init-schema.sql
 
-build:
-	mvn clean package
+run: check-env build-app tidb-init-schema snowflake-init-schema
+	java -jar target/tidb-ecommerce-demo-app.jar
 
-run:
-	java -jar target/plain-java-jdbc-0.0.1-jar-with-dependencies.jar
+tidb-import-data: check-env tidb-init-schema build-cli
+	java -jar target/tidb-ecommerce-demo-cli.jar import-data
+
+tidb-incremental-data: check-env tidb-init-schema build-cli
+	java -jar target/tidb-ecommerce-demo-cli.jar incremental-data

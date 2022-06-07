@@ -2,10 +2,7 @@ package com.pingcap.ecommerce.service;
 
 import com.pingcap.ecommerce.dao.tidb.OrderMapper;
 import com.pingcap.ecommerce.dao.tidb.OrderSeriesMapper;
-import com.pingcap.ecommerce.model.Item;
-import com.pingcap.ecommerce.model.Order;
 import com.pingcap.ecommerce.model.OrderSeries;
-import com.pingcap.ecommerce.util.ConcurrentCSVBatchLoader;
 import com.pingcap.ecommerce.vo.OrderTotalVO;
 import com.pingcap.ecommerce.vo.OrderVO;
 import com.pingcap.ecommerce.vo.ResultVO;
@@ -14,15 +11,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.*;
-import java.util.concurrent.ConcurrentSkipListSet;
 
 import static net.andreinc.mockneat.unit.objects.From.from;
-import static net.andreinc.mockneat.unit.types.Ints.ints;
-import static net.andreinc.mockneat.unit.time.LocalDates.localDates;
-import static net.andreinc.mockneat.unit.types.Longs.longs;
 
 @Slf4j
 @Service
@@ -32,51 +23,6 @@ public class OrderService {
     private final OrderMapper orderMapper;
 
     private final OrderSeriesMapper orderSeriesMapper;
-
-    private final ConcurrentCSVBatchLoader batchLoader;
-
-    public List<Order> importSampleOrderData(int n, Set<String> userIdSet, List<Item> itemList) {
-        Set<Long> orderIdSet = new ConcurrentSkipListSet<>();
-        List<Order> orderList = Collections.synchronizedList(new ArrayList<>());
-        ArrayList<String> userIdList = new ArrayList<>(userIdSet);
-        LocalDate tenYearsAge = LocalDate.now().minusYears(10);
-        LocalDate now = LocalDate.now();
-
-        String sql = "INSERT INTO orders (id, user_id, amount, item_id, item_name, item_count, create_time) VALUES (?, ?, ?, ?, ?, ?, ?);";
-        String[] headers = new String[]{
-            "id", "user_id", "amount", "item_id", "item_name", "item_count", "create_time"
-        };
-        batchLoader.batchInsert("Order", "orders", headers, n, (w, nWorkers, i) -> {
-            Long orderId = longs().lowerBound(1000).get();
-            String userId = from(userIdList).get();
-            Item item = from(itemList).get();
-            Long itemId = item.getId();
-            String itemName = item.getItemName();
-            Integer itemCount = ints().range(1, 50).get();
-            BigDecimal amount = item.getItemPrice().multiply(BigDecimal.valueOf(itemCount));
-            Date createTime = localDates().between(tenYearsAge, now).mapToDate().get();
-
-            if (orderIdSet.contains(orderId)) {
-                return null;
-            } else {
-                orderIdSet.add(orderId);
-                orderList.add(new Order(orderId, userId, createTime));
-            }
-
-            List<Object> fields = new ArrayList<>();
-            fields.add(orderId);
-            fields.add(userId);
-            fields.add(amount);
-            fields.add(itemId);
-            fields.add(itemName);
-            fields.add(itemCount);
-            fields.add(createTime);
-
-            return fields;
-        });
-
-        return orderList;
-    }
 
     public ResultVO<OrderVO> getOrders(String username, Pageable pageable) {
         List<OrderVO> orders = orderMapper.getOrders(username, pageable);

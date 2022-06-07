@@ -1,10 +1,10 @@
-package com.pingcap.ecommerce.util;
+package com.pingcap.ecommerce.cli.loader;
 
 import java.math.BigDecimal;
 import java.sql.*;
 import java.util.List;
 
-public class PreparedBatchInsertLoader implements BatchLoader {
+public class PreparedBatchLoader implements BatchLoader {
 
   private static final int MAX_BATCH_COUNT = 2000;
 
@@ -12,7 +12,7 @@ public class PreparedBatchInsertLoader implements BatchLoader {
 
   private int count = 0;
 
-  public PreparedBatchInsertLoader(Connection conn, String insertHint) throws SQLException {
+  public PreparedBatchLoader(Connection conn, String insertHint) throws SQLException {
     this.pstmt = conn.prepareStatement(insertHint);
   }
 
@@ -48,7 +48,6 @@ public class PreparedBatchInsertLoader implements BatchLoader {
 
   public void flush() throws SQLException {
     pstmt.executeBatch();
-    int cnt = this.count;
     this.count = 0;
   }
 

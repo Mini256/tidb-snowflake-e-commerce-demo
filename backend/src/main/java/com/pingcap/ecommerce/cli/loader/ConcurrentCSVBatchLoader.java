@@ -1,4 +1,4 @@
-package com.pingcap.ecommerce.util;
+package com.pingcap.ecommerce.cli.loader;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,7 +16,7 @@ import java.util.concurrent.Executors;
 @Slf4j
 @Component
 @AllArgsConstructor
-public class ConcurrentCSVBatchLoader {
+public class ConcurrentCSVBatchLoader implements ConcurrentBatchLoader {
 
   private final SqlSessionFactory sqlSessionFactory;
 

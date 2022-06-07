@@ -14,7 +14,7 @@ public interface UserMapper {
 
     User selectByUsername(String username);
 
-    Boolean existsAnyUsers();
+    Integer existsAnyUsers();
 
     List<UserVO> getUsers(String username, Pageable pageable);
 

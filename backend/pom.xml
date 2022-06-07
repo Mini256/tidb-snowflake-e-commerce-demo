@@ -9,13 +9,16 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.pingcap</groupId>
-    <artifactId>shop</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
-    <name>ecommerce-demo</name>
+    <artifactId>tidb-ecommerce-demo</artifactId>
+    <version>0.0.1</version>
+    <name>tidb-ecommerce-demo</name>
     <description>An E-commerce demo application powered by TiDB and Snowflake.</description>
     <properties>
         <java.version>17</java.version>
         <springdoc.version>1.6.9</springdoc.version>
+        <testcontainers.version>1.16.0</testcontainers.version>
+        <final-name>tidb-ecommerce-demo-app.jar</final-name>
+        <start-class>com.pingcap.ecommerce.ECommerceDemoApplication</start-class>
     </properties>
     <dependencies>
         <dependency>
@@ -65,9 +68,25 @@
             <artifactId>lombok</artifactId>
             <optional>true</optional>
         </dependency>
+        <!--   Test Framework    -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>mysql</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -76,14 +95,14 @@
             <version>${springdoc.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-csv</artifactId>
             <version>1.9.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.beust</groupId>
+            <artifactId>jcommander</artifactId>
+            <version>1.82</version>
         </dependency>
         <dependency>
             <groupId>me.tongfei</groupId>
@@ -102,12 +121,26 @@
         </dependency>
     </dependencies>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>testcontainers-bom</artifactId>
+                <version>${testcontainers.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <build>
+        <finalName>${final-name}</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
+                    <mainClass>${start-class}</mainClass>
                     <excludes>
                         <exclude>
                             <groupId>org.projectlombok</groupId>

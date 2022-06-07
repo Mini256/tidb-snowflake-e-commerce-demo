@@ -22,7 +22,7 @@
     FROM users
     WHERE username = #{username,jdbcType=VARCHAR};
   </select>
-  <select id="existsAnyUsers" resultType="java.lang.Boolean">
+  <select id="existsAnyUsers" resultType="integer">
     SELECT 1 FROM users LIMIT 1;
   </select>
   <select id="getUsers" resultMap="UserVO">

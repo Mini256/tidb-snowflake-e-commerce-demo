@@ -1,4 +1,4 @@
-package com.pingcap.ecommerce.util;
+package com.pingcap.ecommerce.cli.loader;
 
 import java.util.List;
 
