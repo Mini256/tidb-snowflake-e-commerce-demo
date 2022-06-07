@@ -24,6 +24,7 @@ tasks:
     openMode: tab-after
     command: |
       cd backend
+      make check-env
       make run
 
 ports:
