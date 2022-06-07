@@ -17,6 +17,8 @@ ifneq (,$(wildcard ./.env))
     export
 endif
 
+base_url=http://localhost:8080/api
+
 .PHONY: build-cli build-app check-env tidb-init-schema snowflake-init-schema run tidb-import-data tidb-incremental-data
 
 build-cli:
@@ -42,3 +44,18 @@ tidb-import-data: check-env tidb-init-schema build-cli
 
 tidb-incremental-data: check-env tidb-init-schema build-cli
 	java -jar target/tidb-ecommerce-demo-cli.jar incremental-data
+
+calc-user-labels:
+	curl -X POST "${base_url}/data/user-labels/calc"
+
+pull-back-user-labels:
+	curl -X POST "${base_url}/data/user-labels/pull-back"
+
+calc-high-label-items:
+	curl -X POST "${base_url}/data/hot-items/high-label/calc"
+
+calc-low-label-items:
+	curl -X POST "${base_url}/api/data/hot-items/low-label/calc"
+
+pull-back-hot-items:
+	curl -X POST "${base_url}/data/hot-items/pull-back"
