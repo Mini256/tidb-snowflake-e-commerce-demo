@@ -58,7 +58,7 @@ public class CheckEnvCommend {
         String tidbDatabase = inputEnvVariable(env, sc, envVars, TIDB_DATABASE, true, false);
         String tidbUsername = inputEnvVariable(env, sc, envVars, TIDB_USERNAME, true, false);
         String tidbPassword = inputEnvVariable(env, sc, envVars, TIDB_PASSWORD, false, true);
-        String tidbJdbcUrl = String.format("jdbc:mysql://%s:%s/%s?allowLoadLocalInfile=true&zeroDateTimeBehavior=convertToNull",
+        String tidbJdbcUrl = String.format("jdbc:mysql://%s:%s/%s?rewriteBatchedStatements=true&allowLoadLocalInfile=true&zeroDateTimeBehavior=convertToNull",
                 tidbHost, tidbPort, tidbDatabase);
         envVars.add(String.format("%s=%s", TIDB_URL, tidbJdbcUrl));
 

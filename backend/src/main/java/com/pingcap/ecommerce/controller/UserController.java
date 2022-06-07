@@ -7,10 +7,7 @@ import com.pingcap.ecommerce.vo.ResultVO;
 import com.pingcap.ecommerce.vo.UserVO;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -29,7 +26,7 @@ public class UserController {
   }
 
   @GetMapping("/autocomplete")
-  public List<UserVO> searchUsersForAutoComplete(String keyword) {
+  public List<UserVO> searchUsersForAutoComplete(@RequestParam(required = false) String keyword) {
     return userService.searchUsersForAutoComplete(keyword);
   }
 
