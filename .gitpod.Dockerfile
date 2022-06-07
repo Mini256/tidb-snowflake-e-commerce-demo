@@ -15,3 +15,13 @@ RUN sudo cp ~/bin/snowsql /usr/bin/snowsql
 
 # Insatll TiDB TiUP
 RUN curl --proto '=https' --tlsv1.2 -sSf https://tiup-mirrors.pingcap.com/install.sh | sh
+
+# Init Environment Variable
+ENV TIDB_HOST=127.0.0.1
+ENV TIDB_DATABASE=shop
+ENV TIDB_USERNAME=root
+
+ENV SNOWSQL_WAREHOUSE=PC_ETLEAP_WH
+ENV SNOWSQL_DATABASE=PC_ETLEAP_DB
+ENV SNOWSQL_SCHEMA=PUBLIC
+ENV SNOWSQL_ROLE=ACCOUNTADMIN
