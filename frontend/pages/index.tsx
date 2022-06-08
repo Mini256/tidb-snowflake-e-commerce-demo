@@ -32,7 +32,7 @@ export default function HomePage(props:HomePageProps) {
                 page: page,
                 size: pageSize
             })
-            const url = `/items?${qs.stringify(q)}`;
+            const url = `/api/items?${qs.stringify(q)}`;
             const res = await httpClient.get(url);
             const orderPage:ResultVO<Item> = res.data;
             const { content = [], pageNum, rowTotal } = orderPage;
@@ -56,7 +56,7 @@ export default function HomePage(props:HomePageProps) {
             const q = Object.assign({}, {
                 userId: userSelected?.userId
             })
-            const url = `/data/hot-items/recommended?${qs.stringify(q)}`;
+            const url = `/api/data/hot-items/recommended?${qs.stringify(q)}`;
             const res = await httpClient.get(url);
             const items:Item[] = res.data;
 
@@ -74,7 +74,7 @@ export default function HomePage(props:HomePageProps) {
     useEffect(() => {
         (async () => {
             if (userKeyword === undefined) return;
-            const url = `/users/autocomplete?keyword=${userKeyword}`;
+            const url = `/api/users/autocomplete?keyword=${userKeyword}`;
             const res = await httpClient.get(url);
             const userList:UserVO[] = res.data;
 

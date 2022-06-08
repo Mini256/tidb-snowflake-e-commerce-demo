@@ -53,7 +53,7 @@ export default function ItemPage() {
           page: page,
           size: pageSize
         })
-        const url = `/items?${qs.stringify(q)}`;
+        const url = `/api/items?${qs.stringify(q)}`;
         const res = await httpClient.get(url);
         const orderPage:ResultVO<Item> = res.data;
         const { content = [], pageNum, rowTotal } = orderPage;

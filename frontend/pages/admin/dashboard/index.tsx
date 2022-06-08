@@ -65,7 +65,7 @@ export default function DashboardPage() {
   // Load today order total and amount.
   useEffect(() => {
     (async () => {
-      const { data } = await httpClient.get('/statistic/orders/total-and-amount');
+      const { data } = await httpClient.get('/api/statistic/orders/total-and-amount');
       setTodayOrders({
         totalCount: data.totalCount || 0,
         totalAmount: data.totalAmount || 0,
@@ -77,7 +77,7 @@ export default function DashboardPage() {
   // Load sales by item type.
   useEffect(() => {
     (async () => {
-      const { data = [] } = await httpClient.get('/statistic/orders/total-and-amount/group-by-type');
+      const { data = [] } = await httpClient.get('/api/statistic/orders/total-and-amount/group-by-type');
       data.map((sale: ItemTypeSale) => {
         sale.id = sale.type;
         sale.name = sale.type;
@@ -91,7 +91,7 @@ export default function DashboardPage() {
   // Load hot items list.
   useEffect(() => {
     (async () => {
-      const { data = [] } = await httpClient.get('/data/hot-items/high-label');
+      const { data = [] } = await httpClient.get('/api/data/hot-items/high-label');
       data.map((item: HotItem, index: number) => {
         item.id = item.itemId;
         item.rank = index + 1;
@@ -100,7 +100,7 @@ export default function DashboardPage() {
       setHighPriceItems(data);
     })();
     (async () => {
-      const { data = [] } = await httpClient.get('/data/hot-items/low-label');
+      const { data = [] } = await httpClient.get('/api/data/hot-items/low-label');
       data.map((item: HotItem, index: number) => {
         item.id = item.itemId;
         item.rank = index + 1;

@@ -58,7 +58,7 @@ export default function OrderPage() {
           page: page,
           size: pageSize
         })
-        const url = `/orders?${qs.stringify(q)}`;
+        const url = `/api/orders?${qs.stringify(q)}`;
         const res = await httpClient.get(url);
         const orderPage:ResultVO<OrderVO> = res.data;
         const { content = [], pageNum, rowTotal } = orderPage;

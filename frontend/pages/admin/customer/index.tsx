@@ -58,7 +58,7 @@ export default function CustomerPage() {
           page: page,
           size: pageSize
         })
-        const url = `/users?${qs.stringify(q)}`;
+        const url = `/api/users?${qs.stringify(q)}`;
         const res = await httpClient.get(url);
         const orderPage:ResultVO<UserVO> = res.data;
         const { content = [], pageNum, rowTotal } = orderPage;
