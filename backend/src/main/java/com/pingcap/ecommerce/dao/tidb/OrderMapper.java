@@ -14,7 +14,7 @@ import java.util.List;
 @Component
 public interface OrderMapper {
 
-    List<OrderVO> getOrders(String username, Pageable pageable);
+    List<OrderVO> getOrders(String userId, Pageable pageable);
 
     List<PageMeta<Long>> getOrderIdPages(int pageSize);
 

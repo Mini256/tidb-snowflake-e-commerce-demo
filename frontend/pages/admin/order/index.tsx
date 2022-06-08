@@ -1,13 +1,13 @@
 import Grid from '@mui/material/Grid';
-import Paper from '../../../src/DashboardLayout/Pager';
 import DashboardLayout from '../../../src/DashboardLayout/DashboardLayout';
-import { Box, Button, Link, TextField, Typography } from '@mui/material';
+import { Autocomplete, Box, TextField } from '@mui/material';
 import qs from 'qs';
 import { createHttpClient } from '../../../src/lib/request'
 import { useEffect, useState } from 'react';
 import { DataGrid, GridColumns } from '@mui/x-data-grid';
 import { PageHeader } from '../../../src/DashboardLayout/PageHeader';
 import { usdPrice } from '../../../src/lib/formatter';
+import { UserVO } from '../customer';
 
 const httpClient = createHttpClient();
 
@@ -38,14 +38,18 @@ export default function OrderPage() {
   const [rowCount, setRowCount] = useState<number>(0);
   const [rows, setRows] = useState<OrderVO[]>([]);
   const [query, setQuery] = useState<Record<string, any>>({});
-  const [username, setUsername] = useState<string>();
+
+  const [userKeyword, setUserKeyword] = useState<string>();
+  const [userAutocompleteOptions, setUserAutocompleteOptions] = useState<any[]>([]);
 
   const columns:GridColumns<OrderVO> = [
     { field: 'orderDate', headerName: 'Order Date', type: 'date', width: 100, filterable: false },
     { field: 'username', headerName: 'User', minWidth: 140 },
     { field: 'itemName', headerName: 'Item Name', width: 100, flex: 1 },
-    { field: 'amount', headerName: 'Amount', width: 100, flex: 1, ...usdPrice },
-    { field: 'status', headerName: 'Status', width: 100, flex: 1 },
+    { field: 'amount', headerName: 'Amount', width: 100, flex: 1, ...usdPrice, align: 'left', headerAlign: 'left' },
+    { field: 'status', headerName: 'Status', width: 100, flex: 1, renderCell: ({ value }) => {
+      return value || 'N/A';
+    } },
     { field: 'currentAddress', headerName: 'Current Address', minWidth: 280, flex: 1, align: 'right' },
   ]
 
@@ -55,7 +59,7 @@ export default function OrderPage() {
 
       try {
         const q = Object.assign({}, query, {
-          page: page,
+          page: page - 1,
           size: pageSize
         })
         const url = `/api/orders?${qs.stringify(q)}`;
@@ -78,6 +82,19 @@ export default function OrderPage() {
     })()
   }, [query, page]);
 
+  // User autocomplete.
+  useEffect(() => {
+    (async () => {
+        let url = `/api/users/autocomplete`;
+        if (userKeyword !== undefined) {
+            url = `/api/users/autocomplete?keyword=${userKeyword}`;
+        }
+        const res = await httpClient.get(url);
+        const userList:UserVO[] = res.data;
+        setUserAutocompleteOptions(userList || []);
+    })()
+  }, [userKeyword]);
+
   return (
     <DashboardLayout>
       <PageHeader title='Orders' links={[
@@ -91,26 +108,37 @@ export default function OrderPage() {
             marginBottom: '10px',
             '& > :not(style)': { m: 1 }
           }}>
-            <TextField size="small" label="Username" onChange={(event: any) => {
-              setUsername(event.target.value);
-            }}/>
-            <Button variant="contained" onClick={() => {
-              const query: Record<string, any> = {};
-              
-              if (username !== undefined) {
-                query.username = username;
-              }
-
-              setPage(1);
-              setQuery(query);
-            }}>Query</Button>
+              <Autocomplete
+                disablePortal
+                options={userAutocompleteOptions}
+                sx={{ width: 300, mb: '20px' }}
+                size="small"
+                contentEditable={false}
+                onInputChange={(event, value) => {
+                    setUserKeyword(value);
+                }}
+                onChange={(event, user) => {
+                  if (user != null) {
+                    setQuery({ userId: user.userId });
+                  } else {
+                    setQuery({});
+                  }
+                  setPage(1);
+                }}
+                getOptionLabel={(option) => {
+                    return option.username;
+                }}
+                isOptionEqualToValue={(option, value) => {
+                    return option.username = value.username;
+                }}
+                renderInput={(params) => <TextField {...params} label="Filter by user:" />}
+            />
           </Box>
           <DataGrid
             rows={rows}
             columns={columns}
             loading={loading}
             rowCount={rowCount}
-            page={page}
             paginationMode="server"
             sortingMode="server"
             pageSize={pageSize}

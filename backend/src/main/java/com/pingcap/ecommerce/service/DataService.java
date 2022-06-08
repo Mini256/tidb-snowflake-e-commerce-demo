@@ -2,15 +2,14 @@ package com.pingcap.ecommerce.service;
 
 import com.pingcap.ecommerce.dao.snowflake.SnowflakeHotItemMapper;
 import com.pingcap.ecommerce.dao.snowflake.SnowflakeUserLabelMapper;
-import com.pingcap.ecommerce.dao.tidb.HotItemMapper;
-import com.pingcap.ecommerce.dao.tidb.OrderMapper;
-import com.pingcap.ecommerce.dao.tidb.OrderSeriesMapper;
-import com.pingcap.ecommerce.dao.tidb.UserLabelMapper;
+import com.pingcap.ecommerce.dao.tidb.*;
 import com.pingcap.ecommerce.model.HotItem;
 import com.pingcap.ecommerce.model.OrderSeries;
+import com.pingcap.ecommerce.model.User;
 import com.pingcap.ecommerce.model.UserLabel;
 import com.pingcap.ecommerce.vo.OrderTotalVO;
 import com.pingcap.ecommerce.vo.OrderTypeTotalVO;
+import com.pingcap.ecommerce.vo.ResultVO;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
@@ -29,6 +28,8 @@ public class DataService {
     private final SnowflakeUserLabelMapper snowflakeUserLabelMapper;
 
     private final SnowflakeHotItemMapper snowflakeHotItemMapper;
+
+    private final UserMapper userMapper;
 
     private final UserLabelMapper userLabelMapper;
 
@@ -73,19 +74,21 @@ public class DataService {
     */
 
     public void calcUserLabels() {
+        log.info("Calc user labels on Snowflake.");
         snowflakeUserLabelMapper.calcUserLabels();
     }
 
     public void pullBackUserLabelsToTiDB() {
         List<UserLabel> userLabels;
         long pageNum = 1;
-        long pageSize = 1000;
+        long pageSize = 2000;
 
         log.info("Pulling back user labels from Snowflake to TiDB.");
 
         do {
             long offset = (pageNum - 1) * pageSize;
             userLabels = snowflakeUserLabelMapper.getUserLabels(pageSize, offset);
+            log.info("Pulling back user labels from Snowflake to TiDB, page {}.", pageNum);
             bulkInsertOverwriteUserLabels(userLabels);
             pageNum++;
         } while (userLabels.size() > 0);
@@ -105,14 +108,16 @@ public class DataService {
      * Items.
      */
 
-    @Transactional
+    @Transactional("SecondaryTransactionManager")
     public void calcHighLabelItems() {
+        log.info("Calc high labels items on Snowflake.");
         snowflakeHotItemMapper.deleteHighLabelItems();
         snowflakeHotItemMapper.calcHighLabelItems();
     }
 
-    @Transactional
+    @Transactional("SecondaryTransactionManager")
     public void calcLowLabelItems() {
+        log.info("Calc low labels items on Snowflake.");
         snowflakeHotItemMapper.deleteLowLabelItems();
         snowflakeHotItemMapper.calcLowLabelItems();
     }
@@ -145,9 +150,19 @@ public class DataService {
     /**
      * Recommend the matched items according the label of items and current user.
      */
+    public ResultVO<HotItem> getRecommendedHotItems(String userId, Pageable pageable) {
+        List<HotItem> hotItems = hotItemMapper.getRecommendedHotItems(userId, pageable);
+        List<String> userIds = hotItems.stream().map(HotItem::getUserId).toList();
 
-    public List<HotItem> getRecommendedHotItems(String userId, Pageable pageable) {
-        return hotItemMapper.getRecommendedHotItems(userId, pageable);
+        if (!userIds.isEmpty()) {
+            List<User> userByIds = userMapper.getUserByIds(userIds);
+            hotItems.forEach(item -> userByIds.stream()
+                    .filter(u -> u.getId().equals(item.getUserId())).findFirst()
+                    .ifPresent(user -> item.setUserName(user.getUsername()))
+            );
+        }
+
+        return ResultVO.of(hotItems, 10000, pageable.getPageNumber(), pageable.getPageSize());
     }
 
     public List<HotItem> getHighLabelItems() {

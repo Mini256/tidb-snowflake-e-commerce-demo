@@ -29,7 +29,7 @@ public class ItemService {
     public ResultVO<Item> getItems(String type, Pageable pageable) {
         List<Item> items = itemMapper.getItems(type, pageable);
         long rowCount = 1000; // itemMapper.getItemCount(type);
-        return new ResultVO<>(items, rowCount, pageable.getPageNumber(), pageable.getPageSize());
+        return ResultVO.of(items, rowCount, pageable.getPageNumber(), pageable.getPageSize());
     }
 
 }

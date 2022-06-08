@@ -33,7 +33,7 @@
     LEFT JOIN hot_items hi ON ul.user_label = hi.item_label
     <where>
       <if test="userId != null">
-        WHERE user_id = #{userId}
+        user_id = #{userId}
       </if>
     </where>
     ORDER BY ul.avg_amount DESC

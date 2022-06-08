@@ -55,7 +55,7 @@ export default function CustomerPage() {
 
       try {
         const q = Object.assign({}, query, {
-          page: page,
+          page: page - 1,
           size: pageSize
         })
         const url = `/api/users?${qs.stringify(q)}`;
@@ -110,7 +110,6 @@ export default function CustomerPage() {
             columns={columns}
             loading={loading}
             rowCount={rowCount}
-            page={page}
             paginationMode="server"
             sortingMode="server"
             pageSize={pageSize}

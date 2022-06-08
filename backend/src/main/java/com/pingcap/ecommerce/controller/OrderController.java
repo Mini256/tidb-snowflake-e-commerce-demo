@@ -13,10 +13,9 @@ import org.springframework.web.bind.annotation.*;
 public class OrderController {
 
   private final OrderService orderService;
-
   @GetMapping()
-  public ResultVO<OrderVO> getOrders(@RequestParam(required = false) String username, Pageable pageable) {
-    return orderService.getOrders(username, pageable);
+  public ResultVO<OrderVO> getOrders(@RequestParam(required = false) String userId, Pageable pageable) {
+    return orderService.getOrders(userId, pageable);
   }
 
 }

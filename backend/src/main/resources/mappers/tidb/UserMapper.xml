@@ -2,11 +2,11 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.pingcap.ecommerce.dao.tidb.UserMapper">
   <resultMap id="User" type="com.pingcap.ecommerce.model.User">
-    <constructor>
-      <idArg column="id" javaType="java.lang.String" jdbcType="VARCHAR" />
-      <arg column="username" javaType="java.lang.String" jdbcType="VARCHAR" />
-      <arg column="password" javaType="java.lang.String" jdbcType="VARCHAR" />
-    </constructor>
+      <result property="id" column="id" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <result property="username" column="username" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <result property="password" column="password" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <result property="createTime" column="create_time" javaType="java.util.Date" jdbcType="VARCHAR" />
+      <result property="updateTime" column="update_time" javaType="java.util.Date" jdbcType="VARCHAR" />
   </resultMap>
   <resultMap id="UserVO" type="com.pingcap.ecommerce.vo.UserVO">
       <result property="userId" column="id" javaType="java.lang.String" jdbcType="VARCHAR" />
@@ -94,5 +94,14 @@
       </if>
     </where>
     LIMIT 10;
+  </select>
+
+  <select id="getUserByIds" resultMap="User">
+    SELECT id, username
+    FROM users u
+    WHERE u.id IN
+    <foreach collection="userIds" item="id" open="(" separator="," close=")">
+        #{id}
+    </foreach>
   </select>
 </mapper>

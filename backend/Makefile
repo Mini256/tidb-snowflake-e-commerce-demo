@@ -37,7 +37,7 @@ snowflake-init-schema: check-env
 	snowsql -f ./src/main/resources/snowflake-init-schema.sql
 
 run: check-env build-app tidb-init-schema snowflake-init-schema
-	java -jar target/tidb-ecommerce-demo-app.jar
+	java -jar target/tidb-ecommerce-demo-app.jar -Djdk.module.illegalAccess=permit --add-opens=java.base/java.nio=ALL-UNNAMED
 
 tidb-import-data: check-env tidb-init-schema build-cli
 	java -jar target/tidb-ecommerce-demo-cli.jar import-data

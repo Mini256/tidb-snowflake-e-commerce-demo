@@ -25,6 +25,15 @@
     ORDER BY ts DESC
     LIMIT 1;
   </select>
+  <select id="selectLatestAllTypeAmountAndTotalHistory" resultMap="OrderSeries">
+    SELECT ts, type, amount, total
+    FROM s_orders
+    WHERE type = 'ALL' AND ts > CURRENT_DATE
+    <if test="startDate != null">
+      AND ts > #{startDate}
+    </if>
+    ORDER BY ts ASC;
+  </select>
   <select id="selectLatestGroupTypeAmountAndTotal" resultMap="OrderSeries">
     SELECT ts, type, amount, total
     FROM s_orders

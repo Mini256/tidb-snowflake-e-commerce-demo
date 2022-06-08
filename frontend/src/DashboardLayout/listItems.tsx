@@ -38,7 +38,7 @@ export const mainListItems = (
       <ListItemIcon>
         <ShoppingBag />
       </ListItemIcon>
-      <ListItemText primary="Recommend Items" />
+      <ListItemText primary="Recommended Items" />
     </ListItemButton>
     <ListItemButton href='/admin/order'>
       <ListItemIcon>

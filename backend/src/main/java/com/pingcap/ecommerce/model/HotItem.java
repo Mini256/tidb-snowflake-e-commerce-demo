@@ -25,6 +25,8 @@ public class HotItem {
 
     private String userId;
 
+    private String userName;
+
     private String userLabel;
 
     private BigDecimal avgAmount;

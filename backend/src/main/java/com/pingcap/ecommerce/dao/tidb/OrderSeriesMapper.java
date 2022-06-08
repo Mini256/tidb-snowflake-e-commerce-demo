@@ -4,6 +4,7 @@ import com.pingcap.ecommerce.model.OrderSeries;
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Component;
 
+import java.util.Date;
 import java.util.List;
 
 
@@ -17,6 +18,7 @@ public interface OrderSeriesMapper {
 
     OrderSeries selectLatestAllTypeAmountAndTotal();
 
+    List<OrderSeries> selectLatestAllTypeAmountAndTotalHistory(Date startDate);
     List<OrderSeries> selectLatestGroupTypeAmountAndTotal();
 
 }

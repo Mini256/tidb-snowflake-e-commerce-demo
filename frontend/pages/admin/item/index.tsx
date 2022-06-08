@@ -1,5 +1,4 @@
 import Grid from '@mui/material/Grid';
-import Paper from '../../../src/DashboardLayout/Pager';
 import DashboardLayout from '../../../src/DashboardLayout/DashboardLayout';
 import qs from 'qs';
 import { createHttpClient } from '../../../src/lib/request'
@@ -50,7 +49,7 @@ export default function ItemPage() {
 
       try {
         const q = Object.assign({}, query, {
-          page: page,
+          page: page - 1,
           size: pageSize
         })
         const url = `/api/items?${qs.stringify(q)}`;
@@ -65,7 +64,6 @@ export default function ItemPage() {
         });
   
         setRows(content || []);
-        setPage(pageNum || 1);
         setRowCount(rowTotal || 0);
       } finally {
         setLoading(false);
@@ -87,7 +85,6 @@ export default function ItemPage() {
             columns={columns}
             loading={loading}
             rowCount={rowCount}
-            page={page}
             paginationMode="server"
             sortingMode="server"
             pageSize={pageSize}

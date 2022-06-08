@@ -342,7 +342,7 @@ public class ImportDataCommand {
                         expressLoader.insertValues(expressValues);
 
                         if (i % bulkSize == 0) {
-                            bulkSize = ints().range(10, 2000).get();
+                            bulkSize = random.nextInt(10, 2000);
                             orderLoader.setBulkSize(bulkSize);
                             log.info("{} orders and expresses are inserted into database.", bulkSize);
                             Thread.sleep(random.nextInt(1000, 3000));
@@ -454,7 +454,7 @@ public class ImportDataCommand {
         Item item = from(itemList).get();
         Long itemId = item.getId();
         String itemName = item.getItemName();
-        Integer itemCount = ints().range(1, 10).get();
+        Integer itemCount = ints().range(1, 2).get();
         BigDecimal amount = item.getItemPrice().multiply(BigDecimal.valueOf(itemCount));
         Date createTime = new Date();
 

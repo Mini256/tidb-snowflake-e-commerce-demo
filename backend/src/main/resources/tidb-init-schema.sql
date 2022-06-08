@@ -68,7 +68,8 @@ CREATE TABLE IF NOT EXISTS s_orders (
     `ts` TIMESTAMP COMMENT '时间戳',
     `type` VARCHAR(255) COMMENT '商品类型',
     `amount` DECIMAL(40, 2),
-    `total` BIGINT
+    `total` BIGINT,
+    PRIMARY KEY (ts, type)
 );
 
 SHOW TABLES;

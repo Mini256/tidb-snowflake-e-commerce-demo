@@ -24,10 +24,10 @@ public class OrderService {
 
     private final OrderSeriesMapper orderSeriesMapper;
 
-    public ResultVO<OrderVO> getOrders(String username, Pageable pageable) {
-        List<OrderVO> orders = orderMapper.getOrders(username, pageable);
-        long rowCount = 1000; // orderMapper.getOrdersCount(username);
-        return new ResultVO<>(orders, rowCount, pageable.getPageNumber(), pageable.getPageSize());
+    public ResultVO<OrderVO> getOrders(String userId, Pageable pageable) {
+        List<OrderVO> orders = orderMapper.getOrders(userId, pageable);
+        long rowCount = 10000; // orderMapper.getOrdersCount(username);
+        return ResultVO.of(orders, rowCount, pageable.getPageNumber(), pageable.getPageSize());
     }
 
     public List<OrderVO> getOrdersByUserId(String userId) {
@@ -43,6 +43,10 @@ public class OrderService {
             orderTotalVO.setTotalCount(orderSeries.getTotal());
         }
         return orderTotalVO;
+    }
+
+    public List<OrderSeries> getLatestOrderTotalAndAmountHistory(Date startDate) {
+       return orderSeriesMapper.selectLatestAllTypeAmountAndTotalHistory(startDate);
     }
 
     public List<OrderSeries> getLatestGroupTypeAmountAndTotal() {

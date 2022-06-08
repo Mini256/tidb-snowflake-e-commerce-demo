@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 import java.util.List;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
 public class ResultVO<R> {
 
@@ -19,8 +18,15 @@ public class ResultVO<R> {
 
     private int pageSize;
 
+    private ResultVO(List<R> content, long rowTotal, int pageNum, int pageSize) {
+        this.content = content;
+        this.rowTotal = rowTotal;
+        this.pageNum = pageNum;
+        this.pageSize = pageSize;
+    }
+
     public static <R> ResultVO<R> of(List<R> content, long rowTotal, int pageNum, int pageSize) {
-        return new ResultVO<>(content, rowTotal, pageNum, pageSize);
+        return new ResultVO<>(content, rowTotal, pageNum + 1, pageSize);
     }
 
 }
