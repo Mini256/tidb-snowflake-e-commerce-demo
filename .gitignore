@@ -2,3 +2,5 @@ snowsql_rt.log
 snowsql_rt.log_bootstrap
 .env
 .DS_Store
+.idea/
+.vscode/
