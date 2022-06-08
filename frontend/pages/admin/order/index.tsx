@@ -87,46 +87,44 @@ export default function OrderPage() {
       ]}/>
       <Grid container spacing={3}>
         <Grid item xs={12} md={12} lg={12}>
-          <Paper>
-            <Box component="form" sx={{
-              marginBottom: '10px',
-              '& > :not(style)': { m: 1 }
-            }}>
-              <TextField size="small" label="Username" onChange={(event: any) => {
-                setUsername(event.target.value);
-              }}/>
-              <Button variant="contained" onClick={() => {
-                const query: Record<string, any> = {};
-                
-                if (username !== undefined) {
-                  query.username = username;
-                }
+          <Box component="form" sx={{
+            marginBottom: '10px',
+            '& > :not(style)': { m: 1 }
+          }}>
+            <TextField size="small" label="Username" onChange={(event: any) => {
+              setUsername(event.target.value);
+            }}/>
+            <Button variant="contained" onClick={() => {
+              const query: Record<string, any> = {};
+              
+              if (username !== undefined) {
+                query.username = username;
+              }
 
-                setPage(1);
-                setQuery(query);
-              }}>Query</Button>
-            </Box>
-            <DataGrid
-              rows={rows}
-              columns={columns}
-              loading={loading}
-              rowCount={rowCount}
-              page={page}
-              paginationMode="server"
-              sortingMode="server"
-              pageSize={pageSize}
-              rowsPerPageOptions={[10]}
-              checkboxSelection
-              autoHeight
-              disableColumnFilter={true}
-              onPageChange={(page) => {
-                setPage(page);
-              }}
-              onPageSizeChange={(pageSize) => {
-                setPageSize(pageSize);
-              }}
-            />
-          </Paper>
+              setPage(1);
+              setQuery(query);
+            }}>Query</Button>
+          </Box>
+          <DataGrid
+            rows={rows}
+            columns={columns}
+            loading={loading}
+            rowCount={rowCount}
+            page={page}
+            paginationMode="server"
+            sortingMode="server"
+            pageSize={pageSize}
+            rowsPerPageOptions={[10]}
+            checkboxSelection
+            autoHeight
+            disableColumnFilter={true}
+            onPageChange={(page) => {
+              setPage(page);
+            }}
+            onPageSizeChange={(pageSize) => {
+              setPageSize(pageSize);
+            }}
+          />
         </Grid>
       </Grid>
     </DashboardLayout>

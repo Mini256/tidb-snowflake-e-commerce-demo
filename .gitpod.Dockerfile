@@ -19,7 +19,7 @@ RUN curl --proto '=https' --tlsv1.2 -sSf https://tiup-mirrors.pingcap.com/instal
 # Init Environment Variable
 ENV TIDB_HOST=127.0.0.1
 ENV TIDB_PORT=4000
-ENV TIDB_DATABASE=shop
+ENV TIDB_DATABASE=ecommerce
 ENV TIDB_USERNAME=root
 
 ENV SNOWSQL_WAREHOUSE=PC_ETLEAP_WH

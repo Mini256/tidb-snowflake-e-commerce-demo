@@ -19,7 +19,6 @@ import java.util.concurrent.Executors;
 public class ConcurrentPreparedBatchLoader implements ConcurrentBatchLoader {
 
   private final SqlSessionFactory sqlSessionFactory;
-
   public void batchInsert(String name, String tableName, String[] headers, int n, ValuesGenerator generator) {
     String insertSQL = getInsertSQL(tableName, headers);
     try (ProgressBar pb = new ProgressBar(String.format("Importing %s Data", name), n)) {

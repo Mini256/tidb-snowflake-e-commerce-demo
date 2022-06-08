@@ -22,7 +22,7 @@ export default function PieChart(props: PieChartProps) {
           {
             name: 'Item Type',
             type: 'pie',
-            radius: ['30%', '70%'],
+            radius: ['30%', '60%'],
             avoidLabelOverlap: false,
             itemStyle: {
               borderRadius: 10,
@@ -34,11 +34,11 @@ export default function PieChart(props: PieChartProps) {
               position: 'center'
             },
             emphasis: {
-            label: {
-              show: true,
-              fontSize: '40',
-              fontWeight: 'bold'
-            }
+              label: {
+                show: true,
+                fontSize: '40',
+                fontWeight: 'bold'
+              }
             },
             labelLine: {
               show: false

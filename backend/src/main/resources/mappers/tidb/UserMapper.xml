@@ -89,7 +89,7 @@
     FROM users u
     LEFT JOIN user_labels ul on u.id = ul.user_id
     <where>
-      <if test="username != null">
+      <if test="username != null and username != ''">
         AND username LIKE CONCAT(#{username}, '%')
       </if>
     </where>

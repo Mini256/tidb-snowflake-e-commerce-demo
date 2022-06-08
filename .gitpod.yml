@@ -9,7 +9,7 @@ tasks:
   - name: TiDB Playground
     command: |
       $HOME/.tiup/bin/tiup playground
-  - name: Front End
+  - name: Frontend
     openMode: tab-after
     init: cd frontend && npm install
     command: |
@@ -21,7 +21,7 @@ tasks:
       gp await-port 8080
       make tidb-import-data
       make tidb-incremental-data
-  - name: Back End
+  - name: Backend
     openMode: tab-after
     command: |
       cd backend

@@ -33,7 +33,7 @@
       o.id AS order_id,
       o.create_time AS order_date,
       o.user_id,
-      u.username,
+<!--      u.username,-->
       o.item_id,
       o.item_name,
       o.amount,
@@ -41,12 +41,12 @@
       e.current_address
     FROM orders o
     LEFT JOIN expresses e ON o.id = e.order_id
-    LEFT JOIN users u on o.user_id = u.id
-    <where>
-      <if test="username != null">
-        AND u.username = #{username}
-      </if>
-    </where>
+<!--    LEFT JOIN users u on o.user_id = u.id-->
+<!--    <where>-->
+<!--      <if test="username != null">-->
+<!--        AND u.username = #{username}-->
+<!--      </if>-->
+<!--    </where>-->
     ORDER BY o.create_time DESC
     LIMIT #{pageable.offset}, #{pageable.pageSize};
   </select>
@@ -119,6 +119,7 @@
   </select>
   <select id="getOrderTotalAndAmount" resultMap="OrderTotalVO">
     SELECT
+      /*+ read_from_storage(tiflash[orders]), MAX_EXECUTION_TIME(120000) */
       coalesce(sum(amount), 0) as total_amount,
       coalesce(count(id), 0) as total_cnt
     FROM orders
@@ -126,6 +127,7 @@
   </select>
   <select id="getOrderTotalAndAmountByType" resultMap="OrderTypeTotalVO">
     SELECT
+      /*+ read_from_storage(tiflash[orders]), MAX_EXECUTION_TIME(120000) */
       coalesce(sum(amount), 0) as total_type_amount,
       coalesce(count(o.id), 0) as total_type_cnt,
       item_type

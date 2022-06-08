@@ -29,6 +29,7 @@ import static net.andreinc.mockneat.unit.text.Strings.strings;
 import static net.andreinc.mockneat.unit.types.Ints.ints;
 import static net.andreinc.mockneat.unit.types.Longs.longs;
 
+@Deprecated
 @Slf4j
 @Parameters(
     commandNames = { "incremental-data" },

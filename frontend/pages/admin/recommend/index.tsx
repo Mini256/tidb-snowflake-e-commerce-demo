@@ -38,6 +38,7 @@ export default function ItemPage() {
   const columns:GridColumns<Item> = [
     { field: 'itemName', headerName: 'Name', minWidth: 140 },
     { field: 'itemPrice', headerName: 'Price', flex: 1, ...usdPrice, align: 'left', headerAlign: 'left' },
+    { field: 'itemLabel', headerName: 'Label', flex: 1 },
     { field: 'itemType', headerName: 'Type', flex: 1 },
     { field: 'itemDesc', headerName: 'Description', flex: 1 },
     { field: 'createTime', headerName: 'Create Time', flex: 1, type: 'dateTime' },
@@ -53,7 +54,7 @@ export default function ItemPage() {
           page: page,
           size: pageSize
         })
-        const url = `/api/items?${qs.stringify(q)}`;
+        const url = `/api/data/hot-items/recommended?${qs.stringify(q)}`;
         const res = await httpClient.get(url);
         const orderPage:ResultVO<Item> = res.data;
         const { content = [], pageNum, rowTotal } = orderPage;
@@ -75,33 +76,33 @@ export default function ItemPage() {
 
   return (
     <DashboardLayout>
-      <PageHeader title='Items' links={[
+      <PageHeader title='Recommend Items' links={[
         { label: 'Dashboard', href: '/' },
         { label: 'Manage' },
-        { label: 'Items' },
+        { label: 'Recommend Items' },
       ]}/>
       <Grid container spacing={3}>
         <Grid item xs={12} md={12} lg={12}>
-          <DataGrid
-            rows={rows}
-            columns={columns}
-            loading={loading}
-            rowCount={rowCount}
-            page={page}
-            paginationMode="server"
-            sortingMode="server"
-            pageSize={pageSize}
-            rowsPerPageOptions={[10]}
-            checkboxSelection
-            autoHeight
-            disableColumnFilter={true}
-            onPageChange={(page) => {
-              setPage(page);
-            }}
-            onPageSizeChange={(pageSize) => {
-              setPageSize(pageSize);
-            }}
-          />
+            <DataGrid
+              rows={rows}
+              columns={columns}
+              loading={loading}
+              rowCount={rowCount}
+              page={page}
+              paginationMode="server"
+              sortingMode="server"
+              pageSize={pageSize}
+              rowsPerPageOptions={[10]}
+              checkboxSelection
+              autoHeight
+              disableColumnFilter={true}
+              onPageChange={(page) => {
+                setPage(page);
+              }}
+              onPageSizeChange={(pageSize) => {
+                setPageSize(pageSize);
+              }}
+            />
         </Grid>
       </Grid>
     </DashboardLayout>

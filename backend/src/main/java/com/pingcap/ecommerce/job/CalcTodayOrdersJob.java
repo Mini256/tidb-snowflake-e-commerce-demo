@@ -16,9 +16,9 @@ public class CalcTodayOrdersJob {
     }
 
     /**
-     * Calculated today orders every 5 minutes.
+     * Calculated today orders every 30 seconds.
      */
-    @Scheduled(cron = "*/20 * * * * *")
+    @Scheduled(cron = "*/30 * * * * *")
     public void calcTodayOrders() {
         log.info("Calculating today orders.");
         StopWatch stopWatch = new StopWatch("calc-today-orders");
@@ -31,6 +31,6 @@ public class CalcTodayOrdersJob {
         dataService.calcTodayOrderTotalAndAmountGroupByType();
         stopWatch.stop();
 
-        log.info(stopWatch.prettyPrint());
+        log.info("Finished calculating today orders and amount, cost: {} s.", stopWatch.getTotalTimeSeconds());
     }
 }

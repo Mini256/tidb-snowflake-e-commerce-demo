@@ -73,8 +73,10 @@ export default function HomePage(props:HomePageProps) {
     // User autocomplete.
     useEffect(() => {
         (async () => {
-            if (userKeyword === undefined) return;
-            const url = `/api/users/autocomplete?keyword=${userKeyword}`;
+            let url = `/api/users/autocomplete`;
+            if (userKeyword !== undefined) {
+                url = `/api/users/autocomplete?keyword=${userKeyword}`;
+            }
             const res = await httpClient.get(url);
             const userList:UserVO[] = res.data;
 

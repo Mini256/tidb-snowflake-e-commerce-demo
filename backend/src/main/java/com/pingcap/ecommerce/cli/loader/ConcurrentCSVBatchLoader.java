@@ -1,7 +1,6 @@
 package com.pingcap.ecommerce.cli.loader;
 
 import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import me.tongfei.progressbar.ProgressBar;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.springframework.stereotype.Component;
@@ -13,7 +12,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-@Slf4j
+@Deprecated
 @Component
 @AllArgsConstructor
 public class ConcurrentCSVBatchLoader implements ConcurrentBatchLoader {

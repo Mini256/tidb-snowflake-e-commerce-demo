@@ -10,15 +10,16 @@ spring:
       url:  ${SNOWSQL_URL}
       username: ${SNOWSQL_USER}
       password: ${SNOWSQL_PWD}
-
+    hikari:
+      maxLifeTime : 600000  #10 minutes wait time
 mybatis:
   mapper-locations: classpath*:**/mappers/*.xml
 
 pagehelper:
-    helperDialect: mysql
-    reasonable: true
-    supportMethodsArguments: true
-    params: count=countSql
+  helperDialect: mysql
+  reasonable: true
+  supportMethodsArguments: true
+  params: count=countSql
 
 springdoc:
   api-docs:

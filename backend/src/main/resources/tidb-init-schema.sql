@@ -1,13 +1,14 @@
-CREATE DATABASE IF NOT EXISTS `shop`;
+CREATE DATABASE IF NOT EXISTS `ecommerce`;
 
-USE `shop`;
+USE `ecommerce`;
 
 CREATE TABLE IF NOT EXISTS users (
     `id` VARCHAR(32) PRIMARY KEY,
     `username` VARCHAR(32) COMMENT '用户名',
     `password` VARCHAR(128) COMMENT '密码',
     update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-    create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '用户创建时间'
+    create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '用户创建时间',
+    INDEX idx_users_create_time (create_time)
 );
 
 CREATE TABLE IF NOT EXISTS orders (
@@ -19,7 +20,7 @@ CREATE TABLE IF NOT EXISTS orders (
     item_count INT COMMENT '购买商品数量',
     update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '订单创建时间',
-    INDEX idx_create_time_user_id (create_time,user_id)
+    INDEX idx_users_create_time_user_id (create_time, user_id)
 );
 
 CREATE TABLE IF NOT EXISTS items (
@@ -29,7 +30,8 @@ CREATE TABLE IF NOT EXISTS items (
     item_type VARCHAR(32) COMMENT '商品类型',
     item_desc VARCHAR(1024) COMMENT '商品简介',
     update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-    create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '订单创建时间'
+    create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '订单创建时间',
+    INDEX idx_items_create_time (create_time)
 );
 
 CREATE TABLE IF NOT EXISTS expresses (
@@ -42,7 +44,7 @@ CREATE TABLE IF NOT EXISTS expresses (
     status VARCHAR(10) COMMENT '快件派送状态',
     update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '快递创建时间',
-    INDEX idx_order_id (order_id)
+    INDEX idx_expresses_order_id (order_id)
 );
 
 CREATE TABLE IF NOT EXISTS hot_items (

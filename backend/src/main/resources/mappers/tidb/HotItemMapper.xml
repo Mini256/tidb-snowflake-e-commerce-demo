@@ -2,6 +2,9 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.pingcap.ecommerce.dao.tidb.HotItemMapper">
   <resultMap id="HotItem" type="com.pingcap.ecommerce.model.HotItem">
+    <result property="userId" column="user_id" javaType="java.lang.String" jdbcType="VARCHAR" />
+    <result property="userLabel" column="user_label" javaType="java.lang.String" jdbcType="VARCHAR" />
+    <result property="avgAmount" column="avg_amount" javaType="java.math.BigDecimal" jdbcType="DECIMAL" />
     <result property="itemId" column="item_id" javaType="java.lang.Long" jdbcType="BIGINT" />
     <result property="itemName" column="item_name" javaType="java.lang.String" jdbcType="VARCHAR" />
     <result property="itemPrice" column="item_price" javaType="java.math.BigDecimal" jdbcType="DECIMAL" />
@@ -25,9 +28,16 @@
   </select>
 
   <select id="getRecommendedHotItems" resultMap="HotItem">
-    SELECT item_id, item_name, item_price, item_type, item_desc, item_label
-    FROM hot_items
-    WHERE item_label = (SELECT user_label FROM user_labels WHERE user_id = #{userId})
+    SELECT user_id, user_label, avg_amount, item_id, item_name, item_price, item_type, item_desc, item_label
+    FROM user_labels ul
+    LEFT JOIN hot_items hi ON ul.user_label = hi.item_label
+    <where>
+      <if test="userId != null">
+        WHERE user_id = #{userId}
+      </if>
+    </where>
+    ORDER BY ul.avg_amount DESC
+    LIMIT #{pageable.offset}, #{pageable.pageSize}
   </select>
 
   <insert id="batchInsertHotItems" parameterType="com.pingcap.ecommerce.model.HotItem">
@@ -43,5 +53,4 @@
       #{item}
     </foreach>
   </delete>
-
 </mapper>

@@ -42,9 +42,6 @@ run: check-env build-app tidb-init-schema snowflake-init-schema
 tidb-import-data: check-env tidb-init-schema build-cli
 	java -jar target/tidb-ecommerce-demo-cli.jar import-data
 
-tidb-incremental-data: check-env tidb-init-schema build-cli
-	java -jar target/tidb-ecommerce-demo-cli.jar incremental-data
-
 calc-user-labels:
 	curl -X POST "${base_url}/data/user-labels/calc"
 

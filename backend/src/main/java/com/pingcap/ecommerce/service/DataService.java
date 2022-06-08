@@ -13,6 +13,7 @@ import com.pingcap.ecommerce.vo.OrderTotalVO;
 import com.pingcap.ecommerce.vo.OrderTypeTotalVO;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -145,8 +146,8 @@ public class DataService {
      * Recommend the matched items according the label of items and current user.
      */
 
-    public List<HotItem> getRecommendedHotItems(String userId) {
-        return hotItemMapper.getRecommendedHotItems(userId);
+    public List<HotItem> getRecommendedHotItems(String userId, Pageable pageable) {
+        return hotItemMapper.getRecommendedHotItems(userId, pageable);
     }
 
     public List<HotItem> getHighLabelItems() {

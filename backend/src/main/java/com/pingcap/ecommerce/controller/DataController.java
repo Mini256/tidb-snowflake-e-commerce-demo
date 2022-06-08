@@ -3,9 +3,9 @@ package com.pingcap.ecommerce.controller;
 import com.pingcap.ecommerce.model.HotItem;
 import com.pingcap.ecommerce.service.DataService;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -59,11 +59,8 @@ public class DataController {
     }
 
     @GetMapping("/hot-items/recommended")
-    public List<HotItem> getRecommended(@RequestParam(required = false) String userId) {
-        if (userId == null) {
-            return new ArrayList<>();
-        }
-        return dataService.getRecommendedHotItems(userId);
+    public List<HotItem> getRecommended(@RequestParam(required = false) String userId, Pageable pageable) {
+        return dataService.getRecommendedHotItems(userId, pageable);
     }
 
 }

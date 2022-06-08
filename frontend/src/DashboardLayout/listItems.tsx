@@ -10,6 +10,12 @@ import Home from '@mui/icons-material/Home';
 
 export const mainListItems = (
   <React.Fragment>
+    <ListItemButton href='/admin/introduction'>
+      <ListItemIcon>
+        <Home />
+      </ListItemIcon>
+      <ListItemText primary="Introduction" />
+    </ListItemButton>
     <ListItemButton href='/admin/dashboard'>
       <ListItemIcon>
         <DashboardIcon />
@@ -28,17 +34,17 @@ export const mainListItems = (
       </ListItemIcon>
       <ListItemText primary="Items" />
     </ListItemButton>
+    <ListItemButton href='/admin/recommend'>
+      <ListItemIcon>
+        <ShoppingBag />
+      </ListItemIcon>
+      <ListItemText primary="Recommend Items" />
+    </ListItemButton>
     <ListItemButton href='/admin/order'>
       <ListItemIcon>
         <ShoppingCartIcon />
       </ListItemIcon>
       <ListItemText primary="Orders" />
-    </ListItemButton>
-    <ListItemButton href='/'>
-      <ListItemIcon>
-        <Home />
-      </ListItemIcon>
-      <ListItemText primary="Homepage" />
     </ListItemButton>
   </React.Fragment>
 );
