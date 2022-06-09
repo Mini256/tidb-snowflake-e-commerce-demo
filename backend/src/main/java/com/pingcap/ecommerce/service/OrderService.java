@@ -45,8 +45,8 @@ public class OrderService {
         return orderTotalVO;
     }
 
-    public List<OrderSeries> getLatestOrderTotalAndAmountHistory(Date startDate) {
-       return orderSeriesMapper.selectLatestAllTypeAmountAndTotalHistory(startDate);
+    public List<OrderSeries> getLatestOrderTotalAndAmountHistory(Long startTimestamp) {
+       return orderSeriesMapper.selectLatestAllTypeAmountAndTotalHistory(startTimestamp);
     }
 
     public List<OrderSeries> getLatestGroupTypeAmountAndTotal() {

@@ -2,12 +2,11 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.pingcap.ecommerce.dao.tidb.OrderSeriesMapper">
   <resultMap id="OrderSeries" type="com.pingcap.ecommerce.model.OrderSeries">
-    <constructor>
-      <idArg column="ts" javaType="java.util.Date" jdbcType="VARCHAR" />
-      <arg column="type" javaType="java.lang.String" jdbcType="VARCHAR" />
-      <arg column="amount" javaType="java.math.BigDecimal" jdbcType="DECIMAL" />
-      <arg column="total" javaType="java.lang.Long" jdbcType="BIGINT" />
-    </constructor>
+      <result property="ts" column="ts" javaType="java.util.Date" jdbcType="VARCHAR" />
+      <result property="timestamp" column="timestamp" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <result property="type" column="type" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <result property="amount" column="amount" javaType="java.math.BigDecimal" jdbcType="DECIMAL" />
+      <result property="total" column="total" javaType="java.lang.Long" jdbcType="BIGINT" />
   </resultMap>
   <insert id="insertOrderSeries" parameterType="com.pingcap.ecommerce.model.OrderSeries">
     INSERT INTO s_orders(ts, type, amount, total) VALUES (#{ts}, #{type}, #{amount}, #{total});
@@ -28,14 +27,12 @@
   <select id="selectLatestAllTypeAmountAndTotalHistory" resultMap="OrderSeries">
     SELECT ts, type, amount, total
     FROM s_orders
-    WHERE type = 'ALL' AND ts > CURRENT_DATE
-    <if test="startDate != null">
-      AND ts > #{startDate}
-    </if>
+    WHERE type = 'ALL' AND ts > CURRENT_DATE AND ts > FROM_UNIXTIME(#{startTimestamp})
     ORDER BY ts ASC;
   </select>
+
   <select id="selectLatestGroupTypeAmountAndTotal" resultMap="OrderSeries">
-    SELECT ts, type, amount, total
+    SELECT ts, UNIX_TIMESTAMP(ts) AS timestamp, type, amount, total
     FROM s_orders
     WHERE type != 'ALL' AND ts = (SELECT MAX(ts) FROM s_orders WHERE type != 'ALL')
     ORDER BY amount DESC;

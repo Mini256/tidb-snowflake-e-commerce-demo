@@ -14,6 +14,8 @@ public class OrderSeries {
 
     private Date ts;
 
+    private Long timestamp;
+
     private String type;
 
     private BigDecimal amount;

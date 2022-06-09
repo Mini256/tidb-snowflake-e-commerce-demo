@@ -18,7 +18,8 @@ public interface OrderSeriesMapper {
 
     OrderSeries selectLatestAllTypeAmountAndTotal();
 
-    List<OrderSeries> selectLatestAllTypeAmountAndTotalHistory(Date startDate);
+    List<OrderSeries> selectLatestAllTypeAmountAndTotalHistory(Long startTimestamp);
+
     List<OrderSeries> selectLatestGroupTypeAmountAndTotal();
 
 }

@@ -10,7 +10,7 @@ export default function LineChart(props: LineChartProps) {
     const [pieChartOption, setPieChartOption] = useState<EChartsOption>({});
 
     useEffect(() => {
-      const option = {
+      const option:EChartsOption = {
         title: {
           text: 'Today Orders'
         },
@@ -59,6 +59,9 @@ export default function LineChart(props: LineChartProps) {
     }, [data]);
 
     return <EChartsReact
+      style={{
+        height: '500px'
+      }}
       option={pieChartOption}
       notMerge={true}
       lazyUpdate={true}

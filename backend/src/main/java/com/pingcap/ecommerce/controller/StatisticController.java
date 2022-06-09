@@ -25,8 +25,8 @@ public class StatisticController {
     }
 
     @GetMapping("/orders/total-and-amount/history")
-    public List<OrderSeries> getTodayOrderTotalAndAmountHistory(@RequestParam(required = false) Date startDate) {
-        return orderService.getLatestOrderTotalAndAmountHistory(startDate);
+    public List<OrderSeries> getTodayOrderTotalAndAmountHistory(@RequestParam(required = false) Long startTs) {
+        return orderService.getLatestOrderTotalAndAmountHistory(startTs);
     }
 
     @GetMapping("/orders/total-and-amount/group-by-type")

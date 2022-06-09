@@ -1,25 +1,27 @@
-import Highlight, { defaultProps } from "prism-react-renderer";
-import theme from "prism-react-renderer/themes/nightOwl";
+import { CopyBlock, dracula } from "react-code-blocks";
 
 interface CodeBlockProps {
     code: string;
     language: string;
 };
 
-export default function CodeBlock(props: CodeBlockProps) {
+export default function CustomCodeBlock(props: CodeBlockProps) {
+  const showLineNumbers = true;
+  const wrapLines = true;
+
   return <>
-    <Highlight {...defaultProps} code={props.code} language={props.language} theme={theme}>
-      {({ className, style, tokens, getLineProps, getTokenProps }) => (
-        <pre className={className} style={style}>
-          {tokens.map((line, i) => (
-            <div {...getLineProps({ line, key: i })}>
-              {line.map((token, key) => (
-                <span {...getTokenProps({ token, key })} />
-              ))}
-            </div>
-          ))}
-        </pre>
-      )}
-    </Highlight>
+      <CopyBlock
+        {...{ showLineNumbers, wrapLines }}
+        theme={dracula}
+        text={props.code}
+        language={props.language}
+        customStyle={{
+          height: '250px',
+          overflowY: 'scroll',
+          margin: '0px 0.75rem',
+          borderRadius: '5px',
+          fontSize: '0.75rem',
+        }}
+      />
   </>;
 }
