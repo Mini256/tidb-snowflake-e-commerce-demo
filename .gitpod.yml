@@ -20,7 +20,6 @@ tasks:
       cd backend
       gp await-port 8080
       make tidb-import-data
-      make tidb-incremental-data
   - name: Backend
     openMode: tab-after
     command: |
