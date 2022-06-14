@@ -9,7 +9,7 @@ export default function CustomCodeBlock(props: CodeBlockProps) {
   const showLineNumbers = true;
   const wrapLines = true;
 
-  return <>
+  return (
       <CopyBlock
         {...{ showLineNumbers, wrapLines }}
         theme={dracula}
@@ -23,5 +23,5 @@ export default function CustomCodeBlock(props: CodeBlockProps) {
           fontSize: '0.75rem',
         }}
       />
-  </>;
+  );
 }

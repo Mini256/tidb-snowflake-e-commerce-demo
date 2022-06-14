@@ -1,4 +1,4 @@
-import { Box, Button, Chip, CircularProgress, Grid, Stack, Typography } from "@mui/material";
+import { Box, Button, Grid, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import DashboardLayout from "../../../src/DashboardLayout/DashboardLayout";
 import { createHttpClient } from "../../../src/lib/request";
@@ -8,69 +8,10 @@ import LineChart from "./LineChart";
 import Section from "./Section";
 import AcUnitIcon from '@mui/icons-material/AcUnit';
 import StorageIcon from '@mui/icons-material/Storage';
-import { useInterval } from 'usehooks-ts'
+import dynamic from "next/dynamic";
+import { CALC_USER_LABELS_CODE, CALC_HIGH_LABEL_ITEMS_CODE, CALC_LOW_LABEL_ITEMS_CODE } from "./SQL";
 
 const httpClient = createHttpClient();
-
-const CALC_USER_LABELS_CODE = `INSERT OVERWRITE INTO "user_labels" (user_id, user_label, avg_amount)
-SELECT
-    user_id,
-    CASE
-        WHEN t1.user_avg_amount > t2.avg_amount THEN 'high'
-        ELSE 'low'
-    END AS user_label,
-    t1.user_avg_amount AS avg_amount
-FROM (
-    SELECT avg(amount) AS user_avg_amount, user_id
-    FROM "orders"
-    GROUP BY user_id
-) t1
-LEFT JOIN (SELECT avg(amount) AS avg_amount FROM "orders") t2 ON 1 = 1;
-`;
-const CALC_HIGH_LABEL_ITEMS_CODE = `INSERT INTO "hot_items" (item_id, item_name, item_type, item_desc, item_price, item_label)
-SELECT
-  t2.id AS item_id,
-  t2.item_name,
-  t2.item_type,
-  t2.item_desc,
-  t2.item_price,
-  'high' AS item_label
-FROM (
-  SELECT sum(item_count) AS total_count, item_id
-  FROM "orders"
-  WHERE create_time > DATEADD(DAY, -7, CURRENT_DATE)
-  GROUP BY item_id
-) t1
-LEFT JOIN "items" t2 ON t1.item_id = t2.id
-LEFT JOIN (
-  SELECT avg(item_price) AS avg_price FROM "items"
-) t3 ON 1 = 1
-WHERE t2.item_price > t3.avg_price
-ORDER BY t1.total_count DESC
-LIMIT 10;
-`;
-const CALC_LOW_LABEL_ITEMS_CODE = `INSERT INTO "hot_items" (item_id, item_name, item_type, item_desc, item_price, item_label)
-SELECT
-  t2.id AS item_id,
-  t2.item_name,
-  t2.item_type,
-  t2.item_desc,
-  t2.item_price,
-  'low' AS item_label
-FROM (
-  SELECT sum(item_count) as total_count, item_id
-  FROM "orders"
-  WHERE create_time > DATEADD(DAY, -7, CURRENT_DATE)
-  GROUP BY item_id
-) t1
-LEFT JOIN "items" t2 ON t1.item_id = t2.id
-LEFT JOIN (
-  SELECT avg(item_price) AS avg_price FROM "items"
-) t3 ON 1 = 1
-WHERE t2.item_price < t3.avg_price
-ORDER BY t1.total_count DESC
-LIMIT 10;
-`;
 
 export default function IntroductionPage() {
     const [lastTs, setLastTs] = useState<number>(0);
@@ -174,11 +115,13 @@ export default function IntroductionPage() {
                             The user's payment ability is judged according to the user's order history. 
                         </Typography>
                         <Typography component='p' variant="body1" gutterBottom={true}>
-                            If the user's average order amount is greater than the average order amount of all users, it is considered that he is a user with strong payment ability and will be labeled <Chip size="small" color="primary" label="high"/>, else will be labeled <Chip size="small" color="info" label="low"/>
+                            <span>If the user's average order amount is greater than the average order amount of all users, it is considered that he is a user with strong payment ability and will be labeled </span>
+                            <b>high</b>
+                            <span>, else will be labeled </span>
+                            <b>low</b>
                         </Typography>
                         <ActionButton text="Calc User Labels on Snowflake" url="/api/data/user-labels/calc"/>
                     </Grid>
-
                 </Grid>
                 <Grid container spacing={3} sx={{ mt: '15px' }}>
                     <Grid item xs={6} md={6} lg={6}>
