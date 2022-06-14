@@ -28,7 +28,7 @@ build-app:
 	mvn clean package -DskipTests -Dstart-class=com.pingcap.ecommerce.ECommerceDemoApplication -Dfinal-name=tidb-ecommerce-demo-app
 
 check-env: build-cli
-	java -jar target/tidb-ecommerce-demo-cli.jar check-env
+	java -Djdk.module.illegalAccess=permit --add-opens=java.base/java.nio=ALL-UNNAMED -jar target/tidb-ecommerce-demo-cli.jar check-env
 
 tidb-init-schema: check-env
 	mysql -h ${TIDB_HOST} -u ${TIDB_USERNAME} --password=${TIDB_PASSWORD} -P 4000 <src/main/resources/tidb-init-schema.sql

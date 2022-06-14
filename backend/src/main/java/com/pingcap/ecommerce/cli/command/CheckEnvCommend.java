@@ -1,7 +1,13 @@
 package com.pingcap.ecommerce.cli.command;
 
 import com.beust.jcommander.Parameters;
+import com.beust.jcommander.internal.DefaultConsole;
+import com.pingcap.ecommerce.cli.connector.Connector;
+import net.snowflake.client.jdbc.SnowflakeBasicDataSource;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
+import org.springframework.jdbc.datasource.DataSourceUtils;
 
+import java.io.Console;
 import java.io.File;
 import java.io.OutputStream;
 import java.io.StringWriter;
@@ -47,38 +53,74 @@ public class CheckEnvCommend {
         }
 
         Map<String, String> env = System.getenv();
-        Scanner sc = new Scanner(System.in);
+        Console console = System.console();
         List<String> envVars = new ArrayList<>();
 
         out.print("\n");
         out.println("1. Configure TiDB");
 
-        String tidbHost = inputEnvVariable(env, sc, envVars, TIDB_HOST, true, false);
-        String tidbPort = inputEnvVariable(env, sc, envVars, TIDB_PORT, true, false);
-        String tidbDatabase = inputEnvVariable(env, sc, envVars, TIDB_DATABASE, true, false);
-        String tidbUsername = inputEnvVariable(env, sc, envVars, TIDB_USERNAME, true, false);
-        String tidbPassword = inputEnvVariable(env, sc, envVars, TIDB_PASSWORD, false, true);
-        String tidbJdbcUrl = String.format("jdbc:mysql://%s:%s/%s?rewriteBatchedStatements=true&allowLoadLocalInfile=true&zeroDateTimeBehavior=convertToNull",
-                tidbHost, tidbPort, tidbDatabase);
-        envVars.add(String.format("%s=%s", TIDB_URL, tidbJdbcUrl));
+        int retry = 1;
+        while (true) {
+            String tidbHost = inputEnvVariable(env, console, envVars, TIDB_HOST, true, false);
+            String tidbPort = inputEnvVariable(env, console, envVars, TIDB_PORT, true, false);
+            String tidbDatabase = inputEnvVariable(env, console, envVars, TIDB_DATABASE, true, false);
+            String tidbUsername = inputEnvVariable(env, console, envVars, TIDB_USERNAME, true, false);
+            String tidbPassword = inputEnvVariable(env, console, envVars, TIDB_PASSWORD, false, true);
+            String tidbJdbcUrl = String.format("jdbc:mysql://%s:%s/%s?rewriteBatchedStatements=true&allowLoadLocalInfile=true&zeroDateTimeBehavior=convertToNull",
+                    tidbHost, tidbPort, tidbDatabase);
+            envVars.add(String.format("%s=%s", TIDB_URL, tidbJdbcUrl));
+
+            DataSourceProperties properties = new DataSourceProperties();
+            properties.setDriverClassName("com.mysql.cj.jdbc.Driver");
+            properties.setUrl(tidbJdbcUrl);
+            properties.setUsername(tidbUsername);
+            properties.setPassword(tidbPassword);
+
+            if (Connector.tryToConnect(properties) || retry >= 3) {
+                out.println("Successfully connected to TiDB!");
+                break;
+            } else {
+                out.println("Failed to connect to TiDB, please check if your configuration is correct.");
+                retry++;
+            }
+        }
 
         out.print("\n");
         out.println("2. Configure Snowflake");
 
-        String snowflakeHost = inputEnvVariable(env, sc, envVars, SNOWSQL_HOST, true, false);
-        String snowflakeAccount = inputEnvVariable(env, sc, envVars, SNOWSQL_ACCOUNT, true, false);
-        String snowflakeWarehouse = inputEnvVariable(env, sc, envVars, SNOWSQL_WAREHOUSE, true, false);
-        String snowflakeDatabase = inputEnvVariable(env, sc, envVars, SNOWSQL_DATABASE, true, false);
-        String snowflakeSchema = inputEnvVariable(env, sc, envVars, SNOWSQL_SCHEMA, true, false);
-        String snowflakeUser = inputEnvVariable(env, sc, envVars, SNOWSQL_USER, true, false);
-        String snowflakeRole = inputEnvVariable(env, sc, envVars, SNOWSQL_ROLE, true, false);
-        String snowflakePwd = inputEnvVariable(env, sc, envVars, SNOWSQL_PWD, false, true);
-        String snowflakeUrl = String.format("jdbc:snowflake://%s:443?user=%s&warehouse=%s&db=%s&schema=%s&role=%s",
-                snowflakeHost, snowflakeUser, snowflakeWarehouse, snowflakeDatabase, snowflakeSchema, snowflakeRole);
-        envVars.add(String.format("%s=%s", SNOWSQL_URL, snowflakeUrl));
+        retry = 1;
+        while (true) {
+            String snowflakeHost = inputEnvVariable(env, console, envVars, SNOWSQL_HOST, true, false);
+            String snowflakeAccount = inputEnvVariable(env, console, envVars, SNOWSQL_ACCOUNT, true, false);
+            String snowflakeWarehouse = inputEnvVariable(env, console, envVars, SNOWSQL_WAREHOUSE, true, false);
+            String snowflakeDatabase = inputEnvVariable(env, console, envVars, SNOWSQL_DATABASE, true, false);
+            String snowflakeSchema = inputEnvVariable(env, console, envVars, SNOWSQL_SCHEMA, true, false);
+            String snowflakeUser = inputEnvVariable(env, console, envVars, SNOWSQL_USER, true, false);
+            String snowflakeRole = inputEnvVariable(env, console, envVars, SNOWSQL_ROLE, true, false);
+            String snowflakePwd = inputEnvVariable(env, console, envVars, SNOWSQL_PWD, false, true);
+            String snowflakeUrl = String.format("jdbc:snowflake://%s:443?user=%s&warehouse=%s&db=%s&schema=%s&role=%s",
+                    snowflakeHost, snowflakeUser, snowflakeWarehouse, snowflakeDatabase, snowflakeSchema, snowflakeRole);
+            envVars.add(String.format("%s=%s", SNOWSQL_URL, snowflakeUrl));
+
+            DataSourceProperties properties = new DataSourceProperties();
+            properties.setDriverClassName("com.snowflake.client.jdbc.SnowflakeDriver");
+            properties.setUrl(snowflakeUrl);
+            properties.setUsername(snowflakeUser);
+            properties.setPassword(snowflakePwd);
+
+            if (Connector.tryToConnect(properties) || retry >= 3) {
+                out.println("Successfully connected to Snowflake!");
+                break;
+            } else {
+                out.println("Failed to connect to Snowflake, please check if your configuration is correct.");
+                retry++;
+            }
+        }
+
 
         try {
             Files.write(Path.of(file.getPath()), envVars, StandardCharsets.UTF_8);
+            out.println("Successfully write configuration to .env file.");
         } catch (Exception e) {
             out.println("Failed to write .env file.");
             exit(1);
@@ -86,20 +128,28 @@ public class CheckEnvCommend {
     }
 
     private String inputEnvVariable(
-        Map<String, String> env, Scanner sc, List<String> envVars, String envName, boolean required, boolean secret
+        Map<String, String> env, Console console, List<String> envVars, String envName, boolean required, boolean secret
     ) {
         do {
             String existedValue = env.get(envName);
+            String newValue;
             if (existedValue != null) {
                 if (secret) {
-                    out.printf("%s: (%s)", envName, existedValue.isEmpty() ? "no password" : "has password");
+                    newValue = new String(
+                        console.readPassword(
+                            String.format("%s: (%s) ", envName, existedValue.isEmpty() ? "no password" : "has password")
+                        )
+                    );
                 } else {
-                    out.printf("%s: (%s)", envName, existedValue);
+                    newValue = console.readLine(String.format("%s: (%s) ", envName, existedValue));
                 }
             } else {
-                out.printf("%s: ", envName);
+                if (secret) {
+                    newValue = new String(console.readPassword(String.format("%s: ", envName)));
+                } else {
+                    newValue = console.readLine(String.format("%s: ", envName));
+                }
             }
-            String newValue = sc.nextLine();
 
             boolean hasExistedValue = existedValue != null && !existedValue.isEmpty();
             if (required && !hasExistedValue && newValue.isEmpty()) {
@@ -116,6 +166,5 @@ public class CheckEnvCommend {
             return value;
         } while (true);
     }
-
 
 }
