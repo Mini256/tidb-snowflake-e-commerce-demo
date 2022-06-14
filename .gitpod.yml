@@ -11,7 +11,8 @@ tasks:
       $HOME/.tiup/bin/tiup playground
   - name: Frontend
     openMode: tab-after
-    init: cd frontend && npm install
+    before: cd frontend
+    init: npm install
     command: |
       NEXT_PUBLIC_BASE_URL=$(gp url 8080) npm run dev
   - name: Import Data
@@ -22,8 +23,9 @@ tasks:
       make tidb-import-data
   - name: Backend
     openMode: tab-after
+    before: cd backend
+    init: make build-app
     command: |
-      cd backend
       make check-env
       make run
 
