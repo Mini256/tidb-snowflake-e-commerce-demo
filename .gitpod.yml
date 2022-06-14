@@ -31,5 +31,3 @@ ports:
     visibility: public
   - port: 3000
     visibility: public
-  - port: 2379-36663
-    onOpen: ignore
