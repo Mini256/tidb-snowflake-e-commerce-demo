@@ -29,15 +29,21 @@
 例如：
 
 ```bash
-mysql --connect-timeout 15 -u root -h tidb.8ea4f407.3a3ce0a0.ap-southeast-1.prod.aws.tidbcloud.com -P 4000 -p
+mysql --connect-timeout 15 -u root -h tidb.xxx.3a3ce0a0.ap-southeast-1.prod.aws.tidbcloud.com -P 4000 -p
 ```
 
-- `TIDB_HOST`: tidb.8ea4f407.3a3ce0a0.ap-southeast-1.prod.aws.tidbcloud.com
+得到：
+
+- `TIDB_HOST`: tidb.xxx.3a3ce0a0.ap-southeast-1.prod.aws.tidbcloud.com
 - `TIDB_PORT`: 4000
 - `TIDB_USERNAME`: root
 - `TIDB_PASSWORD`: <创建 TiDB 集群时所填写的密码>
 
-根据命令行窗口上的提示依次填写 TiDB 集群的连接信息。如果发现连接失败，请检查连接信息是否填写正确以及是否在 TiDB Cloud 的防火墙上允许当前终端连接到 TiDB Cloud。
+回到 GitPod 页面,根据命令行窗口上的提示依次填写 TiDB 集群的连接信息。
+
+> 如果发现连接失败，请检查连接信息是否填写正确以及是否在 TiDB Cloud 的防火墙上允许外部 IP 地址连接到该集群。
+
+<img width="1438" alt="image" src="https://user-images.githubusercontent.com/5086433/173576629-9564715d-1a64-4e2c-bea3-f7bfc33a6019.png">
 
 ## 注册 Snowflake 账号
 
@@ -107,9 +113,27 @@ SNOWSQL_ROLE=ACCOUNTADMIN
 SNOWSQL_PWD=<管理员用户的密码>
 ```
 
-依次填写到终端的提示输入中，完成 Snowflake 端的配置。
+<img width="1437" alt="image" src="https://user-images.githubusercontent.com/5086433/173577363-4fd85127-6cb1-40a0-8966-855d5ea64375.png">
 
-10. 填写完毕后，后端程序将被自动启动，导入数据的程序也会随着后端程序的启动而启动。
+回到 GitPod 页面，根据终端提示依次填 Snowflake 的连接信息。
+
+## 程序开始运行
+
+TiDB 和 Snowflake 的连接信息填写完毕后，后端程序将被自动启动，导入模拟数据的程序也会随着后端程序的启动紧跟着开始执行。
+
+后端程序开始运行的界面：
+
+<img width="1440" alt="image" src="https://user-images.githubusercontent.com/5086433/173578218-4df8bbd1-e9f2-478d-ba4b-1fdf116d6af2.png">
+
+导入模拟数据的程序的执行界面：
+
+<img width="1440" alt="image" src="https://user-images.githubusercontent.com/5086433/173578653-a99d34ea-567a-4a6d-9a2a-e793b7127a47.png">
+
+前端程序执行界面：
+
+<img width="1440" alt="image" src="https://user-images.githubusercontent.com/5086433/173579234-7f887d8a-857f-4303-9bb5-8b89e9bb950c.png">
+
+点击编辑器左侧的端口管理面板，找到 `3000` 端口，点击图标使用浏览器新窗口进行打开即可看到 Demo 的前端页面。
 
 ## 建立数据从 Snowflake 到 TiDB 的通道（Pipeline）
 
