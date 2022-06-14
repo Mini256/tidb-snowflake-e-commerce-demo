@@ -6,9 +6,6 @@ image:
   file: .gitpod.Dockerfile
 
 tasks:
-  - name: TiDB Playground
-    command: |
-      $HOME/.tiup/bin/tiup playground
   - name: Frontend
     openMode: tab-after
     before: cd frontend
@@ -17,8 +14,8 @@ tasks:
       NEXT_PUBLIC_BASE_URL=$(gp url 8080) npm run dev
   - name: Import Data
     openMode: tab-after
+    before: cd backend
     command: |
-      cd backend
       gp await-port 8080
       make tidb-import-data
   - name: Backend
