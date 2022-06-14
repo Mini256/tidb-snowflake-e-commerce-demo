@@ -7,6 +7,10 @@
     <result property="avgAmount" column="AVG_AMOUNT" javaType="java.math.BigDecimal" jdbcType="DECIMAL" />
   </resultMap>
 
+  <select id="useJSONResultFormat">
+    ALTER SESSION SET JDBC_QUERY_RESULT_FORMAT='JSON'
+  </select>
+
   <select id="getUserLabels" resultMap="UserLabel">
     SELECT user_id, user_label, avg_amount
     FROM "user_labels"

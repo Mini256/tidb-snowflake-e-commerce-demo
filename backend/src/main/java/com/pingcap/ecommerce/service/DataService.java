@@ -12,6 +12,8 @@ import com.pingcap.ecommerce.vo.OrderTypeTotalVO;
 import com.pingcap.ecommerce.vo.ResultVO;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -84,6 +86,7 @@ public class DataService {
         long pageSize = 2000;
 
         log.info("Pulling back user labels from Snowflake to TiDB.");
+        snowflakeUserLabelMapper.useJSONResultFormat();
 
         do {
             long offset = (pageNum - 1) * pageSize;
@@ -128,6 +131,7 @@ public class DataService {
         long pageSize = 1000;
 
         log.info("Pulling back hot items from Snowflake to TiDB.");
+        snowflakeUserLabelMapper.useJSONResultFormat();
 
         do {
             long offset = (pageNum - 1) * pageSize;
