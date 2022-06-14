@@ -1,13 +1,50 @@
 import EChartsReact, { EChartsOption, EChartsReactProps } from "echarts-for-react";
 import { useEffect, useState } from "react";
+import { useInterval } from "usehooks-ts";
+import { createHttpClient } from "../../../src/lib/request";
 
-export interface LineChartProps {
-    data: any;
-}
+const httpClient = createHttpClient();
 
-export default function LineChart(props: LineChartProps) {
-    const { data } = props;
+
+export default function LineChart(props: any) {
     const [pieChartOption, setPieChartOption] = useState<EChartsOption>({});
+
+    const [lastTs, setLastTs] = useState<number>(0);
+    const [check, setCheck] = useState(0)
+    const [data, setData] = useState<any[]>([]);
+
+    const loadTodayOrderHistory = async function() {
+        const url = `/api/statistic/orders/total-and-amount/history`
+        const res = await httpClient.get(url);
+        const n = res.data.length;
+        const history = res.data.map((item: any, index: number) => {
+            const ts = new Date(item.ts);
+            if (index === n - 1) {
+              console.log('setLastTs', Number(ts));
+              setLastTs(Number(ts) / 1000);
+            }
+            return {
+                name: ts.toString(),
+                value: [
+                  ts,
+                  item.total
+                ]
+            }
+        });
+        setData(history);
+    }
+
+    useEffect(() => {
+      loadTodayOrderHistory();
+    }, []);
+
+    useEffect(() => {
+      const id = setInterval(() => {
+        loadTodayOrderHistory();
+        setCheck(check + 1)
+      }, 10 * 1000);
+      return () => clearInterval(id);
+    }, [check]);
 
     useEffect(() => {
       const option:EChartsOption = {

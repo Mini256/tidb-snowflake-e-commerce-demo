@@ -1,50 +1,14 @@
 import { Box, Button, Grid, Typography } from "@mui/material";
-import { useEffect, useState } from "react";
 import DashboardLayout from "../../../src/DashboardLayout/DashboardLayout";
-import { createHttpClient } from "../../../src/lib/request";
 import ActionButton from "./ActionButton";
 import CustomCodeBlock from "./CodeBlock";
 import LineChart from "./LineChart";
 import Section from "./Section";
 import AcUnitIcon from '@mui/icons-material/AcUnit';
 import StorageIcon from '@mui/icons-material/Storage';
-import dynamic from "next/dynamic";
 import { CALC_USER_LABELS_CODE, CALC_HIGH_LABEL_ITEMS_CODE, CALC_LOW_LABEL_ITEMS_CODE } from "./SQL";
 
-const httpClient = createHttpClient();
-
 export default function IntroductionPage() {
-    const [lastTs, setLastTs] = useState<number>(0);
-    const [todayHistory, setTodayHistory] = useState<any[]>([]);
-
-    const loadTodayOrderHistory = async function() {
-        const url = `/api/statistic/orders/total-and-amount/history?startTs=${lastTs}`
-        const res = await httpClient.get(url);
-        const n = res.data.length;
-        const history = res.data.map((item: any, index: number) => {
-            const ts = new Date(item.ts);
-            if (index === n - 1) {
-                setLastTs(Number(ts) / 1000);
-            }
-            return {
-                name: ts.toString(),
-                value: [
-                  ts,
-                  item.total
-                ]
-            }
-        });
-        setTodayHistory(history);
-    }
-
-    useEffect(() => {
-        loadTodayOrderHistory();
-    }, []);
-
-    // useInterval(() => {
-    //     loadTodayOrderHistory();
-    // }, 10 * 1000);
-
     return (
         <DashboardLayout>
             <Typography component="h1" variant="h3" gutterBottom={true}>Introduction</Typography>
@@ -83,7 +47,7 @@ export default function IntroductionPage() {
                         2. Calculate today's total number and amount of orders and group them by item type
                     </Typography>
                     <Box sx={{ height: '500px' }}>
-                        <LineChart data={todayHistory}/>
+                        <LineChart/>
                     </Box>
                     <Button href="/admin/dashboard" variant="contained">Go to Dashboard Page</Button>
                 </Box>

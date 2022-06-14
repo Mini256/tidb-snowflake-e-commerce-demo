@@ -27,7 +27,10 @@
   <select id="selectLatestAllTypeAmountAndTotalHistory" resultMap="OrderSeries">
     SELECT ts, type, amount, total
     FROM s_orders
-    WHERE type = 'ALL' AND ts > CURRENT_DATE AND ts > FROM_UNIXTIME(#{startTimestamp})
+    WHERE type = 'ALL' AND ts > CURRENT_DATE
+    <if test="startTimestamp != null and startTimestamp > 0">
+      AND ts > FROM_UNIXTIME(#{startTimestamp})
+    </if>
     ORDER BY ts ASC;
   </select>
 
