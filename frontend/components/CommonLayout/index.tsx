@@ -30,6 +30,7 @@ export const DashboardLayout = (props: {
             flex: "1 1 auto",
             flexDirection: "column",
             width: "100%",
+            padding: "4rem 1.5rem",
           }}
         >
           {children}

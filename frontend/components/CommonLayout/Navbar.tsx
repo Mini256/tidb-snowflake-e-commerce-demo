@@ -8,10 +8,11 @@ import {
   IconButton,
   Toolbar,
   Tooltip,
+  Typography,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import SearchIcon from "@mui/icons-material/Search";
-// import { Bell as BellIcon } from '../icons/bell';
+import { Bell as BellIcon } from "../../icons/Bell";
 
 const DashboardNavbarRoot = styled(AppBar)(({ theme }) => ({
   backgroundColor: theme.palette.background.paper,
@@ -45,7 +46,7 @@ export const DashboardNavbar = (props: {
             px: 2,
           }}
         >
-          <IconButton
+          {/* <IconButton
             onClick={onSidebarOpen}
             sx={{
               display: {
@@ -60,19 +61,24 @@ export const DashboardNavbar = (props: {
             <IconButton sx={{ ml: 1 }}>
               <SearchIcon fontSize="small" />
             </IconButton>
-          </Tooltip>
+          </Tooltip> */}
           <Box sx={{ flexGrow: 1 }} />
-          {/* <Tooltip title="Notifications">
+          <Tooltip title="Notifications">
             <IconButton sx={{ ml: 1 }}>
-              <Badge
-                badgeContent={4}
-                color="primary"
-                variant="dot"
-              >
+              <Badge badgeContent={4} color="primary" variant="dot">
                 <BellIcon fontSize="small" />
               </Badge>
             </IconButton>
-          </Tooltip> */}
+          </Tooltip>
+          <Avatar
+            sx={{
+              height: 40,
+              width: 40,
+              ml: 1,
+            }}
+          >
+            D
+          </Avatar>
         </Toolbar>
       </DashboardNavbarRoot>
     </>

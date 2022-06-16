@@ -21,38 +21,43 @@ import { Selector as SelectorIcon } from "../../icons/SelectorIcon";
 // import { XCircle as XCircleIcon } from '../icons/x-circle';
 import { Logo } from "./Logo";
 import { NavItem } from "../NavItem";
+import Home from "@mui/icons-material/Home";
+import DashboardIcon from "@mui/icons-material/Dashboard";
+import PeopleIcon from "@mui/icons-material/People";
+import ShoppingBag from "@mui/icons-material/ShoppingBag";
+import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 
 const items: any[] = [
-  // {
-  //   href: '/',
-  //   icon: (<ChartBarIcon fontSize="small" />),
-  //   title: 'Dashboard'
-  // },
-  // {
-  //   href: '/customers',
-  //   icon: (<UsersIcon fontSize="small" />),
-  //   title: 'Customers'
-  // },
-  // {
-  //   href: '/products',
-  //   icon: (<ShoppingBagIcon fontSize="small" />),
-  //   title: 'Products'
-  // },
-  // {
-  //   href: '/account',
-  //   icon: (<UserIcon fontSize="small" />),
-  //   title: 'Account'
-  // },
-  // {
-  //   href: '/settings',
-  //   icon: (<CogIcon fontSize="small" />),
-  //   title: 'Settings'
-  // },
-  // {
-  //   href: '/login',
-  //   icon: (<LockIcon fontSize="small" />),
-  //   title: 'Login'
-  // },
+  {
+    href: "/admin/introduction",
+    icon: <Home fontSize="small" />,
+    title: "Introduction",
+  },
+  {
+    href: "/admin/dashboard",
+    icon: <DashboardIcon fontSize="small" />,
+    title: "Dashboard",
+  },
+  {
+    href: "/admin/customer",
+    icon: <PeopleIcon fontSize="small" />,
+    title: "Customers",
+  },
+  {
+    href: "/admin/item",
+    icon: <ShoppingBag fontSize="small" />,
+    title: "Items",
+  },
+  {
+    href: "/admin/recommend",
+    icon: <ShoppingBag fontSize="small" />,
+    title: "Recommended Items",
+  },
+  {
+    href: "/admin/order",
+    icon: <ShoppingCartIcon fontSize="small" />,
+    title: "Orders",
+  },
   // {
   //   href: '/register',
   //   icon: (<UserAddIcon fontSize="small" />),
