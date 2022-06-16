@@ -14,7 +14,7 @@ import {
   CALC_USER_LABELS_CODE,
   CALC_HIGH_LABEL_ITEMS_CODE,
   CALC_LOW_LABEL_ITEMS_CODE,
-} from "./SQL";
+} from "../../../static/SQL";
 
 export default function IntroductionPage() {
   return (
