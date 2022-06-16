@@ -163,7 +163,7 @@ export default function IntroductionPage() {
         <Grid container spacing={3} sx={{ mt: "15px" }}>
           <Grid item xs={6} md={6} lg={6}>
             <CustomCodeBlock code={CALC_HIGH_LABEL_ITEMS_CODE} language="sql" />
-            <CodeHighlight lang="sql" content={CALC_HIGH_LABEL_ITEMS_CODE} />
+            {/* <CodeHighlight lang="sql" content={CALC_HIGH_LABEL_ITEMS_CODE} /> */}
           </Grid>
           <Grid item xs={6} md={6} lg={6}>
             <ActionButton
