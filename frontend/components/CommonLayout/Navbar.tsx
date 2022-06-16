@@ -22,8 +22,9 @@ const DashboardNavbarRoot = styled(AppBar)(({ theme }) => ({
 export const DashboardNavbar = (props: {
   [x: string]: any;
   onSidebarOpen: any;
+  endpoint?: string;
 }) => {
-  const { onSidebarOpen, ...other } = props;
+  const { onSidebarOpen, endpoint, ...other } = props;
 
   return (
     <>
@@ -46,6 +47,9 @@ export const DashboardNavbar = (props: {
             px: 2,
           }}
         >
+          <Typography color="textSecondary" gutterBottom variant="overline">
+            {`Endpoint URL: ${endpoint}`}
+          </Typography>
           {/* <IconButton
             onClick={onSidebarOpen}
             sx={{

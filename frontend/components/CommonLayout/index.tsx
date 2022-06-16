@@ -23,6 +23,7 @@ export const DashboardLayout = (props: {
 }) => {
   const { children, showSideBar = true } = props;
   const [isSidebarOpen, setSidebarOpen] = useState(true);
+  const [endpointVal, setEndpointVal] = useState("");
 
   const router = useRouter();
 
@@ -30,6 +31,8 @@ export const DashboardLayout = (props: {
     const endpoint = getLocalStorageEndpoint();
     if (!endpoint) {
       router.push(`/init`);
+    } else {
+      setEndpointVal(endpoint);
     }
   });
 
@@ -48,7 +51,10 @@ export const DashboardLayout = (props: {
           {children}
         </Box>
       </DashboardLayoutRoot>
-      <DashboardNavbar onSidebarOpen={() => setSidebarOpen(true)} />
+      <DashboardNavbar
+        onSidebarOpen={() => setSidebarOpen(true)}
+        endpoint={endpointVal}
+      />
       {showSideBar && (
         <DashboardSidebar
           onClose={() => setSidebarOpen(false)}
