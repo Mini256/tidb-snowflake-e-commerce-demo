@@ -1,8 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Box } from "@mui/material";
 import { styled } from "@mui/material/styles";
+import { useRouter } from "next/router";
+
 import { DashboardNavbar } from "./Navbar";
 import { DashboardSidebar } from "./SideBar";
+import { getLocalStorageEndpoint } from "../../lib";
 
 const DashboardLayoutRoot = styled("div")(({ theme }) => ({
   display: "flex",
@@ -20,6 +23,15 @@ export const DashboardLayout = (props: {
 }) => {
   const { children, showSideBar = true } = props;
   const [isSidebarOpen, setSidebarOpen] = useState(true);
+
+  const router = useRouter();
+
+  useEffect(() => {
+    const endpoint = getLocalStorageEndpoint();
+    if (!endpoint) {
+      router.push(`/init`);
+    }
+  });
 
   return (
     <>

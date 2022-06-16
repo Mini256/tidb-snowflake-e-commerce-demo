@@ -16,7 +16,7 @@ import {
 
 export default function IntroductionPage() {
   return (
-    <DashboardLayout title="Introduction">
+    <DashboardLayout>
       <Typography component="h1" variant="h3" gutterBottom={true}>
         Introduction
       </Typography>
