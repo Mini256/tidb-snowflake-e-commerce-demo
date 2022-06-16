@@ -6,8 +6,8 @@ import Snackbar from "@mui/material/Snackbar";
 import MuiAlert, { AlertProps } from "@mui/material/Alert";
 
 import { useState, useEffect, forwardRef } from "react";
-import { VerticalLinearStepper } from "../components/ConfigStepper/ConfigStepper";
-import { EndpointBlock } from "../components/Endpoint/EndpointBlock";
+import { VerticalLinearStepper } from "../components/Stepper/ConfigStepper";
+import { EndpointBlock } from "../components/Block/EndpointBlock";
 
 interface InitPageProps {}
 

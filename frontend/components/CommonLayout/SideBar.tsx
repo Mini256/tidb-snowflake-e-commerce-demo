@@ -20,7 +20,7 @@ import { Selector as SelectorIcon } from "../../icons/SelectorIcon";
 // import { Users as UsersIcon } from '../icons/users';
 // import { XCircle as XCircleIcon } from '../icons/x-circle';
 import { Logo } from "./Logo";
-import { NavItem } from "../NavItem";
+import { NavItem } from "../Stepper/NavItem";
 import Home from "@mui/icons-material/Home";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import PeopleIcon from "@mui/icons-material/People";
