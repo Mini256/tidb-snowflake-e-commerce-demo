@@ -6,7 +6,9 @@ import { DashboardLayout } from "../../../components/CommonLayout";
 import { CommonCard } from "../../../components/Card/IndexCard";
 
 import ActionButton from "../../../components/Button/ActionButton";
-import CustomCodeBlock from "../../../components/Block/CodeBlock";
+import CustomCodeBlock, {
+  CodeHighlight,
+} from "../../../components/Block/CodeBlock";
 import LineChart from "../../../components/Chart/LineChart";
 import AcUnitIcon from "@mui/icons-material/AcUnit";
 import StorageIcon from "@mui/icons-material/Storage";
@@ -112,7 +114,15 @@ export default function IntroductionPage() {
           We will use tools like <a href="https://etleap.com/">ETLeap</a> to
           import data from TiDB to Snowflake.
         </Typography>
-        <video width="100%" height="100%" autoPlay loop muted controls>
+        <video
+          width="100%"
+          height="100%"
+          autoPlay
+          loop
+          muted
+          controls
+          style={{ maxWidth: "50rem" }}
+        >
           <source
             src="https://user-images.githubusercontent.com/55385323/172923035-6327f6ff-f141-4c48-ba87-56a1ddbce6d7.mp4"
             type="video/mp4"
@@ -153,6 +163,7 @@ export default function IntroductionPage() {
         <Grid container spacing={3} sx={{ mt: "15px" }}>
           <Grid item xs={6} md={6} lg={6}>
             <CustomCodeBlock code={CALC_HIGH_LABEL_ITEMS_CODE} language="sql" />
+            <CodeHighlight lang="sql" content={CALC_HIGH_LABEL_ITEMS_CODE} />
           </Grid>
           <Grid item xs={6} md={6} lg={6}>
             <ActionButton
