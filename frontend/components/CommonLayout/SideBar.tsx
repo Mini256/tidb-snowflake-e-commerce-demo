@@ -76,7 +76,7 @@ export const DashboardSidebar = (props: {
 }) => {
   const { open, onClose } = props;
   const router = useRouter();
-  const lgUp = useMediaQuery((theme) => theme.breakpoints.up("lg"), {
+  const lgUp = useMediaQuery((theme: any) => theme.breakpoints.up("lg"), {
     defaultMatches: true,
     noSsr: false,
   });
