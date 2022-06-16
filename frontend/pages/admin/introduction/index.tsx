@@ -1,5 +1,7 @@
 import { Box, Button, Grid, Typography } from "@mui/material";
 // import DashboardLayout from "../../../src/DashboardLayout/DashboardLayout";
+import { DashboardLayout } from "../../../components/CommonLayout";
+
 import ActionButton from "./ActionButton";
 import CustomCodeBlock from "./CodeBlock";
 import LineChart from "./LineChart";
@@ -11,8 +13,6 @@ import {
   CALC_HIGH_LABEL_ITEMS_CODE,
   CALC_LOW_LABEL_ITEMS_CODE,
 } from "./SQL";
-
-import { DashboardLayout } from "../../../components/CommonLayout";
 
 export default function IntroductionPage() {
   return (

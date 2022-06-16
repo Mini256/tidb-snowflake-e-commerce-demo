@@ -1,11 +1,13 @@
-import Grid from '@mui/material/Grid';
-import DashboardLayout from '../../../src/DashboardLayout/DashboardLayout';
-import qs from 'qs';
-import { createHttpClient } from '../../../src/lib/request'
-import { useEffect, useState } from 'react';
-import { DataGrid, GridColumns } from '@mui/x-data-grid';
-import { PageHeader } from '../../../src/DashboardLayout/PageHeader';
-import { usdPrice } from '../../../src/lib/formatter';
+import Grid from "@mui/material/Grid";
+// import DashboardLayout from '../../../src/DashboardLayout/DashboardLayout';
+import { DashboardLayout } from "../../../components/CommonLayout";
+
+import qs from "qs";
+import { createHttpClient } from "../../../src/lib/request";
+import { useEffect, useState } from "react";
+import { DataGrid, GridColumns } from "@mui/x-data-grid";
+import { PageHeader } from "../../../src/DashboardLayout/PageHeader";
+import { usdPrice } from "../../../src/lib/formatter";
 
 const httpClient = createHttpClient();
 
@@ -17,7 +19,7 @@ export interface ResultVO<R> {
 }
 
 export interface Item {
-  id: number,
+  id: number;
   itemName: string;
   itemPrice: string;
   itemType: string;
@@ -34,14 +36,31 @@ export default function ItemPage() {
   const [rows, setRows] = useState<Item[]>([]);
   const [query, setQuery] = useState<Record<string, any>>({});
 
-  const columns:GridColumns<Item> = [
-    { field: 'itemName', headerName: 'Name', minWidth: 140 },
-    { field: 'itemPrice', headerName: 'Price', flex: 1, ...usdPrice, align: 'left', headerAlign: 'left' },
-    { field: 'itemType', headerName: 'Type', flex: 1 },
-    { field: 'itemDesc', headerName: 'Description', flex: 1 },
-    { field: 'createTime', headerName: 'Create Time', flex: 1, type: 'dateTime' },
-    { field: 'updateTime', headerName: 'Update Time', flex: 1, type: 'dateTime' },
-  ]
+  const columns: GridColumns<Item> = [
+    { field: "itemName", headerName: "Name", minWidth: 140 },
+    {
+      field: "itemPrice",
+      headerName: "Price",
+      flex: 1,
+      ...usdPrice,
+      align: "left",
+      headerAlign: "left",
+    },
+    { field: "itemType", headerName: "Type", flex: 1 },
+    { field: "itemDesc", headerName: "Description", flex: 1 },
+    {
+      field: "createTime",
+      headerName: "Create Time",
+      flex: 1,
+      type: "dateTime",
+    },
+    {
+      field: "updateTime",
+      headerName: "Update Time",
+      flex: 1,
+      type: "dateTime",
+    },
+  ];
 
   useEffect(() => {
     (async () => {
@@ -50,11 +69,11 @@ export default function ItemPage() {
       try {
         const q = Object.assign({}, query, {
           page: page - 1,
-          size: pageSize
-        })
+          size: pageSize,
+        });
         const url = `/api/items?${qs.stringify(q)}`;
         const res = await httpClient.get(url);
-        const orderPage:ResultVO<Item> = res.data;
+        const orderPage: ResultVO<Item> = res.data;
         const { content = [], pageNum, rowTotal } = orderPage;
 
         content.map((item) => {
@@ -62,22 +81,25 @@ export default function ItemPage() {
           item.updateTime = new Date(item.updateTime);
           return item;
         });
-  
+
         setRows(content || []);
         setRowCount(rowTotal || 0);
       } finally {
         setLoading(false);
       }
-    })()
+    })();
   }, [query, page]);
 
   return (
     <DashboardLayout>
-      <PageHeader title='Items' links={[
-        { label: 'Dashboard', href: '/' },
-        { label: 'Manage' },
-        { label: 'Items' },
-      ]}/>
+      <PageHeader
+        title="Items"
+        links={[
+          { label: "Dashboard", href: "/" },
+          { label: "Manage" },
+          { label: "Items" },
+        ]}
+      />
       <Grid container spacing={3}>
         <Grid item xs={12} md={12} lg={12}>
           <DataGrid
