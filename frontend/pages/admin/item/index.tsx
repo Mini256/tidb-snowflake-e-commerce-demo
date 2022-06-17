@@ -3,14 +3,12 @@ import Grid from "@mui/material/Grid";
 import { DashboardLayout } from "../../../components/CommonLayout";
 
 import qs from "qs";
-import { createHttpClient } from "../../../src/lib/request";
 import { useEffect, useState } from "react";
 import { DataGrid, GridColumns } from "@mui/x-data-grid";
 import { PageHeader } from "../../../src/DashboardLayout/PageHeader";
 import { usdPrice } from "../../../src/lib/formatter";
 
-const httpClient = createHttpClient();
-
+import { useHttpClient } from "../../../lib";
 export interface ResultVO<R> {
   content: R[];
   rowTotal: number;
@@ -35,6 +33,8 @@ export default function ItemPage() {
   const [rowCount, setRowCount] = useState<number>(0);
   const [rows, setRows] = useState<Item[]>([]);
   const [query, setQuery] = useState<Record<string, any>>({});
+
+  const [httpClient, endpoint] = useHttpClient();
 
   const columns: GridColumns<Item> = [
     { field: "itemName", headerName: "Name", minWidth: 140 },
@@ -88,7 +88,7 @@ export default function ItemPage() {
         setLoading(false);
       }
     })();
-  }, [query, page]);
+  }, [query, page, endpoint]);
 
   return (
     <DashboardLayout>

@@ -4,7 +4,6 @@ import Paper from "../../../src/DashboardLayout/Pager";
 import { DashboardLayout } from "../../../components/CommonLayout";
 
 import qs from "qs";
-import { createHttpClient } from "../../../src/lib/request";
 import { useEffect, useState } from "react";
 import { DataGrid, GridColumns } from "@mui/x-data-grid";
 import { PageHeader } from "../../../src/DashboardLayout/PageHeader";
@@ -12,7 +11,7 @@ import { usdPrice } from "../../../src/lib/formatter";
 import { Autocomplete, Box, Chip, TextField } from "@mui/material";
 import { UserVO } from "../customer";
 
-const httpClient = createHttpClient();
+import { useHttpClient } from "../../../lib";
 
 export interface ResultVO<R> {
   content: R[];
@@ -49,6 +48,8 @@ export default function ItemPage() {
   const [userAutocompleteOptions, setUserAutocompleteOptions] = useState<any[]>(
     []
   );
+
+  const [httpClient, endpoint] = useHttpClient();
 
   const columns: GridColumns<HotItem> = [
     { field: "userName", headerName: "User", flex: 1 },
@@ -125,7 +126,7 @@ export default function ItemPage() {
         setLoading(false);
       }
     })();
-  }, [query, page]);
+  }, [query, page, endpoint]);
 
   // User autocomplete.
   useEffect(() => {

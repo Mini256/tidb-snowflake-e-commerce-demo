@@ -4,9 +4,8 @@ import EChartsReact, {
 } from "echarts-for-react";
 import { useEffect, useState } from "react";
 import { useInterval } from "usehooks-ts";
-import { createHttpClient } from "../../src/lib/request";
 
-const httpClient = createHttpClient();
+import { useHttpClient } from "../../lib";
 
 export default function LineChart(props: any) {
   const [pieChartOption, setPieChartOption] = useState<EChartsOption>({});
@@ -14,6 +13,8 @@ export default function LineChart(props: any) {
   const [lastTs, setLastTs] = useState<number>(0);
   const [check, setCheck] = useState(0);
   const [data, setData] = useState<any[]>([]);
+
+  const [httpClient, endpoint] = useHttpClient();
 
   const loadTodayOrderHistory = async function () {
     const url = `/api/statistic/orders/total-and-amount/history`;
@@ -35,7 +36,7 @@ export default function LineChart(props: any) {
 
   useEffect(() => {
     loadTodayOrderHistory();
-  }, []);
+  }, [endpoint]);
 
   useEffect(() => {
     const id = setInterval(() => {
@@ -43,7 +44,7 @@ export default function LineChart(props: any) {
       setCheck(check + 1);
     }, 10 * 1000);
     return () => clearInterval(id);
-  }, [check]);
+  }, [check, endpoint]);
 
   useEffect(() => {
     const option: EChartsOption = {
@@ -92,7 +93,7 @@ export default function LineChart(props: any) {
       ],
     };
     setPieChartOption(option);
-  }, [data]);
+  }, [data, endpoint]);
 
   return (
     <EChartsReact

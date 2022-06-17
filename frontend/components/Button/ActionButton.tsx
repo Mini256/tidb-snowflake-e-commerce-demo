@@ -1,9 +1,8 @@
 import { Box, Button, CircularProgress } from "@mui/material";
 import { green } from "@mui/material/colors";
 import { useState } from "react";
-import { createHttpClient } from "../../src/lib/request";
 
-const httpClient = createHttpClient();
+import { useHttpClient } from "../../lib";
 
 export interface ActionButtonProps {
   text: string;
@@ -12,6 +11,8 @@ export interface ActionButtonProps {
 
 export default function ActionButton(props: ActionButtonProps) {
   const [loading, setLoading] = useState<boolean>(false);
+
+  const [httpClient] = useHttpClient();
 
   const action = async () => {
     setLoading(true);

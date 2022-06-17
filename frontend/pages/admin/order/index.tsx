@@ -4,14 +4,13 @@ import { DashboardLayout } from "../../../components/CommonLayout";
 
 import { Autocomplete, Box, TextField } from "@mui/material";
 import qs from "qs";
-import { createHttpClient } from "../../../src/lib/request";
 import { useEffect, useState } from "react";
 import { DataGrid, GridColumns } from "@mui/x-data-grid";
 import { PageHeader } from "../../../src/DashboardLayout/PageHeader";
 import { usdPrice } from "../../../src/lib/formatter";
 import { UserVO } from "../customer";
 
-const httpClient = createHttpClient();
+import { useHttpClient } from "../../../lib";
 
 export interface ResultVO<R> {
   content: R[];
@@ -45,6 +44,8 @@ export default function OrderPage() {
   const [userAutocompleteOptions, setUserAutocompleteOptions] = useState<any[]>(
     []
   );
+
+  const [httpClient, endpoint] = useHttpClient();
 
   const columns: GridColumns<OrderVO> = [
     {
@@ -110,7 +111,7 @@ export default function OrderPage() {
         setLoading(false);
       }
     })();
-  }, [query, page]);
+  }, [query, page, endpoint]);
 
   // User autocomplete.
   useEffect(() => {

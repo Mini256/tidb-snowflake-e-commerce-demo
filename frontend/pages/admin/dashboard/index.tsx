@@ -3,8 +3,6 @@ import Paper from "../../../src/DashboardLayout/Pager";
 // import DashboardLayout from '../../../src/DashboardLayout/DashboardLayout';
 import { DashboardLayout } from "../../../components/CommonLayout";
 
-import { createHttpClient } from "../../../src/lib/request";
-import { AxiosInstance } from "axios";
 import { Box, Tooltip, Typography } from "@mui/material";
 import Title from "../../../src/DashboardLayout/Title";
 import { useEffect, useState } from "react";
@@ -13,7 +11,7 @@ import { DataGrid, GridColumns } from "@mui/x-data-grid";
 import { DateTime } from "luxon";
 import PieChart from "./PieChart";
 
-const httpClient: AxiosInstance = createHttpClient();
+import { useHttpClient } from "../../../lib";
 
 export interface TodayOrder {
   updateTime?: string;
@@ -63,6 +61,8 @@ export default function DashboardPage() {
   const [highPriceItems, setHighPriceItems] = useState<HotItem[]>([]);
   const [lowPriceItems, setLowPriceItems] = useState<HotItem[]>([]);
 
+  const [httpClient, endpoint] = useHttpClient();
+
   // Load today order total and amount.
   useEffect(() => {
     (async () => {
@@ -77,7 +77,7 @@ export default function DashboardPage() {
           .toLocaleString(DateTime.DATETIME_MED),
       });
     })();
-  }, []);
+  }, [endpoint]);
 
   // Load sales by item type.
   useEffect(() => {
@@ -93,7 +93,7 @@ export default function DashboardPage() {
       });
       setItemTypeSales(data);
     })();
-  }, []);
+  }, [endpoint]);
 
   // Load hot items list.
   useEffect(() => {
@@ -119,7 +119,7 @@ export default function DashboardPage() {
       });
       setLowPriceItems(data);
     })();
-  }, []);
+  }, [endpoint]);
 
   return (
     <DashboardLayout>

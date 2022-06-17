@@ -6,13 +6,12 @@ import { DashboardLayout } from "../../../components/CommonLayout";
 import { Box, Button, Chip, Link, TextField, Typography } from "@mui/material";
 import Breadcrumbs from "@mui/material/Breadcrumbs";
 import qs from "qs";
-import { createHttpClient } from "../../../src/lib/request";
 import { useEffect, useState } from "react";
 import { DataGrid, GridColumns } from "@mui/x-data-grid";
 import { PageHeader } from "../../../src/DashboardLayout/PageHeader";
 import { usdPrice } from "../../../src/lib/formatter";
 
-const httpClient = createHttpClient();
+import { useHttpClient } from "../../../lib";
 
 export interface ResultVO<R> {
   content: R[];
@@ -39,6 +38,8 @@ export default function CustomerPage() {
   const [rows, setRows] = useState<UserVO[]>([]);
   const [query, setQuery] = useState<Record<string, any>>({});
   const [username, setUsername] = useState<string>();
+
+  const [httpClient, endpoint] = useHttpClient();
 
   const columns: GridColumns<UserVO> = [
     { field: "username", headerName: "Username", flex: 1 },
@@ -105,7 +106,7 @@ export default function CustomerPage() {
         setLoading(false);
       }
     })();
-  }, [query, page]);
+  }, [query, page, endpoint]);
 
   return (
     <DashboardLayout>
