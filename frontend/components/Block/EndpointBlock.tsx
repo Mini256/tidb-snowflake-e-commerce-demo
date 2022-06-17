@@ -1,7 +1,7 @@
 import { useState, useEffect, forwardRef } from "react";
 
 import { useRouter } from "next/router";
-import { Box, TextField, Typography, Container } from "@mui/material";
+import { Box, TextField, Typography, Container, Button } from "@mui/material";
 import LoadingButton from "@mui/lab/LoadingButton";
 import Skeleton from "@mui/material/Skeleton";
 import Snackbar from "@mui/material/Snackbar";
@@ -92,6 +92,15 @@ export const EndpointBlock = (props: {
         >
           Check
         </LoadingButton>
+        <Button
+          onClick={() => {
+            setLocalStorageEndpoint("");
+            setInputVal("");
+          }}
+          sx={{ mt: 1, mr: 1 }}
+        >
+          Reset
+        </Button>
       </Box>
       <Snackbar
         open={showSnackBar}

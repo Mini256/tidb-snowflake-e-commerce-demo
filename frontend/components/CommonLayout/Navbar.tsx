@@ -1,4 +1,5 @@
 import PropTypes from "prop-types";
+import { useRouter } from "next/router";
 // import styled from "@emotion/styled";
 import { styled } from "@mui/material/styles";
 import {
@@ -13,6 +14,8 @@ import {
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import SearchIcon from "@mui/icons-material/Search";
+import EditIcon from "@mui/icons-material/Edit";
+
 import { Bell as BellIcon } from "../../icons/Bell";
 
 const DashboardNavbarRoot = styled(AppBar)(({ theme }) => ({
@@ -26,6 +29,8 @@ export const DashboardNavbar = (props: {
   endpoint?: string;
 }) => {
   const { onSidebarOpen, endpoint, ...other } = props;
+
+  const router = useRouter();
 
   return (
     <>
@@ -48,10 +53,7 @@ export const DashboardNavbar = (props: {
             px: 2,
           }}
         >
-          <Typography color="textSecondary" gutterBottom variant="overline">
-            {`Endpoint URL: ${endpoint}`}
-          </Typography>
-          {/* <IconButton
+          <IconButton
             onClick={onSidebarOpen}
             sx={{
               display: {
@@ -62,7 +64,24 @@ export const DashboardNavbar = (props: {
           >
             <MenuIcon fontSize="small" />
           </IconButton>
-          <Tooltip title="Search">
+
+          <Typography
+            color="textSecondary"
+            gutterBottom
+            variant="overline"
+            sx={{ mb: 0 }}
+          >
+            {`Endpoint URL: ${endpoint}`}
+          </Typography>
+          <IconButton
+            onClick={() => {
+              router.push(`/init?endpoint=${endpoint}`);
+            }}
+            sx={{ ml: 1 }}
+          >
+            <EditIcon fontSize="small" />
+          </IconButton>
+          {/* <Tooltip title="Search">
             <IconButton sx={{ ml: 1 }}>
               <SearchIcon fontSize="small" />
             </IconButton>
