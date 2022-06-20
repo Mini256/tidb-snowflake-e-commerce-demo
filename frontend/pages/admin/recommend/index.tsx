@@ -7,7 +7,7 @@ import qs from "qs";
 import { useEffect, useState } from "react";
 import { DataGrid, GridColumns } from "@mui/x-data-grid";
 import { PageHeader } from "../../../src/DashboardLayout/PageHeader";
-import { usdPrice } from "../../../src/lib/formatter";
+import { usdPrice } from "../../../lib/formatter";
 import { Autocomplete, Box, Chip, TextField } from "@mui/material";
 import { UserVO } from "../customer";
 

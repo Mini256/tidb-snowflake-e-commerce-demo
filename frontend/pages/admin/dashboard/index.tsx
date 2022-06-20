@@ -6,7 +6,7 @@ import { DashboardLayout } from "../../../components/CommonLayout";
 import { Box, Tooltip, Typography } from "@mui/material";
 import Title from "../../../src/DashboardLayout/Title";
 import { useEffect, useState } from "react";
-import { formatNumber, usdPrice } from "../../../src/lib/formatter";
+import { formatNumber, usdPrice } from "../../../lib/formatter";
 import { DataGrid, GridColumns } from "@mui/x-data-grid";
 import { DateTime } from "luxon";
 import PieChart from "./PieChart";
