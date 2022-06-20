@@ -8,6 +8,7 @@ import MuiAlert, { AlertProps } from "@mui/material/Alert";
 import { useState, useEffect, forwardRef } from "react";
 import { VerticalLinearStepper } from "../components/Stepper/ConfigStepper";
 import { EndpointBlock } from "../components/Block/EndpointBlock";
+import { IntroductionCard } from "../components/Card/IntroductionCard";
 
 interface InitPageProps {}
 
@@ -28,8 +29,9 @@ export default function InitPage(props: InitPageProps) {
   return (
     <Container maxWidth="sm" sx={{ margin: "auto" }}>
       <Typography component="h1" variant="h1">
-        Init
+        TiDB & Snowflake Demo
       </Typography>
+      <IntroductionCard />
       {loading ? (
         <>
           <Skeleton animation="wave" height={40} />

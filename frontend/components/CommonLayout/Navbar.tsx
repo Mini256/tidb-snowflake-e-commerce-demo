@@ -15,6 +15,7 @@ import {
 import MenuIcon from "@mui/icons-material/Menu";
 import SearchIcon from "@mui/icons-material/Search";
 import EditIcon from "@mui/icons-material/Edit";
+import GitHubIcon from "@mui/icons-material/GitHub";
 
 import { Bell as BellIcon } from "../../icons/Bell";
 
@@ -87,22 +88,15 @@ export const DashboardNavbar = (props: {
             </IconButton>
           </Tooltip> */}
           <Box sx={{ flexGrow: 1 }} />
-          <Tooltip title="Notifications">
-            <IconButton sx={{ ml: 1 }}>
-              <Badge badgeContent={4} color="primary" variant="dot">
-                <BellIcon fontSize="small" />
-              </Badge>
+          <Tooltip title="Github Link">
+            <IconButton
+              sx={{ ml: 1 }}
+              href="https://github.com/Mini256/tidb-snowflake-e-commerce-demo"
+              target="_blank"
+            >
+              <GitHubIcon />
             </IconButton>
           </Tooltip>
-          <Avatar
-            sx={{
-              height: 40,
-              width: 40,
-              ml: 1,
-            }}
-          >
-            D
-          </Avatar>
         </Toolbar>
       </DashboardNavbarRoot>
     </>
