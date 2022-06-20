@@ -76,7 +76,7 @@ export const DashboardNavbar = (props: {
           </Typography>
           <IconButton
             onClick={() => {
-              router.push(`/init?endpoint=${endpoint}`);
+              router.push(`/config?endpoint=${endpoint}`);
             }}
             sx={{ ml: 1 }}
           >

@@ -30,7 +30,7 @@ export const DashboardLayout = (props: {
   useEffect(() => {
     const endpoint = getLocalStorageEndpoint();
     if (!endpoint) {
-      router.push(`/init`);
+      router.push(`/config`);
     } else {
       setEndpointVal(endpoint);
     }
