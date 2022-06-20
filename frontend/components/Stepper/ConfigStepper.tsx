@@ -9,8 +9,9 @@ import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
 import TextField from "@mui/material/TextField";
 import LoadingButton from "@mui/lab/LoadingButton";
-
 import { useRouter } from "next/router";
+
+import { TiDBConfig, SnowflakeConfig } from "../SidePanel/Walkthrough";
 
 const TiDBStepContent = (props: any) => {
   const { handleNext } = props;
@@ -297,6 +298,7 @@ export function VerticalLinearStepper() {
               </Typography>
               .
             </Typography>
+            <TiDBConfig />
             <TiDBStepContent handleNext={handleNext} />
           </StepContent>
         </Step>
@@ -312,6 +314,7 @@ export function VerticalLinearStepper() {
               create your Snowflake cluster in{" "}
               <a href="https://signup.snowflake.com/">snowflake.com</a>.
             </Typography>
+            <SnowflakeConfig />
             <SnowflakeStepContent
               handleNext={handleNext}
               handleBack={handleBack}

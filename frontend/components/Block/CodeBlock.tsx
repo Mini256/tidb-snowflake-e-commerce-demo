@@ -2,6 +2,9 @@ import { CopyBlock, dracula } from "react-code-blocks";
 import hljs from "highlight.js";
 import "highlight.js/styles/github.css";
 import clsx from "clsx";
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+import { IconButton } from "@mui/material";
+import copy from "copy-to-clipboard";
 
 interface CodeBlockProps {
   code: string;
@@ -35,11 +38,25 @@ export const CodeHighlight = (props: { content: string; lang?: string }) => {
     ? hljs.highlight(lang, content)
     : hljs.highlightAuto(content);
   return (
-    <pre className={clsx("hljs")}>
+    <pre className={clsx("hljs", "code-block")}>
       <code
         className="hljs"
         dangerouslySetInnerHTML={{ __html: highlighted.value }}
       />
+      <div className="copy-btn-container">
+        <IconButton
+          size="small"
+          onClick={() => {
+            copy(content);
+          }}
+        >
+          <ContentCopyIcon fontSize="small" />
+        </IconButton>
+      </div>
     </pre>
   );
+};
+
+export const InlineCode = (props: { children?: any }) => {
+  return <code className="hljs inline-code">{props.children}</code>;
 };
