@@ -3,8 +3,10 @@ import hljs from "highlight.js";
 import "highlight.js/styles/github.css";
 import clsx from "clsx";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
-import { IconButton } from "@mui/material";
+import CheckIcon from "@mui/icons-material/Check";
+import { IconButton, Tooltip } from "@mui/material";
 import copy from "copy-to-clipboard";
+import { useState } from "react";
 
 interface CodeBlockProps {
   code: string;
@@ -34,9 +36,24 @@ export default function CustomCodeBlock(props: CodeBlockProps) {
 
 export const CodeHighlight = (props: { content: string; lang?: string }) => {
   const { content, lang } = props;
+
+  const [isCopied, setIsCopied] = useState(false);
+
+  const handleCopy = () => {
+    if (isCopied) {
+      return;
+    }
+    copy(content);
+    setIsCopied(true);
+    setTimeout(() => {
+      setIsCopied(false);
+    }, 3000);
+  };
+
   const highlighted = lang
     ? hljs.highlight(lang, content)
     : hljs.highlightAuto(content);
+
   return (
     <pre className={clsx("hljs", "code-block")}>
       <code
@@ -44,14 +61,15 @@ export const CodeHighlight = (props: { content: string; lang?: string }) => {
         dangerouslySetInnerHTML={{ __html: highlighted.value }}
       />
       <div className="copy-btn-container">
-        <IconButton
-          size="small"
-          onClick={() => {
-            copy(content);
-          }}
-        >
-          <ContentCopyIcon fontSize="small" />
-        </IconButton>
+        <Tooltip title={isCopied ? "Copied!" : "Copy"} placement="top" arrow>
+          <IconButton size="small" onClick={handleCopy}>
+            {isCopied ? (
+              <CheckIcon fontSize="small" />
+            ) : (
+              <ContentCopyIcon fontSize="small" />
+            )}
+          </IconButton>
+        </Tooltip>
       </div>
     </pre>
   );
