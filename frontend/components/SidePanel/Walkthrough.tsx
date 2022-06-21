@@ -331,6 +331,37 @@ export const SnowflakeConfig = () => {
             content={`SNOWSQL_HOST=GQ01328.ap-northeast-1.aws.snowflakecomputing.com\nSNOWSQL_ACCOUNT=GQ01328\nSNOWSQL_WAREHOUSE=PC_ETLEAP_WH\nSNOWSQL_DATABASE=PC_ETLEAP_DB\nSNOWSQL_SCHEMA=PUBLIC\nSNOWSQL_USER=<admin username>\nSNOWSQL_ROLE=ACCOUNTADMIN\nSNOWSQL_PWD=<admin password>`}
           />
         </WalkthroughContent>
+
+        <WalkthroughContent title="10. Create data pipeline from Snowflake to TiDB">
+          <Typography variant="body1">
+            After ETLeap account activated, ETLeap will create a database{" "}
+            <InlineCode>PC_ETLEAP_DB</InlineCode> on Snowflake, and config
+            connection automatically。
+          </Typography>
+          <Typography
+            component="img"
+            src="https://user-images.githubusercontent.com/5086433/173547399-541060c6-ca6b-431a-8cca-0fdc4996d303.png"
+            sx={{
+              width: "100%",
+              paddingTop: "1rem",
+              paddingBottom: "1rem",
+            }}
+          />
+          <Typography variant="body1">You can follow this guide:</Typography>
+          <Typography
+            component="video"
+            src="https://user-images.githubusercontent.com/55385323/172923035-6327f6ff-f141-4c48-ba87-56a1ddbce6d7.mp4"
+            // autoPlay
+            // loop
+            muted
+            controls
+            sx={{
+              width: "100%",
+              paddingTop: "1rem",
+              paddingBottom: "1rem",
+            }}
+          />
+        </WalkthroughContent>
       </WalkthroughTemplate>
     </>
   );

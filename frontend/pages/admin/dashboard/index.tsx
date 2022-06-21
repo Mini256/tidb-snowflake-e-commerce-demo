@@ -10,6 +10,7 @@ import { formatNumber, usdPrice } from "../../../lib/formatter";
 import { DataGrid, GridColumns } from "@mui/x-data-grid";
 import { DateTime } from "luxon";
 import PieChart from "./PieChart";
+import LineChart from "../../../components/Chart/LineChart";
 
 import { useHttpClient } from "../../../lib";
 
@@ -261,6 +262,29 @@ export default function DashboardPage() {
                 border: "none",
               }}
             />
+          </Paper>
+        </Grid>
+        {/* Real-time Online Analysis */}
+        <Grid item xs={12}>
+          <Paper>
+            <Title>Real-time Online Analysis on TiDB</Title>
+
+            <Box sx={{ m: "10px" }}>
+              <Typography component="p" variant="body1" gutterBottom>
+                In this step, we will use TiDB's real-time analysis engine to
+                calculate today's orders:
+              </Typography>
+              <Typography component="p" variant="body2" gutterBottom>
+                1. Calculate today's total orders and amount of orders
+              </Typography>
+              <Typography component="p" variant="body2" gutterBottom>
+                2. Calculate today's total number and amount of orders and group
+                them by item type
+              </Typography>
+              <Box sx={{ height: "500px" }}>
+                <LineChart />
+              </Box>
+            </Box>
           </Paper>
         </Grid>
       </Grid>
