@@ -26,6 +26,7 @@ import DashboardIcon from "@mui/icons-material/Dashboard";
 import PeopleIcon from "@mui/icons-material/People";
 import ShoppingBag from "@mui/icons-material/ShoppingBag";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
+import SettingsIcon from "@mui/icons-material/Settings";
 
 const items: any[] = [
   {
@@ -57,6 +58,11 @@ const items: any[] = [
     href: "/order",
     icon: <ShoppingCartIcon fontSize="small" />,
     title: "Orders",
+  },
+  {
+    href: "/admin",
+    icon: <SettingsIcon fontSize="small" />,
+    title: "Admin",
   },
   // {
   //   href: '/register',
