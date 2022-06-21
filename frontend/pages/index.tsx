@@ -6,7 +6,7 @@ import Snackbar from "@mui/material/Snackbar";
 import MuiAlert, { AlertProps } from "@mui/material/Alert";
 
 import { useState, useEffect, forwardRef } from "react";
-import { VerticalLinearStepper } from "../components/Stepper/ConfigStepper";
+import { VerticalLinearStepper } from "../components/Stepper/InitStepper";
 import { EndpointBlock } from "../components/Block/EndpointBlock";
 import { IntroductionCard } from "../components/Card/IntroductionCard";
 
