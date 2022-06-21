@@ -29,32 +29,32 @@ import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 
 const items: any[] = [
   {
-    href: "/admin/introduction",
+    href: "/introduction",
     icon: <Home fontSize="small" />,
     title: "Introduction",
   },
   {
-    href: "/admin/dashboard",
+    href: "/dashboard",
     icon: <DashboardIcon fontSize="small" />,
     title: "Dashboard",
   },
   {
-    href: "/admin/customer",
+    href: "/customer",
     icon: <PeopleIcon fontSize="small" />,
     title: "Customers",
   },
   {
-    href: "/admin/item",
+    href: "/item",
     icon: <ShoppingBag fontSize="small" />,
     title: "Items",
   },
   {
-    href: "/admin/recommend",
+    href: "/recommend",
     icon: <ShoppingBag fontSize="small" />,
     title: "Recommended Items",
   },
   {
-    href: "/admin/order",
+    href: "/order",
     icon: <ShoppingCartIcon fontSize="small" />,
     title: "Orders",
   },

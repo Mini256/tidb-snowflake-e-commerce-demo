@@ -13,9 +13,9 @@ import {
 } from "@mui/material";
 import qs from "qs";
 import { useState, useEffect } from "react";
-import { UserVO } from "./admin/customer";
-import { Item } from "./admin/item";
-import { ResultVO } from "./admin/order";
+import { UserVO } from "./customer";
+import { Item } from "./item";
+import { ResultVO } from "./order";
 import ItemCard from "./ItemCard";
 
 import { useHttpClient } from "../lib";
@@ -112,7 +112,7 @@ export default function HomePage(props: HomePageProps) {
   return (
     <Container maxWidth="md" sx={{ mt: 4, mb: 4 }}>
       <Box mb="20px" key="go-to-dashboard">
-        <Link href="/admin/dashboard">Go to Dashboard</Link>
+        <Link href="/dashboard">Go to Dashboard</Link>
       </Box>
       <Box mb="20px" key="tabs">
         <Tabs

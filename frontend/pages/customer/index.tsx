@@ -1,17 +1,14 @@
 import Grid from "@mui/material/Grid";
-import Paper from "../../../src/DashboardLayout/Pager";
-// import DashboardLayout from '../../../src/DashboardLayout/DashboardLayout';
-import { DashboardLayout } from "../../../components/CommonLayout";
+import { DashboardLayout } from "components/CommonLayout";
 
-import { Box, Button, Chip, Link, TextField, Typography } from "@mui/material";
-import Breadcrumbs from "@mui/material/Breadcrumbs";
+import { Box, Button, Chip, TextField } from "@mui/material";
 import qs from "qs";
 import { useEffect, useState } from "react";
 import { DataGrid, GridColumns } from "@mui/x-data-grid";
-import { PageHeader } from "../../../src/DashboardLayout/PageHeader";
-import { usdPrice } from "../../../lib/formatter";
+import { PageHeader } from "src/DashboardLayout/PageHeader";
+import { usdPrice } from "lib/formatter";
 
-import { useHttpClient } from "../../../lib";
+import { useHttpClient } from "lib";
 
 export interface ResultVO<R> {
   content: R[];

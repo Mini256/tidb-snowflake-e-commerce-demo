@@ -1,17 +1,15 @@
 import Grid from "@mui/material/Grid";
-import Paper from "../../../src/DashboardLayout/Pager";
-// import DashboardLayout from '../../../src/DashboardLayout/DashboardLayout';
-import { DashboardLayout } from "../../../components/CommonLayout";
+import { DashboardLayout } from "components/CommonLayout";
 
+import { Autocomplete, Box, TextField } from "@mui/material";
 import qs from "qs";
 import { useEffect, useState } from "react";
 import { DataGrid, GridColumns } from "@mui/x-data-grid";
-import { PageHeader } from "../../../src/DashboardLayout/PageHeader";
-import { usdPrice } from "../../../lib/formatter";
-import { Autocomplete, Box, Chip, TextField } from "@mui/material";
+import { PageHeader } from "src/DashboardLayout/PageHeader";
+import { usdPrice } from "lib/formatter";
 import { UserVO } from "../customer";
 
-import { useHttpClient } from "../../../lib";
+import { useHttpClient } from "lib";
 
 export interface ResultVO<R> {
   content: R[];
@@ -20,28 +18,25 @@ export interface ResultVO<R> {
   pageSize: number;
 }
 
-export interface HotItem {
-  id: string;
+export interface OrderVO {
+  id: number;
+  orderId: number;
+  orderDate: Date;
   userId: string;
-  userName: string;
-  userLabel: string;
-  avgAmount: number;
-  itemId: number;
-  itemLabel: string;
+  username: string;
+  itemId: string;
   itemName: string;
-  itemPrice: string;
-  itemType: string;
-  itemDesc: string;
-  createTime: Date;
-  updateTime: Date;
+  amount: string;
+  status: string;
+  currentAddress: string;
 }
 
-export default function ItemPage() {
+export default function OrderPage() {
   const [loading, setLoading] = useState<boolean>(false);
   const [page, setPage] = useState<number>(1);
   const [pageSize, setPageSize] = useState<number>(10);
   const [rowCount, setRowCount] = useState<number>(0);
-  const [rows, setRows] = useState<HotItem[]>([]);
+  const [rows, setRows] = useState<OrderVO[]>([]);
   const [query, setQuery] = useState<Record<string, any>>({});
 
   const [userKeyword, setUserKeyword] = useState<string>();
@@ -51,53 +46,41 @@ export default function ItemPage() {
 
   const [httpClient, endpoint] = useHttpClient();
 
-  const columns: GridColumns<HotItem> = [
-    { field: "userName", headerName: "User", flex: 1 },
+  const columns: GridColumns<OrderVO> = [
     {
-      field: "userLabel",
-      headerName: "User Label",
-      flex: 1,
-      renderCell: ({ value }) => {
-        const color = value === "high" ? "primary" : "info";
-        return value ? (
-          <Chip size="small" label={value} color={color} />
-        ) : (
-          "N/A"
-        );
-      },
+      field: "orderDate",
+      headerName: "Order Date",
+      type: "date",
+      width: 100,
+      filterable: false,
     },
+    { field: "username", headerName: "User", minWidth: 140 },
+    { field: "itemName", headerName: "Item Name", width: 100, flex: 1 },
     {
-      field: "avgAmount",
-      headerName: "Average Amount",
-      flex: 1,
-      ...usdPrice,
-      align: "left",
-      headerAlign: "left",
-    },
-    { field: "itemName", headerName: "Item Name", flex: 1 },
-    {
-      field: "itemPrice",
-      headerName: "Item Price",
+      field: "amount",
+      headerName: "Amount",
+      width: 100,
       flex: 1,
       ...usdPrice,
       align: "left",
       headerAlign: "left",
     },
     {
-      field: "itemLabel",
-      headerName: "Item Label",
+      field: "status",
+      headerName: "Status",
+      width: 100,
       flex: 1,
       renderCell: ({ value }) => {
-        const color = value === "high" ? "primary" : "info";
-        return value ? (
-          <Chip size="small" label={value} color={color} />
-        ) : (
-          "N/A"
-        );
+        return value || "N/A";
       },
     },
-    { field: "itemType", headerName: "Type", flex: 1 },
-    { field: "itemDesc", headerName: "Description", flex: 1 },
+    {
+      field: "currentAddress",
+      headerName: "Current Address",
+      minWidth: 280,
+      flex: 1,
+      align: "right",
+    },
   ];
 
   useEffect(() => {
@@ -109,14 +92,15 @@ export default function ItemPage() {
           page: page - 1,
           size: pageSize,
         });
-        const url = `/api/data/hot-items/recommended?${qs.stringify(q)}`;
+        const url = `/api/orders?${qs.stringify(q)}`;
         const res = await httpClient.get(url);
-        const orderPage: ResultVO<HotItem> = res.data;
+        const orderPage: ResultVO<OrderVO> = res.data;
         const { content = [], pageNum, rowTotal } = orderPage;
 
-        content.map((item) => {
-          item.id = `${item.userId}-${item.itemId}`;
-          return item;
+        content.map((orderVO) => {
+          orderVO.id = orderVO.orderId;
+          orderVO.orderDate = new Date(orderVO.orderDate);
+          return orderVO;
         });
 
         setRows(content || []);
@@ -144,11 +128,11 @@ export default function ItemPage() {
   return (
     <DashboardLayout>
       <PageHeader
-        title="Recommend Items"
+        title="Orders"
         links={[
           { label: "Dashboard", href: "/" },
           { label: "Manage" },
-          { label: "Recommend Items" },
+          { label: "Orders" },
         ]}
       />
       <Grid container spacing={3}>

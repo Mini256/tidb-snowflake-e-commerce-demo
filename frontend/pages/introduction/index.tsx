@@ -1,22 +1,19 @@
 import { Box, Button, Grid, Typography } from "@mui/material";
 import Head from "next/head";
 
-// import DashboardLayout from "../../../src/DashboardLayout/DashboardLayout";
-import { DashboardLayout } from "../../../components/CommonLayout";
-import { CommonCard } from "../../../components/Card/IndexCard";
+import { DashboardLayout } from "components/CommonLayout";
+import { CommonCard } from "components/Card/IndexCard";
 
-import ActionButton from "../../../components/Button/ActionButton";
-import CustomCodeBlock, {
-  CodeHighlight,
-} from "../../../components/Block/CodeBlock";
-import LineChart from "../../../components/Chart/LineChart";
+import ActionButton from "components/Button/ActionButton";
+import CustomCodeBlock, { CodeHighlight } from "components/Block/CodeBlock";
+import LineChart from "components/Chart/LineChart";
 import AcUnitIcon from "@mui/icons-material/AcUnit";
 import StorageIcon from "@mui/icons-material/Storage";
 import {
   CALC_USER_LABELS_CODE,
   CALC_HIGH_LABEL_ITEMS_CODE,
   CALC_LOW_LABEL_ITEMS_CODE,
-} from "../../../const/SQL";
+} from "const/SQL";
 
 export default function IntroductionPage() {
   return (
@@ -82,7 +79,7 @@ export default function IntroductionPage() {
       </CommonCard>
 
       <CommonCard title="Single view">
-        <Button variant="contained" href="/admin/order">
+        <Button variant="contained" href="/order">
           Go to Orders Page
         </Button>
       </CommonCard>
@@ -103,7 +100,7 @@ export default function IntroductionPage() {
           <Box sx={{ height: "500px" }}>
             <LineChart />
           </Box>
-          <Button href="/admin/dashboard" variant="contained">
+          <Button href="/dashboard" variant="contained">
             Go to Dashboard Page
           </Button>
         </Box>
@@ -200,7 +197,7 @@ export default function IntroductionPage() {
       </CommonCard>
 
       <CommonCard title="Implement a Simple Item Recommendation Feature">
-        <Button href="/admin/recommend" variant="contained">
+        <Button href="/recommend" variant="contained">
           Go to Recommended Items Page
         </Button>
       </CommonCard>

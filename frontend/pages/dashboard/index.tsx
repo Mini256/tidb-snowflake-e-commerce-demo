@@ -1,18 +1,17 @@
 import Grid from "@mui/material/Grid";
-import Paper from "../../../src/DashboardLayout/Pager";
-// import DashboardLayout from '../../../src/DashboardLayout/DashboardLayout';
-import { DashboardLayout } from "../../../components/CommonLayout";
+import Paper from "src/DashboardLayout/Pager";
+import { DashboardLayout } from "components/CommonLayout";
 
 import { Box, Tooltip, Typography } from "@mui/material";
-import Title from "../../../src/DashboardLayout/Title";
+import Title from "src/DashboardLayout/Title";
 import { useEffect, useState } from "react";
-import { formatNumber, usdPrice } from "../../../lib/formatter";
+import { formatNumber, usdPrice } from "lib/formatter";
 import { DataGrid, GridColumns } from "@mui/x-data-grid";
 import { DateTime } from "luxon";
 import PieChart from "./PieChart";
-import LineChart from "../../../components/Chart/LineChart";
+import LineChart from "components/Chart/LineChart";
 
-import { useHttpClient } from "../../../lib";
+import { useHttpClient } from "lib";
 
 export interface TodayOrder {
   updateTime?: string;

@@ -5,7 +5,7 @@ module.exports = {
   //   return [
   //     {
   //       source: '/',
-  //       destination: '/admin/introduction',
+  //       destination: '/introduction',
   //       permanent: true,
   //     },
   //   ]

@@ -339,7 +339,7 @@ export function VerticalLinearStepper() {
                   resolve(new Date().getTime());
                 }, 3000);
               });
-              router.push(`/admin/dashboard`);
+              router.push(`/dashboard`);
             }}
             loading={uploading}
             // endIcon={<SaveIcon />}
