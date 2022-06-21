@@ -1,5 +1,5 @@
 import { Card, Box, Stack, Typography } from "@mui/material";
-import { Item } from "./item";
+import { Item } from "pages/item";
 
 export interface ItemCardProps {
   item: Item;

@@ -332,7 +332,7 @@ export const SnowflakeConfig = () => {
           />
         </WalkthroughContent>
 
-        <WalkthroughContent title="10. Create data pipeline from Snowflake to TiDB">
+        {/* <WalkthroughContent title="10. Create data pipeline from Snowflake to TiDB">
           <Typography variant="body1">
             After ETLeap account activated, ETLeap will create a database{" "}
             <InlineCode>PC_ETLEAP_DB</InlineCode> on Snowflake, and config
@@ -361,7 +361,7 @@ export const SnowflakeConfig = () => {
               paddingBottom: "1rem",
             }}
           />
-        </WalkthroughContent>
+        </WalkthroughContent> */}
       </WalkthroughTemplate>
     </>
   );

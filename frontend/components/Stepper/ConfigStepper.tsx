@@ -328,7 +328,12 @@ export function VerticalLinearStepper() {
           elevation={0}
           sx={{ p: 3, backgroundColor: "transparent" }}
         >
-          <Typography>{`Almost Done`}</Typography>
+          <Typography
+            variant="body1"
+            sx={{ fontWeight: "bold" }}
+          >{`Congratulations!`}</Typography>
+          <Typography variant="body1">{`You have successfully connected to TiDB & Snowflake.`}</Typography>
+          <Typography variant="body1">{`Next step we will create schema and import data.`}</Typography>
           <LoadingButton
             sx={{ mt: 1, mr: 1 }}
             color="secondary"
@@ -339,7 +344,7 @@ export function VerticalLinearStepper() {
                   resolve(new Date().getTime());
                 }, 3000);
               });
-              router.push(`/dashboard`);
+              router.push(`/configure`);
             }}
             loading={uploading}
             // endIcon={<SaveIcon />}
@@ -348,11 +353,11 @@ export function VerticalLinearStepper() {
             size="small"
             // disabled={!inputVal}
           >
-            Upload Config
+            Continue
           </LoadingButton>
-          <Button onClick={handleReset} sx={{ mt: 1, mr: 1 }}>
+          {/* <Button onClick={handleReset} sx={{ mt: 1, mr: 1 }}>
             Reset
-          </Button>
+          </Button> */}
         </Paper>
       )}
     </Box>

@@ -60,9 +60,9 @@ const items: any[] = [
     title: "Orders",
   },
   {
-    href: "/admin",
+    href: "/configure",
     icon: <SettingsIcon fontSize="small" />,
-    title: "Admin",
+    title: "Configure",
   },
   // {
   //   href: '/register',

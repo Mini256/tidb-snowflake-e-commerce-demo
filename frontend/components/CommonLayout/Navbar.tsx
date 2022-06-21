@@ -17,7 +17,8 @@ import SearchIcon from "@mui/icons-material/Search";
 import EditIcon from "@mui/icons-material/Edit";
 import GitHubIcon from "@mui/icons-material/GitHub";
 
-import { Bell as BellIcon } from "../../icons/Bell";
+import { Bell as BellIcon } from "icons/Bell";
+import { GITHUB_REPO_URL } from "const";
 
 const DashboardNavbarRoot = styled(AppBar)(({ theme }) => ({
   backgroundColor: theme.palette.background.paper,
@@ -76,7 +77,7 @@ export const DashboardNavbar = (props: {
           </Typography>
           <IconButton
             onClick={() => {
-              router.push(`/config?endpoint=${endpoint}`);
+              router.push(`/?endpoint=${endpoint}`);
             }}
             sx={{ ml: 1 }}
           >
@@ -89,11 +90,7 @@ export const DashboardNavbar = (props: {
           </Tooltip> */}
           <Box sx={{ flexGrow: 1 }} />
           <Tooltip title="Github Link">
-            <IconButton
-              sx={{ ml: 1 }}
-              href="https://github.com/Mini256/tidb-snowflake-e-commerce-demo"
-              target="_blank"
-            >
+            <IconButton sx={{ ml: 1 }} href={GITHUB_REPO_URL} target="_blank">
               <GitHubIcon />
             </IconButton>
           </Tooltip>

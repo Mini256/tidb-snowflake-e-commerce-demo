@@ -30,7 +30,7 @@ export const DashboardLayout = (props: {
   useEffect(() => {
     const endpoint = getLocalStorageEndpoint();
     if (!endpoint) {
-      router.push(`/config`);
+      router.push(`/`);
     } else {
       setEndpointVal(endpoint);
     }
@@ -45,7 +45,7 @@ export const DashboardLayout = (props: {
             flex: "1 1 auto",
             flexDirection: "column",
             width: "100%",
-            padding: "4rem 1.5rem",
+            padding: "1.5rem",
           }}
         >
           {children}
