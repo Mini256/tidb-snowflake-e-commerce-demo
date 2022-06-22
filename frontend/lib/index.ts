@@ -43,7 +43,6 @@ export const useHttpClient = (): [AxiosInstance, string] => {
   }, []);
 
   useEffect(() => {
-    console.log(`testttt ====== `, url);
     client = createHttpClient(url);
   }, [url]);
 

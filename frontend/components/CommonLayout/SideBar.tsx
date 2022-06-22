@@ -29,10 +29,15 @@ import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import SettingsIcon from "@mui/icons-material/Settings";
 
 const items: any[] = [
+  // {
+  //   href: "/introduction",
+  //   icon: <Home fontSize="small" />,
+  //   title: "Introduction",
+  // },
   {
-    href: "/introduction",
+    href: "/details",
     icon: <Home fontSize="small" />,
-    title: "Introduction",
+    title: "Details",
   },
   {
     href: "/dashboard",
