@@ -27,6 +27,7 @@ import PeopleIcon from "@mui/icons-material/People";
 import ShoppingBag from "@mui/icons-material/ShoppingBag";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import SettingsIcon from "@mui/icons-material/Settings";
+import LocalOfferIcon from "@mui/icons-material/LocalOffer";
 
 const items: any[] = [
   // {
@@ -36,7 +37,7 @@ const items: any[] = [
   // },
   {
     href: "/details",
-    icon: <Home fontSize="small" />,
+    icon: <LocalOfferIcon fontSize="small" />,
     title: "Details",
   },
   {

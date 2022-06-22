@@ -6,7 +6,9 @@ import LoadingButton from "@mui/lab/LoadingButton";
 import Skeleton from "@mui/material/Skeleton";
 import Snackbar from "@mui/material/Snackbar";
 import MuiAlert, { AlertProps } from "@mui/material/Alert";
-import { setLocalStorageEndpoint } from "../../lib";
+import FormHelperText from "@mui/material/FormHelperText";
+
+import { setLocalStorageEndpoint } from "lib";
 
 const Alert = forwardRef<HTMLDivElement, AlertProps>(function Alert(
   props,
@@ -64,6 +66,16 @@ export const EndpointBlock = (props: {
           setInputVal(val);
         }}
       />
+      <FormHelperText>
+        Has no endpoint?{" "}
+        <a
+          target="_blank"
+          href="https://gitpod.io/#/https://github.com/Mini256/tidb-snowflake-e-commerce-demo"
+        >
+          Click here
+        </a>{" "}
+        to create one .
+      </FormHelperText>
       <Box sx={{ mb: 2 }}>
         <LoadingButton
           sx={{ mt: 1, mr: 1 }}
