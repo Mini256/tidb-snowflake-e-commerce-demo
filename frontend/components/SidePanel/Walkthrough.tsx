@@ -62,7 +62,14 @@ const WalkthroughTemplate = (props: WalkthroughTemplateProps) => {
       >
         {btnLabel}
       </Button>
-      <Drawer anchor={anchor} open={state} onClose={toggleDrawer(false)}>
+      <Drawer
+        anchor={anchor}
+        open={state}
+        onClose={toggleDrawer(false)}
+        PaperProps={{
+          sx: { backgroundColor: "#F9FAFC" },
+        }}
+      >
         <Box
           role="presentation"
           // onClick={toggleDrawer(false)}
@@ -75,6 +82,7 @@ const WalkthroughTemplate = (props: WalkthroughTemplateProps) => {
               alignItems: "center",
               justifyContent: "space-between",
               padding: "0.25rem 1.5rem",
+              backgroundColor: "#fff",
             }}
           >
             <Typography
@@ -92,7 +100,12 @@ const WalkthroughTemplate = (props: WalkthroughTemplateProps) => {
             </IconButton>
           </Box>
           <Divider />
-          <Box sx={{ padding: "0.5rem 2rem", backgroundColor: "#F9FAFC" }}>
+          <Box
+            sx={{
+              padding: "0.5rem 2rem",
+              backgroundColor: "#F9FAFC",
+            }}
+          >
             {children}
           </Box>
         </Box>
