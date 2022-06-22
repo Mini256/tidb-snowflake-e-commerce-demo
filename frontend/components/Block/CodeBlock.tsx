@@ -50,9 +50,7 @@ export const CodeHighlight = (props: { content: string; lang?: string }) => {
     }, 3000);
   };
 
-  const highlighted = lang
-    ? hljs.highlight(lang, content)
-    : hljs.highlightAuto(content);
+  const highlighted = hljs.highlight(content, { language: lang || "" });
 
   return (
     <pre className={clsx("hljs", "code-block")}>

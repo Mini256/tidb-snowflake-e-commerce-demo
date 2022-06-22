@@ -23,7 +23,7 @@ import {
 export const Etl2SnowflakeVideoCard = () => {
   return (
     <CommonCard title="ETL from TiDB to Snowflake">
-      <Typography component="p" variant="body1">
+      <Typography variant="body1">
         We will use tools like <a href="https://etleap.com/">ETLeap</a> to
         import data from TiDB to Snowflake.
       </Typography>
@@ -79,7 +79,7 @@ export const OfflineAnalysisCard = () => {
 
   return (
     <CommonCard title="Perform Offline Analysis on Snowflake">
-      <Typography component="p" variant="body1" gutterBottom>
+      <Typography variant="body1" gutterBottom>
         We will execute the following SQL statement on Snowflake to perform some
         offline analysis:
       </Typography>
@@ -91,11 +91,11 @@ export const OfflineAnalysisCard = () => {
         </Tabs>
       </Box>
       <TabPanel value={value} index={0}>
-        <Typography component="p" variant="body1" gutterBottom={true}>
+        <Typography variant="body1" gutterBottom={true}>
           The user's payment ability is judged according to the user's order
           history.
         </Typography>
-        <Typography component="p" variant="body1" gutterBottom={true}>
+        <Typography variant="body1" gutterBottom={true}>
           <span>
             If the user's average order amount is greater than the average order
             amount of all users, it is considered that he is a user with strong
@@ -132,7 +132,7 @@ export const OfflineAnalysisCard = () => {
 export const WritebackCard = () => {
   return (
     <CommonCard title="Write Back from Snowflake to TiDB">
-      <Typography component="p" variant="body1" gutterBottom>
+      <Typography variant="body1" gutterBottom>
         Write back the analysis result data from Snowflake to TiDB.
       </Typography>
       <ActionButton

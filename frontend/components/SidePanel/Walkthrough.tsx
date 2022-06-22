@@ -17,7 +17,8 @@ import LinkIcon from "@mui/icons-material/Link";
 import SchemaIcon from "@mui/icons-material/Schema";
 import { Container, IconButton, Typography } from "@mui/material";
 
-import { InlineCode, CodeHighlight } from "../Block/CodeBlock";
+import { InlineCode, CodeHighlight } from "components/Block/CodeBlock";
+import { CommonCard } from "components/Card/IndexCard";
 
 type Anchor = "top" | "left" | "bottom" | "right";
 
@@ -73,7 +74,7 @@ const WalkthroughTemplate = (props: WalkthroughTemplateProps) => {
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
-              padding: "0.25rem 0.5rem",
+              padding: "0.25rem 1.5rem",
             }}
           >
             <Typography
@@ -91,7 +92,9 @@ const WalkthroughTemplate = (props: WalkthroughTemplateProps) => {
             </IconButton>
           </Box>
           <Divider />
-          <Box sx={{ padding: "0.5rem" }}>{children}</Box>
+          <Box sx={{ padding: "0.5rem 2rem", backgroundColor: "#F9FAFC" }}>
+            {children}
+          </Box>
         </Box>
       </Drawer>
     </>
@@ -113,7 +116,8 @@ const WalkthroughContent = (props: {
       <Typography variant="h6" sx={{ paddingBottom: "0.5rem" }}>
         {title}
       </Typography>
-      <Box sx={{ paddingLeft: "1rem" }}>{children}</Box>
+      {/* <Box sx={{ paddingLeft: "1rem" }}>{children}</Box> */}
+      <CommonCard>{children}</CommonCard>
     </Box>
   );
 };
