@@ -60,9 +60,9 @@ const items: any[] = [
     title: "Orders",
   },
   {
-    href: "/configure",
+    href: "/pipeline",
     icon: <SettingsIcon fontSize="small" />,
-    title: "Configure",
+    title: "Pipeline",
   },
   // {
   //   href: '/register',

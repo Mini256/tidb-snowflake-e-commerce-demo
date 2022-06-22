@@ -14,6 +14,7 @@ import ArticleIcon from "@mui/icons-material/Article";
 import SchoolIcon from "@mui/icons-material/School";
 import CloseIcon from "@mui/icons-material/Close";
 import LinkIcon from "@mui/icons-material/Link";
+import SchemaIcon from "@mui/icons-material/Schema";
 import { Container, IconButton, Typography } from "@mui/material";
 
 import { InlineCode, CodeHighlight } from "../Block/CodeBlock";
@@ -364,5 +365,17 @@ export const SnowflakeConfig = () => {
         </WalkthroughContent> */}
       </WalkthroughTemplate>
     </>
+  );
+};
+
+export const CreateSchemaSQL = () => {
+  return (
+    <WalkthroughTemplate header="Create Schema">
+      <WalkthroughContent title="SQL">
+        <Button size="small" startIcon={<SchemaIcon />} variant="contained">
+          Create Schema
+        </Button>
+      </WalkthroughContent>
+    </WalkthroughTemplate>
   );
 };

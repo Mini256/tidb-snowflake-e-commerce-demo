@@ -11,7 +11,11 @@ import TextField from "@mui/material/TextField";
 import LoadingButton from "@mui/lab/LoadingButton";
 import { useRouter } from "next/router";
 
-import { TiDBConfig, SnowflakeConfig } from "../SidePanel/Walkthrough";
+import {
+  TiDBConfig,
+  SnowflakeConfig,
+  CreateSchemaSQL,
+} from "../SidePanel/Walkthrough";
 
 const TiDBStepContent = (props: any) => {
   const { handleNext } = props;
@@ -302,6 +306,53 @@ export function VerticalLinearStepper() {
             <TiDBStepContent handleNext={handleNext} />
           </StepContent>
         </Step>
+
+        <Step key="create-schema">
+          <StepLabel>Create Schema</StepLabel>
+          <StepContent>
+            <CreateSchemaSQL />
+            <Box sx={{ mb: 2 }}>
+              <div>
+                <Button
+                  variant="contained"
+                  onClick={() => {
+                    handleNext();
+                  }}
+                  sx={{ mt: 1, mr: 1 }}
+                >
+                  Continue
+                </Button>
+                <Button onClick={handleBack} sx={{ mt: 1, mr: 1 }}>
+                  Back
+                </Button>
+              </div>
+            </Box>
+          </StepContent>
+        </Step>
+
+        <Step key="import-data">
+          <StepLabel>Import Data</StepLabel>
+          <StepContent>
+            <CreateSchemaSQL />
+            <Box sx={{ mb: 2 }}>
+              <div>
+                <Button
+                  variant="contained"
+                  onClick={() => {
+                    handleNext();
+                  }}
+                  sx={{ mt: 1, mr: 1 }}
+                >
+                  Continue
+                </Button>
+                <Button onClick={handleBack} sx={{ mt: 1, mr: 1 }}>
+                  Back
+                </Button>
+              </div>
+            </Box>
+          </StepContent>
+        </Step>
+
         <Step key="snowflake">
           <StepLabel
             optional={<Typography variant="caption">Snowflake</Typography>}
@@ -322,7 +373,7 @@ export function VerticalLinearStepper() {
           </StepContent>
         </Step>
       </Stepper>
-      {activeStep === 2 && (
+      {activeStep === 4 && (
         <Paper
           square
           elevation={0}
@@ -333,7 +384,7 @@ export function VerticalLinearStepper() {
             sx={{ fontWeight: "bold" }}
           >{`Congratulations!`}</Typography>
           <Typography variant="body1">{`You have successfully connected to TiDB & Snowflake.`}</Typography>
-          <Typography variant="body1">{`Next step we will create schema and import data.`}</Typography>
+          <Typography variant="body1">{`Next step we will create pipeline from Snowflake to TiDB.`}</Typography>
           <LoadingButton
             sx={{ mt: 1, mr: 1 }}
             color="secondary"
@@ -344,7 +395,7 @@ export function VerticalLinearStepper() {
                   resolve(new Date().getTime());
                 }, 3000);
               });
-              router.push(`/configure`);
+              router.push(`/pipeline`);
             }}
             loading={uploading}
             // endIcon={<SaveIcon />}
