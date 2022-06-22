@@ -57,7 +57,7 @@ export const EndpointBlock = (props: {
       <TextField
         size="small"
         id="endpoint"
-        label="Endpoint URL"
+        label="Endpoint"
         variant="outlined"
         margin="dense"
         value={inputVal}

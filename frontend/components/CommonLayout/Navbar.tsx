@@ -73,7 +73,7 @@ export const DashboardNavbar = (props: {
             variant="overline"
             sx={{ mb: 0 }}
           >
-            {`Endpoint URL: ${endpoint}`}
+            {`Endpoint: ${endpoint}`}
           </Typography>
           <IconButton
             onClick={() => {
