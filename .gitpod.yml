@@ -12,18 +12,11 @@ tasks:
     init: npm install
     command: |
       NEXT_PUBLIC_BASE_URL=$(gp url 8080) npm run dev
-  - name: Import Data
-    openMode: tab-after
-    before: cd backend
-    command: |
-      gp await-port 8080
-      make tidb-import-data
   - name: Backend
     openMode: tab-after
     before: cd backend
     init: make build-app
     command: |
-      make check-env
       make run
 
 ports:
