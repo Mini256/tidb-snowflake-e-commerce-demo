@@ -9,7 +9,7 @@ import java.util.List;
 @Mapper
 @Component
 public interface SnowflakeUserLabelMapper {
-    void useJSONResultFormat();
+
     List<UserLabel> getUserLabels(long limit, long offset);
 
     void calcUserLabels();

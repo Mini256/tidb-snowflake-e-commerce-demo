@@ -1,13 +1,10 @@
 package com.pingcap.ecommerce.config;
 
-import com.zaxxer.hikari.HikariDataSource;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -20,22 +17,14 @@ import javax.sql.DataSource;
 @MapperScan(basePackages = "com.pingcap.ecommerce.dao.tidb", sqlSessionFactoryRef = "PrimarySessionFactory")
 public class TiDBDataSourceConfiguration {
 
-    @Bean(name = "PrimaryDataSourceProperties")
-    @Primary
-    @ConfigurationProperties("spring.datasource.tidb")
-    public DataSourceProperties dataSourceProperties() {
-        return new DataSourceProperties();
-    }
-
-    @Bean(name = "PrimaryDataSource")
-    @Primary
-    public DataSource PrimaryDataSource(@Qualifier("PrimaryDataSourceProperties") DataSourceProperties properties) {
-        return properties.initializeDataSourceBuilder().type(HikariDataSource.class).build();
+    @Bean(name = "TiDBDynamicDataSource")
+    public DynamicDataSource tidbDataSource() {
+        return DynamicDataSource.build();
     }
 
     @Bean(name = "PrimarySessionFactory")
     @Primary
-    public SqlSessionFactory PrimarySessionFactory(@Qualifier("PrimaryDataSource") DataSource dataSource) throws Exception {
+    public SqlSessionFactory PrimarySessionFactory(@Qualifier("TiDBDynamicDataSource") DataSource dataSource) throws Exception {
         SqlSessionFactoryBean bean = new SqlSessionFactoryBean();
         bean.setDataSource(dataSource);
         bean.setMapperLocations(new PathMatchingResourcePatternResolver().getResources("classpath*:**/mappers/tidb/*.xml"));
@@ -44,7 +33,7 @@ public class TiDBDataSourceConfiguration {
 
     @Bean(name = "PrimaryTransactionManager")
     @Primary
-    public DataSourceTransactionManager PrimaryTransactionManager(@Qualifier("PrimaryDataSource") DataSource dataSource) {
+    public DataSourceTransactionManager PrimaryTransactionManager(@Qualifier("TiDBDynamicDataSource") DataSource dataSource) {
         return new DataSourceTransactionManager(dataSource);
     }
 

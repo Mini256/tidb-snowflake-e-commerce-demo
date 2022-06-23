@@ -1,6 +1,7 @@
 package com.pingcap.ecommerce.service;
 
 import com.pingcap.ecommerce.dao.snowflake.SnowflakeHotItemMapper;
+import com.pingcap.ecommerce.dao.snowflake.SnowflakeSchemaMapper;
 import com.pingcap.ecommerce.dao.snowflake.SnowflakeUserLabelMapper;
 import com.pingcap.ecommerce.dao.tidb.*;
 import com.pingcap.ecommerce.model.HotItem;
@@ -9,11 +10,9 @@ import com.pingcap.ecommerce.model.User;
 import com.pingcap.ecommerce.model.UserLabel;
 import com.pingcap.ecommerce.vo.OrderTotalVO;
 import com.pingcap.ecommerce.vo.OrderTypeTotalVO;
-import com.pingcap.ecommerce.vo.ResultVO;
+import com.pingcap.ecommerce.vo.PageResultVO;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.ibatis.session.SqlSessionFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +25,8 @@ import java.util.List;
 @Service
 @AllArgsConstructor
 public class DataService {
+
+    private final SnowflakeSchemaMapper snowflakeSchemaMapper;
 
     private final SnowflakeUserLabelMapper snowflakeUserLabelMapper;
 
@@ -86,7 +87,7 @@ public class DataService {
         long pageSize = 2000;
 
         log.info("Pulling back user labels from Snowflake to TiDB.");
-        snowflakeUserLabelMapper.useJSONResultFormat();
+        snowflakeSchemaMapper.useJSONResultFormat();
 
         do {
             long offset = (pageNum - 1) * pageSize;
@@ -131,7 +132,7 @@ public class DataService {
         long pageSize = 1000;
 
         log.info("Pulling back hot items from Snowflake to TiDB.");
-        snowflakeUserLabelMapper.useJSONResultFormat();
+        snowflakeSchemaMapper.useJSONResultFormat();
 
         do {
             long offset = (pageNum - 1) * pageSize;
@@ -154,7 +155,7 @@ public class DataService {
     /**
      * Recommend the matched items according the label of items and current user.
      */
-    public ResultVO<HotItem> getRecommendedHotItems(String userId, Pageable pageable) {
+    public PageResultVO<HotItem> getRecommendedHotItems(String userId, Pageable pageable) {
         List<HotItem> hotItems = hotItemMapper.getRecommendedHotItems(userId, pageable);
         List<String> userIds = hotItems.stream().map(HotItem::getUserId).toList();
 
@@ -166,7 +167,7 @@ public class DataService {
             );
         }
 
-        return ResultVO.of(hotItems, 10000, pageable.getPageNumber(), pageable.getPageSize());
+        return PageResultVO.of(hotItems, 10000, pageable.getPageNumber(), pageable.getPageSize());
     }
 
     public List<HotItem> getHighLabelItems() {

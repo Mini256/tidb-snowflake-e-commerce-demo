@@ -1,4 +1,4 @@
-package com.pingcap.ecommerce.cli.loader;
+package com.pingcap.ecommerce.loader;
 
 import java.math.BigDecimal;
 import java.sql.*;

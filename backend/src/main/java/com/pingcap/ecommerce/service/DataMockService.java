@@ -1,31 +1,36 @@
-package com.pingcap.ecommerce.cli.command;
+package com.pingcap.ecommerce.service;
 
-import com.beust.jcommander.Parameter;
-import com.beust.jcommander.Parameters;
-import com.pingcap.ecommerce.cli.loader.*;
-import com.pingcap.ecommerce.dao.tidb.ExpressMapper;
+import com.pingcap.ecommerce.config.DynamicDataSource;
+import com.pingcap.ecommerce.dao.snowflake.SnowflakeSchemaMapper;
 import com.pingcap.ecommerce.dao.tidb.ItemMapper;
-import com.pingcap.ecommerce.dao.tidb.OrderMapper;
+import com.pingcap.ecommerce.dao.tidb.SchemaMapper;
 import com.pingcap.ecommerce.dao.tidb.UserMapper;
+import com.pingcap.ecommerce.exception.DataSourceNotFoundException;
+import com.pingcap.ecommerce.loader.*;
 import com.pingcap.ecommerce.model.ExpressStatus;
 import com.pingcap.ecommerce.model.Item;
 import com.pingcap.ecommerce.model.Order;
 import com.pingcap.ecommerce.vo.PageMeta;
+import com.pingcap.ecommerce.vo.TableInfo;
 import lombok.extern.slf4j.Slf4j;
-import me.tongfei.progressbar.ProgressBar;
-import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.jdbc.datasource.init.ScriptUtils;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
 
 import javax.sql.DataSource;
 import java.math.BigDecimal;
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.stream.Collectors;
 
 import static net.andreinc.mockneat.types.enums.StringType.*;
+import static net.andreinc.mockneat.types.enums.StringType.NUMBERS;
 import static net.andreinc.mockneat.unit.address.Addresses.addresses;
 import static net.andreinc.mockneat.unit.objects.From.from;
 import static net.andreinc.mockneat.unit.text.Markovs.markovs;
@@ -39,44 +44,12 @@ import static net.andreinc.mockneat.unit.user.Passwords.passwords;
 import static net.andreinc.mockneat.unit.user.Users.users;
 
 @Slf4j
-@Parameters(
-    commandNames = { "import-data" },
-    commandDescription = "Import test data into database."
-)
-public class ImportDataCommand {
+@Service
+public class DataMockService {
 
     private static final int N_USERS_DEFAULT_VALUE = 100_000;
     private static final int N_ITEM_DEFAULT_VALUE = 100_000;
     private static final int N_ORDERS_DEFAULT_VALUE = 100_000;
-
-    private static final String CSV_MODE = "CSV";
-    private static final String PREPARED_MODE = "PREPARED";
-
-    @Parameter(
-        names = "--users",
-        description = "Specify the number of users need to import."
-    )
-    private int nUsers = N_USERS_DEFAULT_VALUE;
-
-    @Parameter(
-        names = "--items",
-        description = "Specify the number of items need to import."
-    )
-    private int nItems = N_ITEM_DEFAULT_VALUE;
-
-    @Parameter(
-        names = "--orders",
-        description = "Specify the number of orders need to import."
-    )
-    private int nOrders = N_ORDERS_DEFAULT_VALUE;
-
-    @Parameter(
-        names = "--mode",
-        description = "Specify bulk load mode."
-    )
-    private String mode = PREPARED_MODE;
-
-    private ConcurrentBatchLoader concurrentBatchLoader;
 
     private static final String[] userColumns = new String[]{
         "id", "username", "password"
@@ -105,23 +78,39 @@ public class ImportDataCommand {
         "Home & Kitchen"
     );
 
-    public void importData(ConfigurableApplicationContext ctx) {
-        UserMapper userMapper = ctx.getBean(UserMapper.class);
-        ItemMapper itemMapper = ctx.getBean(ItemMapper.class);
-        OrderMapper orderMapper = ctx.getBean(OrderMapper.class);
-        ExpressMapper expressMapper = ctx.getBean(ExpressMapper.class);
-        DataSource dataSource = ctx.getBean("PrimaryDataSource", DataSource.class);
+    private final ConcurrentPreparedBatchLoader concurrentBatchLoader;
 
-        if (mode.equals(CSV_MODE)) {
-            concurrentBatchLoader = ctx.getBean(ConcurrentCSVBatchLoader.class);
-        } else {
-            concurrentBatchLoader = ctx.getBean(ConcurrentPreparedBatchLoader.class);
-        }
+    private final DynamicDataSource TiDBDataSource;
 
+    private final DynamicDataSource SnowflakeDataSource;
+
+    private final UserMapper userMapper;
+
+    private final ItemMapper itemMapper;
+
+
+    public DataMockService(
+        ConcurrentPreparedBatchLoader concurrentBatchLoader,
+        @Qualifier("TiDBDynamicDataSource") DynamicDataSource TiDBDataSource,
+        @Qualifier("SnowflakeDynamicDataSource") DynamicDataSource SnowflakeDataSource,
+        UserMapper userMapper,
+        ItemMapper itemMapper
+    ) {
+        this.concurrentBatchLoader = concurrentBatchLoader;
+        this.TiDBDataSource = TiDBDataSource;
+        this.SnowflakeDataSource = SnowflakeDataSource;
+        this.userMapper = userMapper;
+        this.itemMapper = itemMapper;
+    }
+
+    @Async
+    public void importData() {
         List<String> userIdList;
         List<Item> itemList;
-        Set<Long> orderIdSet;
-        Set<Long> expressIdSet;
+
+        int nUsers = N_USERS_DEFAULT_VALUE;
+        int nItems = N_ITEM_DEFAULT_VALUE;
+        int nOrders = N_ORDERS_DEFAULT_VALUE;
 
         if (userMapper.existsAnyUsers() == null) {
             log.info("Importing initial data...");
@@ -129,10 +118,9 @@ public class ImportDataCommand {
             userIdList = new ArrayList<>(userIdSet);
             itemList = importSampleItemData(nItems);
             List<Order> orderList = importSampleOrderData(nOrders, userIdList, itemList);
-            expressIdSet = importSampleExpressData(nOrders, orderList);
-            orderIdSet = orderList.stream().map(Order::getId).collect(Collectors.toSet());
+            importSampleExpressData(nOrders, orderList);
             userIdSet.clear();
-            orderList.clear();    
+            orderList.clear();
         } else {
             log.info("Skipping initial data import because data already exists in the database.");
 
@@ -140,16 +128,12 @@ public class ImportDataCommand {
             userIdList = loadUserIdList(userMapper);
             log.info("Loading existed item data from database...");
             itemList = loadItemList(itemMapper);
-            log.info("Loading existed order IDs from database...");
-            orderIdSet = loadOrderIdSet(orderMapper);
-            log.info("Loading existed express IDs from database...");
-            expressIdSet = loadExpressIdSet(expressMapper);
         }
 
-        importIncrementalData(dataSource, userIdList, itemList, orderIdSet, expressIdSet);
+        importIncrementalData(TiDBDataSource, userIdList, itemList);
     }
 
-    public Set<String> importSampleUserData(int n) {
+    private Set<String> importSampleUserData(int n) {
         Set<String> usernameSet = new ConcurrentSkipListSet<>();
         Set<String> userIdSet = new ConcurrentSkipListSet<>();
 
@@ -212,7 +196,7 @@ public class ImportDataCommand {
         return new ArrayList<>(itemList);
     }
 
-    public List<Order> importSampleOrderData(int n, List<String> userIdList, List<Item> itemList) {
+    private List<Order> importSampleOrderData(int n, List<String> userIdList, List<Item> itemList) {
         Set<Long> orderIdSet = new ConcurrentSkipListSet<>();
         List<Order> orderList = Collections.synchronizedList(new ArrayList<>());
         LocalDate tenYearsAge = LocalDate.now().minusYears(10);
@@ -250,7 +234,7 @@ public class ImportDataCommand {
         return new ArrayList<>(orderList);
     }
 
-    public Set<Long> importSampleExpressData(int n, List<Order> orderList) {
+    private Set<Long> importSampleExpressData(int n, List<Order> orderList) {
         Set<Long> expressIdSet = new ConcurrentSkipListSet<>();
         int nOrders = orderList.size();
 
@@ -291,9 +275,8 @@ public class ImportDataCommand {
         return expressIdSet;
     }
 
-    public void importIncrementalData(
-        DataSource dataSource, List<String> userIdList, List<Item> itemList,
-        Set<Long> orderIdSet, Set<Long> expressIdSet
+    private void importIncrementalData(
+        DataSource dataSource, List<String> userIdList, List<Item> itemList
     ) {
         List<String> addresses = new ArrayList<>();
         for (int i = 0; i < 2000; i++) {
@@ -309,9 +292,9 @@ public class ImportDataCommand {
         for (int workerId = 1; workerId <= nWorkers; workerId++) {
             threadPool.execute(() -> {
                 try (
-                    Connection conn = dataSource.getConnection();
-                    BatchLoader orderLoader = new PreparedBatchLoader(conn, getInsertSQL("orders", orderColumns));
-                    BatchLoader expressLoader = new PreparedBatchLoader(conn, getInsertSQL("expresses", expressColumns));
+                        Connection conn = dataSource.getConnection();
+                        BatchLoader orderLoader = new PreparedBatchLoader(conn, getInsertSQL("orders", orderColumns));
+                        BatchLoader expressLoader = new PreparedBatchLoader(conn, getInsertSQL("expresses", expressColumns));
                 ) {
                     // If the primary key use the auto random feature, we need to enable
                     // this flag to allow insert explicit value to TiDB.
@@ -323,9 +306,9 @@ public class ImportDataCommand {
 
                     int i = 0;
                     while (true) {
-                        List<Object> orderValues = getOrderValues(userIdList, itemList, orderIdSet);
+                        List<Object> orderValues = getOrderValues(userIdList, itemList);
 
-                        if (orderValues == null) {
+                        if (orderValues.isEmpty()) {
                             continue;
                         }
 
@@ -333,9 +316,9 @@ public class ImportDataCommand {
 
                         Long orderId = (Long) orderValues.get(0);
                         String userId = (String) orderValues.get(1);
-                        List<Object> expressValues = getExpressValues(addresses, expressIdSet, orderId, userId);
+                        List<Object> expressValues = getExpressValues(addresses, orderId, userId);
 
-                        if (expressValues == null) {
+                        if (expressValues.isEmpty()) {
                             continue;
                         }
 
@@ -361,20 +344,15 @@ public class ImportDataCommand {
         int pageSize = 10000;
 
         List<PageMeta<String>> userPages = userMapper.getUserPages(pageSize);
-        int n = userPages.size();
-        try (ProgressBar pb = new ProgressBar("Loading existed user data by page", n)) {
-            for (PageMeta<String> userPage : userPages) {
-                List<String> userIds = userMapper.getUserIdsByPageMeta(userPage);
-                userIdList.addAll(userIds);
-                pb.step();
-                log.debug(
+        for (PageMeta<String> userPage : userPages) {
+            List<String> userIds = userMapper.getUserIdsByPageMeta(userPage);
+            userIdList.addAll(userIds);
+            log.debug(
                     "Loaded user IDs, page_number={}, page_size={}, start_key = {}, end_key = {}.",
                     userPage.getPageNum(), userPage.getPageSize(), userPage.getStartKey(), userPage.getEndKey()
-                );
-            }
-            pb.stepTo(n);
-            log.info("\nLoaded {} user IDs.", userIdList.size());
+            );
         }
+        log.info("Loaded {} user IDs.", userIdList.size());
 
         return userIdList;
     }
@@ -384,71 +362,20 @@ public class ImportDataCommand {
         int pageSize = 10000;
         List<PageMeta<Long>> itemPages = itemMapper.getItemsBaseInfoPage(pageSize);
 
-        int n = itemPages.size();
-        try (ProgressBar pb = new ProgressBar("Loading item data by page", n)) {
-            for (PageMeta<Long> itemPage : itemPages) {
-                List<Item> items = itemMapper.getItemsBaseInfosByPageMeta(itemPage);
-                itemList.addAll(items);
-                pb.step();
-                log.debug(
+        for (PageMeta<Long> itemPage : itemPages) {
+            List<Item> items = itemMapper.getItemsBaseInfosByPageMeta(itemPage);
+            itemList.addAll(items);
+            log.debug(
                     "Loaded item base infos, page_number={}, page_size={}, start_key = {}, end_key = {}.",
                     itemPage.getPageNum(), itemPage.getPageSize(), itemPage.getStartKey(), itemPage.getEndKey()
-                );
-            }
-            pb.stepTo(n);
-            log.info("\nLoaded {} item base infos.", itemList.size());
+            );
         }
+        log.info("Loaded {} item base infos.", itemList.size());
 
         return itemList;
     }
 
-    private Set<Long> loadOrderIdSet(OrderMapper orderMapper) {
-        Set<Long> orderIdSet = new ConcurrentSkipListSet<>();
-        int pageSize = 10000;
-
-        List<PageMeta<Long>> orderIdPages = orderMapper.getOrderIdPages(pageSize);
-        int n = orderIdPages.size();
-        try (ProgressBar pb = new ProgressBar("Loading order data by page", n)) {
-            for (PageMeta<Long> orderIdPage : orderIdPages) {
-                List<Long> orderIds = orderMapper.getOrderIdsByPageMeta(orderIdPage);
-                orderIdSet.addAll(orderIds);
-                pb.step();
-                log.debug(
-                    "Loaded order ids, page_number={}, page_size={}, start_key = {}, end_key = {}.",
-                    orderIdPage.getPageNum(), orderIdPage.getPageSize(), orderIdPage.getStartKey(), orderIdPage.getEndKey()
-                );
-            }
-            pb.stepTo(n);
-            log.info("\nLoaded {} order IDs.", orderIdSet.size());
-        }
-
-        return orderIdSet;
-    }
-
-    private Set<Long> loadExpressIdSet(ExpressMapper expressMapper) {
-        Set<Long> expressIdSet = new ConcurrentSkipListSet<>();
-        int pageSize = 10000;
-
-        List<PageMeta<Long>> expressIdPages = expressMapper.getExpressIdPages(pageSize);
-        int n = expressIdPages.size();
-        try (ProgressBar pb = new ProgressBar("Loading order data by page", n)) {
-            for (PageMeta<Long> expressIdPage : expressIdPages) {
-                List<Long> expressIds = expressMapper.getExpressIdsByPageMeta(expressIdPage);
-                expressIdSet.addAll(expressIds);
-                pb.step();
-                log.debug(
-                    "Loaded express ids, page_number={}, page_size={}, start_key = {}, end_key = {}.",
-                    expressIdPage.getPageNum(), expressIdPage.getPageSize(), expressIdPage.getStartKey(), expressIdPage.getEndKey()
-                );
-            }
-            pb.stepTo(n);
-            log.info("\nLoaded {} express IDs.", expressIdSet.size());
-        }
-
-        return expressIdSet;
-    }
-
-    private List<Object> getOrderValues(List<String> userIdList, List<Item> itemList, Set<Long> orderIdSet) {
+    private List<Object> getOrderValues(List<String> userIdList, List<Item> itemList) {
         Long orderId = longs().lowerBound(1000).get();
         String userId = from(userIdList).get();
         Item item = from(itemList).get();
@@ -457,12 +384,6 @@ public class ImportDataCommand {
         Integer itemCount = ints().range(1, 2).get();
         BigDecimal amount = item.getItemPrice().multiply(BigDecimal.valueOf(itemCount));
         Date createTime = new Date();
-
-        if (orderIdSet.contains(orderId)) {
-            return null;
-        } else {
-            orderIdSet.add(orderId);
-        }
 
         List<Object> fields = new ArrayList<>();
         fields.add(orderId);
@@ -476,19 +397,13 @@ public class ImportDataCommand {
         return fields;
     }
 
-    private List<Object> getExpressValues(List<String> addresses, Set<Long> expressIdSet, Long orderId, String userId)  {
+    private List<Object> getExpressValues(List<String> addresses, Long orderId, String userId)  {
         Long expressId = longs().lowerBound(1000).get();
         String postId = strings().size(12).types(NUMBERS).get();
         String address = from(addresses).get();
         String currentAddress = from(addresses).get();
         String status = from(ExpressStatus.values()).get().name();
         Date createTime = new Date();
-
-        if (expressIdSet.contains(expressId)) {
-            return null;
-        } else {
-            expressIdSet.add(expressId);
-        }
 
         List<Object> fields = new ArrayList<>();
         fields.add(expressId);

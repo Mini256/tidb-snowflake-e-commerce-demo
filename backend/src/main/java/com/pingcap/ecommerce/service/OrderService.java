@@ -5,7 +5,7 @@ import com.pingcap.ecommerce.dao.tidb.OrderSeriesMapper;
 import com.pingcap.ecommerce.model.OrderSeries;
 import com.pingcap.ecommerce.vo.OrderTotalVO;
 import com.pingcap.ecommerce.vo.OrderVO;
-import com.pingcap.ecommerce.vo.ResultVO;
+import com.pingcap.ecommerce.vo.PageResultVO;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
@@ -24,10 +24,10 @@ public class OrderService {
 
     private final OrderSeriesMapper orderSeriesMapper;
 
-    public ResultVO<OrderVO> getOrders(String userId, Pageable pageable) {
+    public PageResultVO<OrderVO> getOrders(String userId, Pageable pageable) {
         List<OrderVO> orders = orderMapper.getOrders(userId, pageable);
         long rowCount = 10000; // orderMapper.getOrdersCount(username);
-        return ResultVO.of(orders, rowCount, pageable.getPageNumber(), pageable.getPageSize());
+        return PageResultVO.of(orders, rowCount, pageable.getPageNumber(), pageable.getPageSize());
     }
 
     public List<OrderVO> getOrdersByUserId(String userId) {

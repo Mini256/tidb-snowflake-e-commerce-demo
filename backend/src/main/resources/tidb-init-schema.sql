@@ -1,7 +1,3 @@
-CREATE DATABASE IF NOT EXISTS `ecommerce`;
-
-USE `ecommerce`;
-
 CREATE TABLE IF NOT EXISTS users (
     `id` VARCHAR(32) PRIMARY KEY,
     `username` VARCHAR(32) COMMENT '用户名',
@@ -71,5 +67,3 @@ CREATE TABLE IF NOT EXISTS s_orders (
     `total` BIGINT,
     PRIMARY KEY (ts, type)
 );
-
-SHOW TABLES;

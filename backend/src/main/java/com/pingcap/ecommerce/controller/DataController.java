@@ -2,7 +2,7 @@ package com.pingcap.ecommerce.controller;
 
 import com.pingcap.ecommerce.model.HotItem;
 import com.pingcap.ecommerce.service.DataService;
-import com.pingcap.ecommerce.vo.ResultVO;
+import com.pingcap.ecommerce.vo.PageResultVO;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
@@ -60,7 +60,7 @@ public class DataController {
     }
 
     @GetMapping("/hot-items/recommended")
-    public ResultVO<HotItem> getRecommended(@RequestParam(required = false) String userId, Pageable pageable) {
+    public PageResultVO<HotItem> getRecommended(@RequestParam(required = false) String userId, Pageable pageable) {
         return dataService.getRecommendedHotItems(userId, pageable);
     }
 

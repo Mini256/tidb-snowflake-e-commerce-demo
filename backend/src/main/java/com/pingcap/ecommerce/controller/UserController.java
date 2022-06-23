@@ -3,7 +3,7 @@ package com.pingcap.ecommerce.controller;
 import com.pingcap.ecommerce.service.OrderService;
 import com.pingcap.ecommerce.service.UserService;
 import com.pingcap.ecommerce.vo.OrderVO;
-import com.pingcap.ecommerce.vo.ResultVO;
+import com.pingcap.ecommerce.vo.PageResultVO;
 import com.pingcap.ecommerce.vo.UserVO;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -21,7 +21,7 @@ public class UserController {
   private final OrderService orderService;
 
   @GetMapping()
-  public ResultVO<UserVO> getUsers(Pageable pageable) {
+  public PageResultVO<UserVO> getUsers(Pageable pageable) {
     return userService.getUsersWithLabel(pageable);
   }
 

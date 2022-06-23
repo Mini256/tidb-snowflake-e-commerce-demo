@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pingcap.ecommerce.dao.snowflake.SnowflakeSchemaMapper">
+  <resultMap id="TableInfo" type="com.pingcap.ecommerce.vo.TableInfo">
+    <result property="databaseName" column="database_name" javaType="java.lang.String" jdbcType="VARCHAR" />
+    <result property="schemaName" column="schema_name" javaType="java.lang.String" jdbcType="VARCHAR" />
+    <result property="tableName" column="name" javaType="java.lang.String" jdbcType="VARCHAR" />
+    <result property="tableRows" column="rows" javaType="java.math.BigDecimal" jdbcType="BIGINT" />
+    <result property="createdTime" column="created_on" javaType="java.util.Date" jdbcType="VARCHAR" />
+    <result property="dataSize" column="bytes" javaType="java.math.BigDecimal" jdbcType="BIGINT" />
+    <result property="totalSize" column="bytes" javaType="java.math.BigDecimal" jdbcType="BIGINT" />
+  </resultMap>
+
+  <select id="useJSONResultFormat">
+    ALTER SESSION SET JDBC_QUERY_RESULT_FORMAT='JSON'
+  </select>
+
+  <select id="getTableInfos" resultMap="TableInfo">
+    SHOW TABLES;
+  </select>
+
+</mapper>

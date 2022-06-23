@@ -1,8 +1,7 @@
-package com.pingcap.ecommerce.cli.loader;
+package com.pingcap.ecommerce.loader;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import me.tongfei.progressbar.ProgressBar;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.springframework.stereotype.Component;
 
@@ -21,7 +20,8 @@ public class ConcurrentPreparedBatchLoader implements ConcurrentBatchLoader {
   private final SqlSessionFactory sqlSessionFactory;
   public void batchInsert(String name, String tableName, String[] headers, int n, ValuesGenerator generator) {
     String insertSQL = getInsertSQL(tableName, headers);
-    try (ProgressBar pb = new ProgressBar(String.format("Importing %s Data", name), n)) {
+
+    try {
       int nCores = Runtime.getRuntime().availableProcessors();
       int nWorkers = Math.min(Math.max(4, nCores), 16);
       long nJobsPerWorker = n / nWorkers;
@@ -52,9 +52,6 @@ public class ConcurrentPreparedBatchLoader implements ConcurrentBatchLoader {
                   loader.insertValues(values);
 
                   i++;
-                  if (i % 2000 == 0) {
-                    pb.stepBy(2000);
-                  }
                 }
 
                 loader.flush();
@@ -67,7 +64,6 @@ public class ConcurrentPreparedBatchLoader implements ConcurrentBatchLoader {
 
       countDownLatch.await();
       threadPool.shutdownNow();
-      pb.stepTo(n);
 
       log.info("Generating {} {} data successfully.", n, name.toLowerCase());
     } catch (Exception e) {
@@ -78,7 +74,7 @@ public class ConcurrentPreparedBatchLoader implements ConcurrentBatchLoader {
   public String getInsertSQL(String tableName, String[] headers) {
     String columns = String.join(", ", headers);
     String values = String.join(", ", Arrays.stream(headers).map(header -> "?").toArray(String[]::new));
-    return String.format("INSERT INTO %s (%s) VALUES (%s);", tableName, columns, values);
+    return String.format("INSERT IGNORE INTO %s (%s) VALUES (%s);", tableName, columns, values);
   }
 
 }
