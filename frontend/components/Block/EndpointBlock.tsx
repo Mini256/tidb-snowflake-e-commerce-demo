@@ -5,10 +5,11 @@ import { Box, TextField, Typography, Container, Button } from "@mui/material";
 import LoadingButton from "@mui/lab/LoadingButton";
 import Skeleton from "@mui/material/Skeleton";
 import Snackbar from "@mui/material/Snackbar";
-import MuiAlert, { AlertProps } from "@mui/material/Alert";
+import MuiAlert, { AlertProps, AlertColor } from "@mui/material/Alert";
 import FormHelperText from "@mui/material/FormHelperText";
 
-import { setLocalStorageEndpoint } from "lib";
+import { setLocalStorageEndpoint, createHttpClient } from "lib";
+import { ConfigCheckResType } from "const/type";
 
 const Alert = forwardRef<HTMLDivElement, AlertProps>(function Alert(
   props,
@@ -30,16 +31,27 @@ const mockValidateEndpoint = async (
   handleSuccess(data as string);
 };
 
-export const EndpointBlock = (props: {
+export interface EndpointBlockProps {
   defaultVal?: string;
-  handleSuccess: () => void;
+  handleSuccess: (data: {
+    endpointStatus: boolean;
+    tidbStatus: boolean;
+    snowflakeStatus: boolean;
+  }) => void;
   onInputChange: (arg0: string) => void;
-}) => {
-  const { defaultVal = "", handleSuccess, onInputChange } = props;
+  handleReset: () => void;
+}
+
+export const EndpointBlock = (props: EndpointBlockProps) => {
+  const { defaultVal = "", handleSuccess, onInputChange, handleReset } = props;
 
   const [btnLoading, setBtnLoading] = useState(false);
   const [inputVal, setInputVal] = useState(defaultVal);
-  const [showSnackBar, setShowSnackBar] = useState(false);
+  const [showSnackBar, setShowSnackBar] = useState<{
+    severity?: AlertColor;
+    msg?: string;
+    display: boolean;
+  }>({ display: false });
 
   const handleCloseSnackBar = (
     event?: React.SyntheticEvent | Event,
@@ -49,7 +61,54 @@ export const EndpointBlock = (props: {
       return;
     }
 
-    setShowSnackBar(false);
+    setShowSnackBar({ display: false });
+  };
+
+  const handleCheckBtnClick = async () => {
+    const axiosInstance = createHttpClient(inputVal);
+
+    setBtnLoading(true);
+    console.log(inputVal);
+
+    try {
+      const res = await axiosInstance.get(`/api/admin/config/check`);
+      if (res?.status !== 200) {
+        throw new Error(`${res.status} ${res.data}`);
+      }
+      const resData: ConfigCheckResType = res.data;
+      const {
+        data: { ready, snowflakeConfigured, tidbConfigured },
+        message,
+      } = resData;
+      setShowSnackBar({
+        severity: "success",
+        msg: `Success: Connected to ${inputVal}`,
+        display: true,
+      });
+      setBtnLoading(false);
+      onInputChange(inputVal);
+      setLocalStorageEndpoint(inputVal);
+      handleSuccess({
+        endpointStatus: ready,
+        tidbStatus: tidbConfigured,
+        snowflakeStatus: snowflakeConfigured,
+      });
+    } catch (error) {
+      console.error(error);
+      setBtnLoading(false);
+      setShowSnackBar({
+        severity: "error",
+        msg: `Error: Connected to ${inputVal}`,
+        display: true,
+      });
+    }
+  };
+
+  const handleResetBtnClick = () => {
+    setBtnLoading(false);
+    onInputChange("");
+    setLocalStorageEndpoint("");
+    handleReset();
   };
 
   return (
@@ -80,51 +139,31 @@ export const EndpointBlock = (props: {
         <LoadingButton
           sx={{ mt: 1, mr: 1 }}
           color="secondary"
-          onClick={async () => {
-            setBtnLoading(true);
-            console.log(inputVal);
-            await mockValidateEndpoint(inputVal, (data: string) => {
-              setBtnLoading(false);
-              console.log(data);
-              setShowSnackBar(true);
-              handleSuccess();
-              onInputChange(inputVal);
-              setLocalStorageEndpoint(inputVal);
-            });
-            // setTimeout(() => {
-            //   setBtnLoading(false);
-            // }, 3000);
-          }}
+          onClick={handleCheckBtnClick}
           loading={btnLoading}
-          // endIcon={<SearchIcon />}
-          // loadingPosition="end"
           variant="contained"
           size="small"
           disabled={!inputVal}
         >
           Check
         </LoadingButton>
-        <Button
-          onClick={() => {
-            setLocalStorageEndpoint("");
-            setInputVal("");
-          }}
-          sx={{ mt: 1, mr: 1 }}
-        >
-          Reset
-        </Button>
+        {inputVal && (
+          <Button onClick={handleResetBtnClick} sx={{ mt: 1, mr: 1 }}>
+            Reset
+          </Button>
+        )}
       </Box>
       <Snackbar
-        open={showSnackBar}
-        autoHideDuration={6000}
+        open={showSnackBar.display}
+        autoHideDuration={3000}
         onClose={handleCloseSnackBar}
       >
         <Alert
           onClose={handleCloseSnackBar}
-          severity="success"
+          severity={showSnackBar?.severity}
           sx={{ width: "100%" }}
         >
-          {`Success: Connected to ${inputVal}`}
+          {showSnackBar.msg}
         </Alert>
       </Snackbar>
     </>

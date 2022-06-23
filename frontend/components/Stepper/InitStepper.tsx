@@ -15,16 +15,44 @@ import {
   TiDBConfig,
   SnowflakeConfig,
   CreateSchemaSQL,
-} from "../SidePanel/Walkthrough";
+} from "components/SidePanel/Walkthrough";
+import { useHttpClient } from "lib";
 
-const TiDBStepContent = (props: any) => {
+const TiDBStepContent = (props: { handleNext: () => void }) => {
   const { handleNext } = props;
 
-  const hostRef = React.useRef<HTMLInputElement>(null);
-  const portRef = React.useRef<HTMLInputElement>(null);
-  const dbRef = React.useRef<HTMLInputElement>(null);
-  const usrRef = React.useRef<HTMLInputElement>(null);
-  const passwordRef = React.useRef<HTMLInputElement>(null);
+  const [httpClient, _] = useHttpClient();
+
+  const [host, setHost] = React.useState("127.0.0.1");
+  const [port, setPort] = React.useState("4000");
+  const [database, setDatabase] = React.useState("ecommerce");
+  const [user, setUser] = React.useState("root");
+  const [password, setPassword] = React.useState("");
+
+  const [isLoading, setIsLoading] = React.useState(false);
+
+  const handleNextClick = async () => {
+    const body = {
+      host,
+      port,
+      database,
+      user,
+      password,
+    };
+    try {
+      setIsLoading(true);
+      const res = await httpClient.post(`/api/admin/data-source/tidb`, body);
+      if (res?.status !== 200) {
+        throw new Error(`${res.status} ${res.data}`);
+      }
+      setIsLoading(false);
+      handleNext();
+    } catch (error) {
+      console.error(error);
+      setIsLoading(false);
+    }
+  };
+
   return (
     <>
       <Box
@@ -44,8 +72,10 @@ const TiDBStepContent = (props: any) => {
           label="TIDB_HOST"
           variant="outlined"
           margin="dense"
-          defaultValue="127.0.0.1"
-          inputRef={hostRef}
+          value={host}
+          onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+            setHost(event.target.value);
+          }}
         />
         <TextField
           size="small"
@@ -53,8 +83,10 @@ const TiDBStepContent = (props: any) => {
           label="TIDB_PORT"
           variant="outlined"
           margin="dense"
-          defaultValue="4000"
-          inputRef={portRef}
+          value={port}
+          onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+            setPort(event.target.value);
+          }}
         />
         <TextField
           size="small"
@@ -62,8 +94,10 @@ const TiDBStepContent = (props: any) => {
           label="TIDB_DATABASE"
           variant="outlined"
           margin="dense"
-          defaultValue="ecommerce"
-          inputRef={dbRef}
+          value={database}
+          onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+            setDatabase(event.target.value);
+          }}
         />
         <TextField
           size="small"
@@ -71,8 +105,10 @@ const TiDBStepContent = (props: any) => {
           label="TIDB_USERNAME"
           variant="outlined"
           margin="dense"
-          defaultValue="root"
-          inputRef={usrRef}
+          value={user}
+          onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+            setUser(event.target.value);
+          }}
         />
         <TextField
           size="small"
@@ -81,58 +117,76 @@ const TiDBStepContent = (props: any) => {
           variant="outlined"
           margin="dense"
           type="password"
-          defaultValue=""
-          inputRef={passwordRef}
+          value={password}
+          onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+            setPassword(event.target.value);
+          }}
         />
       </Box>
       <Box sx={{ mb: 2 }}>
         <div>
-          <Button
+          <LoadingButton
             variant="contained"
-            onClick={() => {
-              const hostVal = hostRef?.current?.value || "";
-              const portVal = portRef?.current?.value || "";
-              const dbVal = dbRef?.current?.value || "";
-              const usrVal = usrRef?.current?.value || "";
-              const pwdVal = passwordRef?.current?.value || "";
-              console.log({
-                host: hostVal,
-                port: portVal,
-                database: dbVal,
-                user: usrVal,
-                password: pwdVal,
-              });
-              handleNext();
-            }}
+            loading={isLoading}
+            onClick={handleNextClick}
             sx={{ mt: 1, mr: 1 }}
           >
             Continue
-          </Button>
-          {/* <Button
-                disabled={index === 0}
-                onClick={handleBack}
-                sx={{ mt: 1, mr: 1 }}
-              >
-                Back
-              </Button> */}
+          </LoadingButton>
         </div>
       </Box>
     </>
   );
 };
 
-const SnowflakeStepContent = (props: any) => {
+const SnowflakeStepContent = (props: {
+  handleNext: () => void;
+  handleBack: () => void;
+}) => {
   const { handleNext, handleBack } = props;
 
-  const hostRef = React.useRef<HTMLInputElement>(null);
-  const accountRef = React.useRef<HTMLInputElement>(null);
-  const whRef = React.useRef<HTMLInputElement>(null);
-  const dbRef = React.useRef<HTMLInputElement>(null);
-  const schemaRef = React.useRef<HTMLInputElement>(null);
-  const userRef = React.useRef<HTMLInputElement>(null);
-  const roleRef = React.useRef<HTMLInputElement>(null);
-  const pwdRef = React.useRef<HTMLInputElement>(null);
-  const urlRef = React.useRef<HTMLInputElement>(null);
+  const [httpClient, _] = useHttpClient();
+
+  const [host, setHost] = React.useState("");
+  const [account, setAccount] = React.useState("");
+  const [wh, setWh] = React.useState("PC_ETLEAP_WH");
+  const [db, setDb] = React.useState("PC_ETLEAP_DB");
+  const [schema, setSchema] = React.useState("ECOMMERCE");
+  const [user, setUser] = React.useState("");
+  const [role, setRole] = React.useState("ACCOUNTADMIN");
+  const [password, setPassword] = React.useState("");
+
+  const [isLoading, setIsLoading] = React.useState(false);
+
+  const handleNextClick = async () => {
+    const body = {
+      host,
+      account,
+      port: 443,
+      wh,
+      db,
+      schema,
+      user,
+      role,
+      password,
+    };
+    try {
+      setIsLoading(true);
+      const res = await httpClient.post(
+        `/api/admin/data-source/snowflake`,
+        body
+      );
+      if (res?.status !== 200) {
+        throw new Error(`${res.status} ${res.data}`);
+      }
+      setIsLoading(false);
+      handleNext();
+    } catch (error) {
+      console.error(error);
+      setIsLoading(false);
+    }
+  };
+
   return (
     <>
       <Box
@@ -146,8 +200,10 @@ const SnowflakeStepContent = (props: any) => {
           label="SNOWSQL_HOST"
           variant="outlined"
           margin="dense"
-          defaultValue=""
-          inputRef={hostRef}
+          value={host}
+          onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+            setHost(event.target.value);
+          }}
         />
         <TextField
           size="small"
@@ -155,8 +211,10 @@ const SnowflakeStepContent = (props: any) => {
           label="SNOWSQL_ACCOUNT"
           variant="outlined"
           margin="dense"
-          defaultValue=""
-          inputRef={accountRef}
+          value={account}
+          onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+            setAccount(event.target.value);
+          }}
         />
         <TextField
           size="small"
@@ -164,8 +222,10 @@ const SnowflakeStepContent = (props: any) => {
           label="SNOWSQL_WAREHOUSE"
           variant="outlined"
           margin="dense"
-          defaultValue="PC_ETLEAP_WH"
-          inputRef={whRef}
+          value={wh}
+          onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+            setWh(event.target.value);
+          }}
         />
         <TextField
           size="small"
@@ -173,8 +233,10 @@ const SnowflakeStepContent = (props: any) => {
           label="SNOWSQL_DATABASE"
           variant="outlined"
           margin="dense"
-          defaultValue="PC_ETLEAP_DB"
-          inputRef={dbRef}
+          value={db}
+          onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+            setDb(event.target.value);
+          }}
         />
         <TextField
           size="small"
@@ -182,8 +244,10 @@ const SnowflakeStepContent = (props: any) => {
           label="SNOWSQL_SCHEMA"
           variant="outlined"
           margin="dense"
-          defaultValue="ECOMMERCE"
-          inputRef={schemaRef}
+          value={schema}
+          onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+            setSchema(event.target.value);
+          }}
         />
         <TextField
           size="small"
@@ -191,8 +255,10 @@ const SnowflakeStepContent = (props: any) => {
           label="SNOWSQL_USER"
           variant="outlined"
           margin="dense"
-          defaultValue="MINIANT"
-          inputRef={userRef}
+          value={user}
+          onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+            setUser(event.target.value);
+          }}
         />
         <TextField
           size="small"
@@ -200,8 +266,10 @@ const SnowflakeStepContent = (props: any) => {
           label="SNOWSQL_ROLE"
           variant="outlined"
           margin="dense"
-          defaultValue="ACCOUNTADMIN"
-          inputRef={roleRef}
+          value={role}
+          onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+            setRole(event.target.value);
+          }}
         />
         <TextField
           size="small"
@@ -209,52 +277,39 @@ const SnowflakeStepContent = (props: any) => {
           label="SNOWSQL_PWD"
           variant="outlined"
           margin="dense"
-          defaultValue=""
-          type="password"
-          inputRef={pwdRef}
-        />
-        <TextField
-          size="small"
-          id="snow-url"
-          label="SNOWSQL_URL"
-          variant="outlined"
-          margin="dense"
-          defaultValue=""
-          inputRef={urlRef}
+          value={password}
+          onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+            setPassword(event.target.value);
+          }}
         />
       </Box>
       <Box sx={{ mb: 2 }}>
         <div>
-          <Button
+          <LoadingButton
             variant="contained"
-            onClick={() => {
-              const hostVal = hostRef?.current?.value || "";
-              const accountVal = accountRef?.current?.value || "";
-              const whVal = whRef?.current?.value || "";
-              const dbVal = dbRef?.current?.value || "";
-              const schemaVal = schemaRef?.current?.value || "";
-              const userVal = userRef?.current?.value || "";
-              const roleVal = roleRef?.current?.value || "";
-              const pwdVal = pwdRef?.current?.value || "";
-              const urlVal = urlRef?.current?.value || "";
-              console.log({
-                host: hostVal,
-                account: accountVal,
-                wh: whVal,
-                db: dbVal,
-                schema: schemaVal,
-                user: userVal,
-                role: roleVal,
-                pwd: pwdVal,
-                url: urlVal,
-              });
-              handleNext();
-            }}
+            disabled={
+              !(
+                account &&
+                wh &&
+                db &&
+                schema &&
+                user &&
+                role &&
+                password &&
+                host
+              )
+            }
+            loading={isLoading}
+            onClick={handleNextClick}
             sx={{ mt: 1, mr: 1 }}
           >
             Continue
-          </Button>
-          <Button onClick={handleBack} sx={{ mt: 1, mr: 1 }}>
+          </LoadingButton>
+          <Button
+            disabled={isLoading}
+            onClick={handleBack}
+            sx={{ mt: 1, mr: 1 }}
+          >
             Back
           </Button>
         </div>
@@ -263,7 +318,64 @@ const SnowflakeStepContent = (props: any) => {
   );
 };
 
-export function VerticalLinearStepper() {
+const CreateSchemaContent = (props: {
+  handleNext: () => void;
+  handleBack: () => void;
+}) => {
+  const { handleNext, handleBack } = props;
+
+  const [isLoading, setIsLoading] = React.useState(false);
+
+  const [httpClient, _] = useHttpClient();
+
+  const handleNextClick = async () => {
+    try {
+      setIsLoading(true);
+      const res = await httpClient.post(`/api/admin/data-source/tidb/schema`);
+      if (res?.status !== 200) {
+        throw new Error(`${res.status} ${res.data}`);
+      }
+      setIsLoading(false);
+      handleNext();
+    } catch (error) {
+      console.error(error);
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <>
+      <CreateSchemaSQL />
+      <Box sx={{ mb: 2 }}>
+        <div>
+          <LoadingButton
+            variant="contained"
+            loading={isLoading}
+            onClick={handleNextClick}
+            sx={{ mt: 1, mr: 1 }}
+          >
+            Continue
+          </LoadingButton>
+          <Button
+            onClick={handleBack}
+            sx={{ mt: 1, mr: 1 }}
+            disabled={isLoading}
+          >
+            Back
+          </Button>
+        </div>
+      </Box>
+    </>
+  );
+};
+
+export function VerticalLinearStepper(props: {
+  tidbStatus?: boolean;
+  snowflakeStatus?: boolean;
+  endpoint?: string;
+}) {
+  const { tidbStatus, snowflakeStatus } = props;
+
   const [activeStep, setActiveStep] = React.useState(0);
   const [uploading, setUploading] = React.useState(false);
 
@@ -290,68 +402,106 @@ export function VerticalLinearStepper() {
             Connect to TiDB
           </StepLabel>
           <StepContent>
-            <Typography>
-              Configure the connection information of the TiDB database. You can
-              create your TiDB cluster in{" "}
-              <Typography
-                component="a"
-                variant="inherit"
-                href="https://tidb.auth0.com/login"
-              >
-                tidbcloud.com
-              </Typography>
-              .
-            </Typography>
-            <TiDBConfig />
-            <TiDBStepContent handleNext={handleNext} />
+            {tidbStatus ? (
+              <>
+                <Typography>
+                  You have successfully configured TiDB connection.
+                </Typography>
+                <Button
+                  variant="contained"
+                  sx={{ mt: 1, mr: 1 }}
+                  onClick={handleNext}
+                >
+                  Continue
+                </Button>
+              </>
+            ) : (
+              <>
+                <Typography>
+                  Configure the connection information of the TiDB database. You
+                  can create your TiDB cluster in{" "}
+                  <Typography
+                    component="a"
+                    variant="inherit"
+                    href="https://tidbcloud.com/"
+                  >
+                    tidbcloud.com
+                  </Typography>
+                  .
+                </Typography>
+                <TiDBConfig />
+                <TiDBStepContent handleNext={handleNext} />
+              </>
+            )}
           </StepContent>
         </Step>
 
         <Step key="create-schema">
           <StepLabel>Create Schema</StepLabel>
           <StepContent>
-            <CreateSchemaSQL />
-            <Box sx={{ mb: 2 }}>
-              <div>
+            {tidbStatus ? (
+              <>
+                <Typography>
+                  You have successfully configured Schema.
+                </Typography>
                 <Button
                   variant="contained"
-                  onClick={() => {
-                    handleNext();
-                  }}
                   sx={{ mt: 1, mr: 1 }}
+                  onClick={handleNext}
                 >
                   Continue
                 </Button>
-                <Button onClick={handleBack} sx={{ mt: 1, mr: 1 }}>
-                  Back
-                </Button>
-              </div>
-            </Box>
+              </>
+            ) : (
+              <>
+                <CreateSchemaContent
+                  handleNext={handleNext}
+                  handleBack={handleBack}
+                />
+              </>
+            )}
           </StepContent>
         </Step>
 
-        <Step key="import-data">
+        {/* <Step key="import-data">
           <StepLabel>Import Data</StepLabel>
           <StepContent>
-            <CreateSchemaSQL />
-            <Box sx={{ mb: 2 }}>
-              <div>
+            {tidbStatus ? (
+              <>
+                <Typography>
+                  You have successfully completed this step.
+                </Typography>
                 <Button
                   variant="contained"
-                  onClick={() => {
-                    handleNext();
-                  }}
                   sx={{ mt: 1, mr: 1 }}
+                  onClick={handleNext}
                 >
                   Continue
                 </Button>
-                <Button onClick={handleBack} sx={{ mt: 1, mr: 1 }}>
-                  Back
-                </Button>
-              </div>
-            </Box>
+              </>
+            ) : (
+              <>
+                <CreateSchemaSQL />
+                <Box sx={{ mb: 2 }}>
+                  <div>
+                    <Button
+                      variant="contained"
+                      onClick={() => {
+                        handleNext();
+                      }}
+                      sx={{ mt: 1, mr: 1 }}
+                    >
+                      Continue
+                    </Button>
+                    <Button onClick={handleBack} sx={{ mt: 1, mr: 1 }}>
+                      Back
+                    </Button>
+                  </div>
+                </Box>
+              </>
+            )}
           </StepContent>
-        </Step>
+        </Step> */}
 
         <Step key="snowflake">
           <StepLabel
@@ -360,20 +510,37 @@ export function VerticalLinearStepper() {
             Connect to Snowflake
           </StepLabel>
           <StepContent>
-            <Typography>
-              Configure the connection information of the Snowflake. You can
-              create your Snowflake cluster in{" "}
-              <a href="https://signup.snowflake.com/">snowflake.com</a>.
-            </Typography>
-            <SnowflakeConfig />
-            <SnowflakeStepContent
-              handleNext={handleNext}
-              handleBack={handleBack}
-            />
+            {snowflakeStatus ? (
+              <>
+                <Typography>
+                  You have successfully connected to Snowflake.
+                </Typography>
+                <Button
+                  variant="contained"
+                  sx={{ mt: 1, mr: 1 }}
+                  onClick={handleNext}
+                >
+                  Continue
+                </Button>
+              </>
+            ) : (
+              <>
+                <Typography>
+                  Configure the connection information of the Snowflake. You can
+                  create your Snowflake cluster in{" "}
+                  <a href="https://signup.snowflake.com/">snowflake.com</a>.
+                </Typography>
+                <SnowflakeConfig />
+                <SnowflakeStepContent
+                  handleNext={handleNext}
+                  handleBack={handleBack}
+                />
+              </>
+            )}
           </StepContent>
         </Step>
       </Stepper>
-      {activeStep === 4 && (
+      {activeStep === 3 && (
         <Paper
           square
           elevation={0}

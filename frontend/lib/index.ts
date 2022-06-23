@@ -30,8 +30,10 @@ export function createHttpClient(url?: string): AxiosInstance {
   });
 }
 
-export const useHttpClient = (): [AxiosInstance, string] => {
-  const [url, setUrl] = useState(process.env.NEXT_PUBLIC_BASE_URL || "");
+export const useHttpClient = (initUrl?: string): [AxiosInstance, string] => {
+  const [url, setUrl] = useState(
+    initUrl || process.env.NEXT_PUBLIC_BASE_URL || ""
+  );
 
   let client = createHttpClient(url);
 
