@@ -45,18 +45,32 @@ public class Env {
         Map<String, String> sysEnv = System.getenv();
         Map<String, String> envVars = new HashMap<>();
         for (String key : keys) {
-            envVars.put(key, sysEnv.get(key));
+            if (sysEnv.containsKey(key)) {
+                envVars.put(key, sysEnv.get(key));
+            }
         }
         this.envVars = envVars;
     }
 
     public TiDBDataSourceConfig getTiDBConfig() {
         TiDBDataSourceConfig cfg = new TiDBDataSourceConfig();
-        cfg.setHost(envVars.get(TIDB_HOST));
-        cfg.setPort(Integer.parseInt(envVars.get(TIDB_PORT)));
-        cfg.setDatabase(envVars.get(TIDB_DATABASE));
-        cfg.setUser(envVars.get(TIDB_USERNAME));
-        cfg.setPassword(envVars.get(TIDB_PASSWORD));
+
+        if (envVars.containsKey(TIDB_HOST)) {
+            cfg.setHost(envVars.get(TIDB_HOST));
+        }
+        if (envVars.containsKey(TIDB_PORT)) {
+            cfg.setPort(Integer.parseInt(envVars.get(TIDB_PORT)));
+        }
+        if (envVars.containsKey(TIDB_DATABASE)) {
+            cfg.setDatabase(envVars.get(TIDB_DATABASE));
+        }
+        if (envVars.containsKey(TIDB_USERNAME)) {
+            cfg.setUser(envVars.get(TIDB_USERNAME));
+        }
+        if (envVars.containsKey(TIDB_USERNAME)) {
+            cfg.setPassword(envVars.get(TIDB_PASSWORD));
+        }
+
         return cfg;
     }
 
@@ -71,14 +85,32 @@ public class Env {
 
     public SnowflakeDataSourceConfig getSnowflakeConfig() {
         SnowflakeDataSourceConfig cfg = new SnowflakeDataSourceConfig();
-        cfg.setHost(envVars.get(SNOWSQL_HOST));
-        cfg.setAccount(envVars.get(SNOWSQL_ACCOUNT));
-        cfg.setUser(envVars.get(SNOWSQL_USER));
-        cfg.setRole(envVars.get(SNOWSQL_ROLE));
-        cfg.setPassword(envVars.get(SNOWSQL_PWD));
-        cfg.setDb(envVars.get(SNOWSQL_DATABASE));
-        cfg.setWh(envVars.get(SNOWSQL_WAREHOUSE));
-        cfg.setSchema(envVars.get(SNOWSQL_SCHEMA));
+
+        if (envVars.containsKey(SNOWSQL_HOST)) {
+            cfg.setHost(envVars.get(SNOWSQL_HOST));
+        }
+        if (envVars.containsKey(SNOWSQL_ACCOUNT)) {
+            cfg.setAccount(envVars.get(SNOWSQL_ACCOUNT));
+        }
+        if (envVars.containsKey(SNOWSQL_USER)) {
+            cfg.setUser(envVars.get(SNOWSQL_USER));
+        }
+        if (envVars.containsKey(SNOWSQL_ROLE)) {
+            cfg.setRole(envVars.get(SNOWSQL_ROLE));
+        }
+        if (envVars.containsKey(SNOWSQL_PWD)) {
+            cfg.setPassword(envVars.get(SNOWSQL_PWD));
+        }
+        if (envVars.containsKey(SNOWSQL_DATABASE)) {
+            cfg.setDb(envVars.get(SNOWSQL_DATABASE));
+        }
+        if (envVars.containsKey(SNOWSQL_WAREHOUSE)) {
+            cfg.setWh(envVars.get(SNOWSQL_WAREHOUSE));
+        }
+        if (envVars.containsKey(SNOWSQL_SCHEMA)) {
+            cfg.setSchema(envVars.get(SNOWSQL_SCHEMA));
+        }
+
         return cfg;
     }
 
