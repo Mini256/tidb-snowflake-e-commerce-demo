@@ -15,10 +15,13 @@ import SchoolIcon from "@mui/icons-material/School";
 import CloseIcon from "@mui/icons-material/Close";
 import LinkIcon from "@mui/icons-material/Link";
 import SchemaIcon from "@mui/icons-material/Schema";
+import TableViewIcon from "@mui/icons-material/TableView";
 import { Container, IconButton, Typography } from "@mui/material";
 
 import { InlineCode, CodeHighlight } from "components/Block/CodeBlock";
 import { CommonCard } from "components/Card/IndexCard";
+import { SchemaTable } from "components/Table/SchemaTable";
+import { TableRowType } from "const/type";
 
 type Anchor = "top" | "left" | "bottom" | "right";
 
@@ -385,14 +388,14 @@ export const SnowflakeConfig = () => {
   );
 };
 
-export const CreateSchemaSQL = () => {
+export const CreateSchema = (porps: { data: TableRowType[] }) => {
   return (
-    <WalkthroughTemplate header="Create Schema">
-      <WalkthroughContent title="SQL">
-        <Button size="small" startIcon={<SchemaIcon />} variant="contained">
-          Create Schema
-        </Button>
-      </WalkthroughContent>
+    <WalkthroughTemplate
+      header="Tables"
+      btnLabel="Show Table"
+      btnIcon={<TableViewIcon />}
+    >
+      <SchemaTable data={porps.data} />
     </WalkthroughTemplate>
   );
 };

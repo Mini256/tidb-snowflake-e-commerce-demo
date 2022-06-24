@@ -14,9 +14,10 @@ import { useRouter } from "next/router";
 import {
   TiDBConfig,
   SnowflakeConfig,
-  CreateSchemaSQL,
+  CreateSchema,
 } from "components/SidePanel/Walkthrough";
 import { useHttpClient } from "lib";
+import { TableRowType } from "const/type";
 
 const TiDBStepContent = (props: { handleNext: () => void }) => {
   const { handleNext } = props;
@@ -325,36 +326,110 @@ const CreateSchemaContent = (props: {
   const { handleNext, handleBack } = props;
 
   const [isLoading, setIsLoading] = React.useState(false);
+  const [isCreated, setIsCreated] = React.useState(false);
+  const [tables, setTables] = React.useState<TableRowType[]>([]);
 
   const [httpClient, _] = useHttpClient();
 
-  const handleNextClick = async () => {
+  const handleCreateClick = async () => {
     try {
       setIsLoading(true);
       const res = await httpClient.post(`/api/admin/data-source/tidb/schema`);
       if (res?.status !== 200) {
         throw new Error(`${res.status} ${res.data}`);
       }
+      const res2 = await httpClient.get(
+        `/api/admin/data-source/tidb/schema/tables`
+      );
+      if (res2?.status !== 200) {
+        throw new Error(`${res2.status} ${res2.data}`);
+      }
+      setTables(res2.data?.data);
+      setIsCreated(true);
       setIsLoading(false);
-      handleNext();
     } catch (error) {
       console.error(error);
       setIsLoading(false);
     }
   };
 
+  const handleContinueClick = () => {
+    handleNext();
+  };
+
   return (
     <>
-      <CreateSchemaSQL />
+      {/* <CreateSchemaSQL /> */}
+      <Box sx={{ mb: 2 }}>
+        <div>
+          <div>
+            {isCreated && !!tables.length && <CreateSchema data={tables} />}
+          </div>
+          <LoadingButton
+            variant="contained"
+            loading={isLoading}
+            onClick={isCreated ? handleContinueClick : handleCreateClick}
+            sx={{ mt: 1, mr: 1 }}
+          >
+            {isCreated ? `Continue` : `Create`}
+          </LoadingButton>
+          <Button
+            onClick={handleBack}
+            sx={{ mt: 1, mr: 1 }}
+            disabled={isLoading}
+          >
+            Back
+          </Button>
+        </div>
+      </Box>
+    </>
+  );
+};
+
+const ImportDataContent = (props: {
+  handleNext: () => void;
+  handleBack: () => void;
+}) => {
+  const { handleNext, handleBack } = props;
+
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [isCreated, setIsCreated] = React.useState(false);
+
+  const [httpClient, _] = useHttpClient();
+
+  const handleCreateClick = async () => {
+    try {
+      setIsLoading(true);
+      const res = await httpClient.post(
+        `/api/admin/data-source/tidb/import-data`
+      );
+      if (res?.status !== 200) {
+        throw new Error(`${res.status} ${res.data}`);
+      }
+      setIsCreated(true);
+      setIsLoading(false);
+    } catch (error) {
+      console.error(error);
+      setIsLoading(false);
+    }
+  };
+
+  const handleContinueClick = () => {
+    handleNext();
+  };
+
+  return (
+    <>
+      {/* <CreateSchemaSQL /> */}
       <Box sx={{ mb: 2 }}>
         <div>
           <LoadingButton
             variant="contained"
             loading={isLoading}
-            onClick={handleNextClick}
+            onClick={isCreated ? handleContinueClick : handleCreateClick}
             sx={{ mt: 1, mr: 1 }}
           >
-            Continue
+            {isCreated ? `Continue` : `Import`}
           </LoadingButton>
           <Button
             onClick={handleBack}
@@ -396,7 +471,6 @@ export function VerticalLinearStepper(props: {
   return (
     <Box sx={{ maxWidth: 400 }}>
       <Stepper activeStep={activeStep} orientation="vertical">
-        {/* <TiDBStepper handleNext={handleNext} handleBack={handleBack} /> */}
         <Step key="tidb">
           <StepLabel optional={<Typography variant="caption">TiDB</Typography>}>
             Connect to TiDB
@@ -463,7 +537,7 @@ export function VerticalLinearStepper(props: {
           </StepContent>
         </Step>
 
-        {/* <Step key="import-data">
+        <Step key="import-data">
           <StepLabel>Import Data</StepLabel>
           <StepContent>
             {tidbStatus ? (
@@ -481,27 +555,14 @@ export function VerticalLinearStepper(props: {
               </>
             ) : (
               <>
-                <CreateSchemaSQL />
-                <Box sx={{ mb: 2 }}>
-                  <div>
-                    <Button
-                      variant="contained"
-                      onClick={() => {
-                        handleNext();
-                      }}
-                      sx={{ mt: 1, mr: 1 }}
-                    >
-                      Continue
-                    </Button>
-                    <Button onClick={handleBack} sx={{ mt: 1, mr: 1 }}>
-                      Back
-                    </Button>
-                  </div>
-                </Box>
+                <ImportDataContent
+                  handleNext={handleNext}
+                  handleBack={handleBack}
+                />
               </>
             )}
           </StepContent>
-        </Step> */}
+        </Step>
 
         <Step key="snowflake">
           <StepLabel

@@ -7,3 +7,15 @@ export type ConfigCheckResType = {
     tidbConfigured: boolean;
   };
 };
+
+export type TableRowType = {
+  databaseName: string;
+  schemaName: string;
+  tableName: string;
+  kind: string;
+  tableRows: number;
+  dataSize: number;
+  indexSize: number;
+  totalSize: number;
+  createdTime: string;
+};
