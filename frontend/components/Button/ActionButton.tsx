@@ -1,8 +1,9 @@
 import { Box, Button, CircularProgress } from "@mui/material";
 import { green } from "@mui/material/colors";
 import { useState } from "react";
+import LoadingButton from "@mui/lab/LoadingButton";
 
-import { useHttpClient } from "../../lib";
+import { useHttpClient } from "lib";
 
 export interface ActionButtonProps {
   text: string;
@@ -26,22 +27,9 @@ export default function ActionButton(props: ActionButtonProps) {
   };
   return (
     <Box sx={{ m: 1, position: "relative" }}>
-      <Button variant="contained" disabled={loading} onClick={action}>
+      <LoadingButton variant="contained" loading={loading} onClick={action}>
         {props.text}
-      </Button>
-      {loading && (
-        <CircularProgress
-          size={24}
-          sx={{
-            color: green[500],
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            marginTop: "-12px",
-            marginLeft: "-12px",
-          }}
-        />
-      )}
+      </LoadingButton>
     </Box>
   );
 }
