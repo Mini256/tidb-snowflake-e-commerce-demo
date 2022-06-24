@@ -10,6 +10,7 @@ import Typography from "@mui/material/Typography";
 import TextField from "@mui/material/TextField";
 import LoadingButton from "@mui/lab/LoadingButton";
 import { useRouter } from "next/router";
+import FormHelperText from "@mui/material/FormHelperText";
 
 import {
   TiDBConfig,
@@ -31,6 +32,7 @@ const TiDBStepContent = (props: { handleNext: () => void }) => {
   const [password, setPassword] = React.useState("");
 
   const [isLoading, setIsLoading] = React.useState(false);
+  const [errMsg, setErrMsg] = React.useState("");
 
   const handleNextClick = async () => {
     const body = {
@@ -38,9 +40,10 @@ const TiDBStepContent = (props: { handleNext: () => void }) => {
       port,
       database,
       user,
-      password,
+      password: btoa(password),
     };
     try {
+      setErrMsg("");
       setIsLoading(true);
       const res = await httpClient.post(`/api/admin/data-source/tidb`, body);
       if (res?.status !== 200) {
@@ -48,8 +51,13 @@ const TiDBStepContent = (props: { handleNext: () => void }) => {
       }
       setIsLoading(false);
       handleNext();
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
+      setErrMsg(
+        error?.response?.data?.message ||
+          `${error?.code} ${error?.message}` ||
+          ""
+      );
       setIsLoading(false);
     }
   };
@@ -129,11 +137,13 @@ const TiDBStepContent = (props: { handleNext: () => void }) => {
           <LoadingButton
             variant="contained"
             loading={isLoading}
+            disabled={host && port && database && user && password}
             onClick={handleNextClick}
             sx={{ mt: 1, mr: 1 }}
           >
             Continue
           </LoadingButton>
+          {errMsg && <FormHelperText error>{errMsg}</FormHelperText>}
         </div>
       </Box>
     </>
@@ -158,6 +168,7 @@ const SnowflakeStepContent = (props: {
   const [password, setPassword] = React.useState("");
 
   const [isLoading, setIsLoading] = React.useState(false);
+  const [errMsg, setErrMsg] = React.useState("");
 
   const handleNextClick = async () => {
     const body = {
@@ -169,9 +180,10 @@ const SnowflakeStepContent = (props: {
       schema,
       user,
       role,
-      password,
+      password: btoa(password),
     };
     try {
+      setErrMsg("");
       setIsLoading(true);
       const res = await httpClient.post(
         `/api/admin/data-source/snowflake`,
@@ -182,8 +194,13 @@ const SnowflakeStepContent = (props: {
       }
       setIsLoading(false);
       handleNext();
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
+      setErrMsg(
+        error?.response?.data?.message ||
+          `${error?.code} ${error?.message}` ||
+          ""
+      );
       setIsLoading(false);
     }
   };
@@ -279,6 +296,7 @@ const SnowflakeStepContent = (props: {
           variant="outlined"
           margin="dense"
           value={password}
+          type="password"
           onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
             setPassword(event.target.value);
           }}
@@ -313,6 +331,7 @@ const SnowflakeStepContent = (props: {
           >
             Back
           </Button>
+          {errMsg && <FormHelperText error>{errMsg}</FormHelperText>}
         </div>
       </Box>
     </>
@@ -329,10 +348,13 @@ const CreateSchemaContent = (props: {
   const [isCreated, setIsCreated] = React.useState(false);
   const [tables, setTables] = React.useState<TableRowType[]>([]);
 
+  const [errMsg, setErrMsg] = React.useState("");
+
   const [httpClient, _] = useHttpClient();
 
   const handleCreateClick = async () => {
     try {
+      setErrMsg("");
       setIsLoading(true);
       const res = await httpClient.post(`/api/admin/data-source/tidb/schema`);
       if (res?.status !== 200) {
@@ -347,8 +369,13 @@ const CreateSchemaContent = (props: {
       setTables(res2.data?.data);
       setIsCreated(true);
       setIsLoading(false);
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
+      setErrMsg(
+        error?.response?.data?.message ||
+          `${error?.code} ${error?.message}` ||
+          ""
+      );
       setIsLoading(false);
     }
   };
@@ -380,6 +407,7 @@ const CreateSchemaContent = (props: {
           >
             Back
           </Button>
+          {errMsg && <FormHelperText error>{errMsg}</FormHelperText>}
         </div>
       </Box>
     </>
@@ -395,10 +423,13 @@ const ImportDataContent = (props: {
   const [isLoading, setIsLoading] = React.useState(false);
   const [isCreated, setIsCreated] = React.useState(false);
 
+  const [errMsg, setErrMsg] = React.useState("");
+
   const [httpClient, _] = useHttpClient();
 
   const handleCreateClick = async () => {
     try {
+      setErrMsg("");
       setIsLoading(true);
       const res = await httpClient.post(
         `/api/admin/data-source/tidb/import-data`
@@ -408,8 +439,13 @@ const ImportDataContent = (props: {
       }
       setIsCreated(true);
       setIsLoading(false);
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
+      setErrMsg(
+        error?.response?.data?.message ||
+          `${error?.code} ${error?.message}` ||
+          ""
+      );
       setIsLoading(false);
     }
   };
@@ -439,6 +475,7 @@ const ImportDataContent = (props: {
             Back
           </Button>
         </div>
+        {errMsg && <FormHelperText error>{errMsg}</FormHelperText>}
       </Box>
     </>
   );
