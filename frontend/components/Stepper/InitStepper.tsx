@@ -137,7 +137,7 @@ const TiDBStepContent = (props: { handleNext: () => void }) => {
           <LoadingButton
             variant="contained"
             loading={isLoading}
-            disabled={host && port && database && user && password}
+            disabled={!(host && port && database && user && password)}
             onClick={handleNextClick}
             sx={{ mt: 1, mr: 1 }}
           >
