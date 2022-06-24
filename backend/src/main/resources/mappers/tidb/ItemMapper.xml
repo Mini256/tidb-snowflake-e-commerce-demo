@@ -23,12 +23,23 @@
     FROM items i
     <where>
       <if test="type != null">
-        AND u.type = #{type}
+        item_type = #{type}
       </if>
     </where>
     ORDER BY i.create_time DESC
     LIMIT #{pageable.offset}, #{pageable.pageSize};
   </select>
+
+  <select id="getItemsCount" resultType="_long">
+    SELECT count(*)
+    FROM items i
+    <where>
+      <if test="type != null">
+        item_type = #{type}
+      </if>
+    </where>
+  </select>
+
   <!--
     If you use `LIMIT ... OFFSET ...` to paginate the query, the latency of the query will
     also become larger as the OFFSET value gets larger and larger.
@@ -67,16 +78,5 @@
     FROM items i
     WHERE id BETWEEN #{startKey} AND #{endKey}
     ORDER BY i.create_time DESC
-  </select>
-
-  <select id="getItemsCount" resultType="_long">
-    SELECT count(*)
-    FROM items i
-    <where>
-      <if test="type != null">
-        AND u.type = #{type}
-      </if>
-    </where>
-    ORDER BY o.create_time DESC;
   </select>
 </mapper>

@@ -12,6 +12,14 @@
     <result property="indexSize" column="INDEX_SIZE" javaType="java.math.BigDecimal" jdbcType="BIGINT" />
     <result property="totalSize" column="TOTAL_SIZE" javaType="java.math.BigDecimal" jdbcType="BIGINT" />
   </resultMap>
+  <resultMap id="StatsMeta" type="com.pingcap.ecommerce.vo.StatsMeta">
+    <result property="dbName" column="Db_name" javaType="java.lang.String" jdbcType="VARCHAR" />
+    <result property="tableName" column="Table_name" javaType="java.lang.String" jdbcType="VARCHAR" />
+    <result property="partitionName" column="Partition_name" javaType="java.lang.String" jdbcType="VARCHAR" />
+    <result property="updateTime" column="Update_time" javaType="java.util.Date" jdbcType="VARCHAR" />
+    <result property="modifyCount" column="Modify_count" javaType="java.lang.Long" jdbcType="BIGINT" />
+    <result property="rowCount" column="Row_count" javaType="java.lang.Long" jdbcType="BIGINT" />
+  </resultMap>
   <select id="getTableNames" resultType="string">
     SHOW TABLES;
   </select>
@@ -29,5 +37,28 @@
     FROM
       INFORMATION_SCHEMA.TABLES
     WHERE TABLE_SCHEMA LIKE #{tableName};
+  </select>
+  <select id="getTableStatsMetaList" resultMap="StatsMeta">
+    SHOW STATS_META
+    <where>
+      <if test="dbName != null">
+        db_name = #{dbName}
+      </if>
+      <if test="tableName != null">
+        AND table_name = #{tableName}
+      </if>
+    </where>
+  </select>
+  <select id="getTableStatsMeta" resultMap="StatsMeta">
+    SHOW STATS_META
+    <where>
+      <if test="dbName != null">
+        db_name = #{dbName}
+      </if>
+      <if test="tableName != null">
+        AND table_name = #{tableName}
+      </if>
+    </where>
+    LIMIT 1
   </select>
 </mapper>

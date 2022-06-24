@@ -169,12 +169,12 @@ public class DataService {
         if (!userIds.isEmpty()) {
             List<User> userByIds = userMapper.getUserByIds(userIds);
             hotItems.forEach(item -> userByIds.stream()
-                    .filter(u -> u.getId().equals(item.getUserId())).findFirst()
-                    .ifPresent(user -> item.setUserName(user.getUsername()))
+                .filter(u -> u.getId().equals(item.getUserId())).findFirst()
+                .ifPresent(user -> item.setUserName(user.getUsername()))
             );
         }
 
-        return PageResultVO.of(hotItems, 10000, pageable.getPageNumber(), pageable.getPageSize());
+        return PageResultVO.of(hotItems, 10, pageable.getPageNumber(), pageable.getPageSize());
     }
 
     public List<HotItem> getHighLabelItems() {

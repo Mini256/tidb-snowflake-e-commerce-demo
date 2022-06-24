@@ -90,14 +90,11 @@
   <select id="getOrdersCount" resultType="_long">
     SELECT count(*)
     FROM orders o
-    LEFT JOIN expresses e ON o.id = e.order_id
-    LEFT JOIN users u on o.user_id = u.id
     <where>
-      <if test="username != null">
-        AND u.username = #{username}
+      <if test="userId != null">
+        AND u.id = #{userId}
       </if>
     </where>
-    ORDER BY o.create_time DESC;
   </select>
   <select id="getOrdersByUserId" parameterType="java.lang.String" resultMap="OrderVO">
     SELECT

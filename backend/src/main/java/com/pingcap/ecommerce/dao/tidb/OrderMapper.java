@@ -22,7 +22,7 @@ public interface OrderMapper {
 
     List<Long> getOrderIds(Pageable pageable);
 
-    long getOrdersCount(String username);
+    long getOrdersCount(String userId);
 
     List<OrderVO> getOrdersByUserId(String userId);
 
