@@ -601,7 +601,7 @@ export function VerticalLinearStepper(props: {
           </StepContent>
         </Step>
       </Stepper>
-      {activeStep === 3 && (
+      {activeStep === 4 && (
         <Paper
           square
           elevation={0}
