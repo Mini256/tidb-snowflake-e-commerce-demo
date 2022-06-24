@@ -4,19 +4,19 @@ import com.pingcap.ecommerce.dao.snowflake.SnowflakeHotItemMapper;
 import com.pingcap.ecommerce.dao.snowflake.SnowflakeSchemaMapper;
 import com.pingcap.ecommerce.dao.snowflake.SnowflakeUserLabelMapper;
 import com.pingcap.ecommerce.dao.tidb.*;
-import com.pingcap.ecommerce.model.HotItem;
-import com.pingcap.ecommerce.model.OrderSeries;
-import com.pingcap.ecommerce.model.User;
-import com.pingcap.ecommerce.model.UserLabel;
+import com.pingcap.ecommerce.model.*;
+import com.pingcap.ecommerce.util.job.JobManager;
 import com.pingcap.ecommerce.vo.OrderTotalVO;
 import com.pingcap.ecommerce.vo.OrderTypeTotalVO;
 import com.pingcap.ecommerce.vo.PageResultVO;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -41,6 +41,8 @@ public class DataService {
     private final OrderMapper orderMapper;
 
     private final OrderSeriesMapper orderSeriesMapper;
+
+    private final JobManager jobManager;
 
     public void calcTodayOrderTotalAndAmount() {
         Date now = new Date();
@@ -75,13 +77,16 @@ public class DataService {
     /**
      * User labels.
     */
+    public BigInteger countUserLabels() {
+        return snowflakeUserLabelMapper.countUserLabels();
+    }
 
     public void calcUserLabels() {
         log.info("Calc user labels on Snowflake.");
         snowflakeUserLabelMapper.calcUserLabels();
     }
 
-    public void pullBackUserLabelsToTiDB() {
+    public void pullBackUserLabelsToTiDB(JobInstance jobInstance) {
         List<UserLabel> userLabels;
         long pageNum = 1;
         long pageSize = 2000;
@@ -93,19 +98,21 @@ public class DataService {
             long offset = (pageNum - 1) * pageSize;
             userLabels = snowflakeUserLabelMapper.getUserLabels(pageSize, offset);
             log.info("Pulling back user labels from Snowflake to TiDB, page {}.", pageNum);
-            bulkInsertOverwriteUserLabels(userLabels);
+            int insertRows = bulkInsertOverwriteUserLabels(userLabels);
             pageNum++;
+
+            jobInstance = jobManager.updateJobInstanceProcess(jobInstance.getId(), insertRows);
         } while (userLabels.size() > 0);
 
         log.info("Successfully pull back user labels from Snowflake to TiDB!");
     }
 
     @Transactional
-    public void bulkInsertOverwriteUserLabels(List<UserLabel> userLabels) {
-        if (userLabels.isEmpty()) return;
+    public int bulkInsertOverwriteUserLabels(List<UserLabel> userLabels) {
+        if (userLabels.isEmpty()) return 0;
         List<String> userIds = userLabels.stream().map(UserLabel::getUserId).toList();
         userLabelMapper.bulkDeleteUserLabels(userIds);
-        userLabelMapper.batchInsertUserLabels(userLabels);
+        return userLabelMapper.batchInsertUserLabels(userLabels);
     }
 
     /**

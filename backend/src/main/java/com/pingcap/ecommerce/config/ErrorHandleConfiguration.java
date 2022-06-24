@@ -33,9 +33,7 @@ public class ErrorHandleConfiguration {
     });
 
     String defaultMessage = allErrors.isEmpty() ? "Failed to verify parameters." : allErrors.get(0).getDefaultMessage();
-    MessageVO<?> resultVO = new MessageVO<>(
-        HttpStatus.BAD_REQUEST.value(), defaultMessage, errors
-    );
+    MessageVO<?> resultVO = MessageVO.of(HttpStatus.BAD_REQUEST.value(), defaultMessage, errors);
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(resultVO);
   }
 
@@ -50,6 +48,5 @@ public class ErrorHandleConfiguration {
     MessageVO<?> resultVO = new MessageVO<>(HttpStatus.NOT_FOUND.value(), ex.getMessage());
     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(resultVO);
   }
-
 
 }

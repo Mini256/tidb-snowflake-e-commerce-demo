@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pingcap.ecommerce.dao.tidb.JobMapper">
+  <resultMap id="JobInstance" type="com.pingcap.ecommerce.model.JobInstance">
+    <result property="id" column="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+    <result property="jobName" column="job_name" javaType="java.lang.String" jdbcType="VARCHAR" />
+    <result property="status" column="status" javaType="com.pingcap.ecommerce.model.JobStatus" jdbcType="VARCHAR" />
+    <result property="currentProcess" column="current_process" javaType="java.math.BigInteger" jdbcType="BIGINT" />
+    <result property="maxProcess" column="max_process" javaType="java.math.BigInteger" jdbcType="BIGINT" />
+    <result property="cost" column="cost" javaType="java.lang.Double" jdbcType="DOUBLE" />
+    <result property="startTime" column="start_time" javaType="java.util.Date" jdbcType="VARCHAR" />
+    <result property="updateTime" column="update_time" javaType="java.util.Date" jdbcType="VARCHAR" />
+    <result property="completeTime" column="complete_time" javaType="java.util.Date" jdbcType="VARCHAR" />
+  </resultMap>
+
+  <select id="getJobNameList" resultType="string">
+    SELECT DISTINCT job_name
+    FROM job_instances
+    LIMIT 100
+  </select>
+
+  <select id="getJobInstancePage" resultMap="JobInstance">
+    SELECT *
+    FROM job_instances ji
+    <where>
+      <if test="jobName != null">
+        job_name = #{jobName}
+      </if>
+    </where>
+    ORDER BY start_time DESC
+    LIMIT #{pageable.offset}, #{pageable.pageSize}
+  </select>
+
+  <select id="getLastJobInstance" resultMap="JobInstance">
+    SELECT *
+    FROM job_instances ji
+    <where>
+      <if test="jobName != null">
+        job_name = #{jobName}
+      </if>
+    </where>
+    ORDER BY start_time DESC
+    LIMIT 1
+  </select>
+
+  <select id="getLastJobInstanceByID" resultMap="JobInstance">
+    SELECT *
+    FROM job_instances ji
+    <where>
+      <if test="jobInstanceID != null">
+        id = #{jobInstanceID}
+      </if>
+    </where>
+    LIMIT 1
+  </select>
+
+  <insert id="createJobInstance" parameterType="com.pingcap.ecommerce.model.JobInstance">
+    INSERT INTO job_instances(job_name, status, current_process, max_process)
+    VALUES (#{jobName}, 'CREATED', 0, #{maxProcess})
+  </insert>
+
+  <select id="getLastInsertID" resultType="long">
+    SELECT last_insert_id();
+  </select>
+
+  <update id="updateJobInstance" parameterType="com.pingcap.ecommerce.model.JobInstance">
+    UPDATE job_instances SET status = 'RUNNING', current_process = #{currentProcess}, cost = NOW() - start_time
+    WHERE id = #{id}
+  </update>
+
+  <update id="finishJobInstance" parameterType="com.pingcap.ecommerce.model.JobInstance">
+    UPDATE job_instances SET status = 'FINISHED',  current_process = #{currentProcess}, cost = NOW() - start_time, complete_time = NOW()
+    WHERE id = #{id}
+  </update>
+
+  <update id="terminateJobInstance" parameterType="com.pingcap.ecommerce.model.JobInstance">
+    UPDATE job_instances SET status = 'FAIL',  current_process = #{currentProcess}, cost = NOW() - start_time, complete_time = NOW()
+    WHERE id = #{id}
+  </update>
+
+</mapper>

@@ -1,33 +1,33 @@
 package com.pingcap.ecommerce.service;
 
 import com.pingcap.ecommerce.config.DynamicDataSource;
-import com.pingcap.ecommerce.dao.snowflake.SnowflakeSchemaMapper;
 import com.pingcap.ecommerce.dao.tidb.ItemMapper;
-import com.pingcap.ecommerce.dao.tidb.SchemaMapper;
 import com.pingcap.ecommerce.dao.tidb.UserMapper;
-import com.pingcap.ecommerce.exception.DataSourceNotFoundException;
-import com.pingcap.ecommerce.loader.*;
+import com.pingcap.ecommerce.dto.ImportDataDTO;
 import com.pingcap.ecommerce.model.ExpressStatus;
 import com.pingcap.ecommerce.model.Item;
+import com.pingcap.ecommerce.model.JobInstance;
 import com.pingcap.ecommerce.model.Order;
+import com.pingcap.ecommerce.util.job.JobManager;
+import com.pingcap.ecommerce.util.loader.BatchLoader;
+import com.pingcap.ecommerce.util.loader.ConcurrentPreparedBatchLoader;
+import com.pingcap.ecommerce.util.loader.PreparedBatchLoader;
 import com.pingcap.ecommerce.vo.PageMeta;
-import com.pingcap.ecommerce.vo.TableInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.jdbc.datasource.init.ScriptUtils;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import javax.sql.DataSource;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static net.andreinc.mockneat.types.enums.StringType.*;
 import static net.andreinc.mockneat.types.enums.StringType.NUMBERS;
@@ -46,10 +46,6 @@ import static net.andreinc.mockneat.unit.user.Users.users;
 @Slf4j
 @Service
 public class DataMockService {
-
-    private static final int N_USERS_DEFAULT_VALUE = 100_000;
-    private static final int N_ITEM_DEFAULT_VALUE = 100_000;
-    private static final int N_ORDERS_DEFAULT_VALUE = 100_000;
 
     private static final String[] userColumns = new String[]{
         "id", "username", "password"
@@ -82,44 +78,71 @@ public class DataMockService {
 
     private final DynamicDataSource TiDBDataSource;
 
-    private final DynamicDataSource SnowflakeDataSource;
+    private final JobManager jobManager;
 
     private final UserMapper userMapper;
 
     private final ItemMapper itemMapper;
 
-
     public DataMockService(
         ConcurrentPreparedBatchLoader concurrentBatchLoader,
         @Qualifier("TiDBDynamicDataSource") DynamicDataSource TiDBDataSource,
-        @Qualifier("SnowflakeDynamicDataSource") DynamicDataSource SnowflakeDataSource,
+        JobManager jobManager,
         UserMapper userMapper,
         ItemMapper itemMapper
     ) {
         this.concurrentBatchLoader = concurrentBatchLoader;
         this.TiDBDataSource = TiDBDataSource;
-        this.SnowflakeDataSource = SnowflakeDataSource;
+        this.jobManager = jobManager;
         this.userMapper = userMapper;
         this.itemMapper = itemMapper;
     }
 
     @Async
-    public void importData() {
+    public void importData(ImportDataDTO importDataDTO) {
+        Boolean recreate = importDataDTO.getRecreate();
+        int nUsers = importDataDTO.getInitUsers();
+        int nItems = importDataDTO.getInitItems();
+        int nOrders = importDataDTO.getInitOrders();
+
         List<String> userIdList;
         List<Item> itemList;
 
-        int nUsers = N_USERS_DEFAULT_VALUE;
-        int nItems = N_ITEM_DEFAULT_VALUE;
-        int nOrders = N_ORDERS_DEFAULT_VALUE;
-
         if (userMapper.existsAnyUsers() == null) {
             log.info("Importing initial data...");
-            Set<String> userIdSet = importSampleUserData(nUsers);
-            userIdList = new ArrayList<>(userIdSet);
-            itemList = importSampleItemData(nItems);
-            List<Order> orderList = importSampleOrderData(nOrders, userIdList, itemList);
-            importSampleExpressData(nOrders, orderList);
-            userIdSet.clear();
+
+            // Import users data.
+            AtomicReference<Set<String>> userIdSetRef = new AtomicReference<>();
+            JobInstance importUserJobInstance = jobManager.findOrCreateJobInstance("import-initial-user-data", BigInteger.valueOf(nUsers), recreate);
+            jobManager.startJob(importUserJobInstance, (instance) -> {
+                userIdSetRef.set(importInitUserData(instance, nUsers));
+            });
+            userIdList = new ArrayList<>(userIdSetRef.get());
+
+            // Import items data.
+            AtomicReference<List<Item>> itemListRef = new AtomicReference<>();
+            JobInstance importItemsJobInstance = jobManager.findOrCreateJobInstance("import-initial-item-data", BigInteger.valueOf(nItems), recreate);
+            jobManager.startJob(importItemsJobInstance, (instance) -> {
+                itemListRef.set(importInitItemData(instance, nItems));
+            });
+            itemList = itemListRef.get();
+
+            // Import orders data.
+            AtomicReference<List<Order>> orderListRef = new AtomicReference<>();
+            JobInstance importOrdersJobInstance = jobManager.findOrCreateJobInstance("import-initial-order-data", BigInteger.valueOf(nOrders), recreate);
+            jobManager.startJob(importOrdersJobInstance, (instance) -> {
+                orderListRef.set(importInitOrderData(instance, nOrders, userIdList, itemList));
+            });
+            List<Order> orderList =orderListRef.get();
+
+            // Import expresses data.
+            JobInstance importExpressesJobInstance = jobManager.findOrCreateJobInstance("import-initial-express-data", BigInteger.valueOf(nOrders), recreate);
+            jobManager.startJob(importExpressesJobInstance, (instance) -> {
+                importInitExpressData(instance, nOrders, orderList);
+            });
+
+            // Clear useless data.
+            userIdSetRef.get().clear();
             orderList.clear();
         } else {
             log.info("Skipping initial data import because data already exists in the database.");
@@ -133,11 +156,11 @@ public class DataMockService {
         importIncrementalData(TiDBDataSource, userIdList, itemList);
     }
 
-    private Set<String> importSampleUserData(int n) {
+    private Set<String> importInitUserData(JobInstance jobInstance, int n) {
         Set<String> usernameSet = new ConcurrentSkipListSet<>();
         Set<String> userIdSet = new ConcurrentSkipListSet<>();
 
-        concurrentBatchLoader.batchInsert("User", "users", userColumns, n, (w, nWorkers, i) -> {
+        concurrentBatchLoader.batchInsert("User", "users", userColumns, n, jobInstance, (w, nWorkers, i) -> {
             String userId = strings().size(32).types(ALPHA_NUMERIC, HEX).get();
             String username = users().get();
             String password = passwords().weak().get();
@@ -165,11 +188,11 @@ public class DataMockService {
         return userIdSet;
     }
 
-    public List<Item> importSampleItemData(int n) {
+    public List<Item> importInitItemData(JobInstance jobInstance, int n) {
         Set<Long> itemIdSet = new ConcurrentSkipListSet<>();
         List<Item> itemList = Collections.synchronizedList(new ArrayList<>());
 
-        concurrentBatchLoader.batchInsert("Item", "items", itemColumns, n, (w, nWorkers, i) -> {
+        concurrentBatchLoader.batchInsert("Item", "items", itemColumns, n, jobInstance, (w, nWorkers, i) -> {
             Long itemId = longs().lowerBound(1000).get();
             BigDecimal itemPrice = BigDecimal.valueOf(doubles().range(10.0, 1000.0).get());
             String itemName = words().nouns().get();
@@ -196,19 +219,19 @@ public class DataMockService {
         return new ArrayList<>(itemList);
     }
 
-    private List<Order> importSampleOrderData(int n, List<String> userIdList, List<Item> itemList) {
+    private List<Order> importInitOrderData(JobInstance jobInstance, int n, List<String> userIdList, List<Item> itemList) {
         Set<Long> orderIdSet = new ConcurrentSkipListSet<>();
         List<Order> orderList = Collections.synchronizedList(new ArrayList<>());
-        LocalDate tenYearsAge = LocalDate.now().minusYears(10);
+        LocalDate tenYearsAge = LocalDate.now().minusDays(8);
         LocalDate now = LocalDate.now();
 
-        concurrentBatchLoader.batchInsert("Order", "orders", orderColumns, n, (w, nWorkers, i) -> {
+        concurrentBatchLoader.batchInsert("Order", "orders", orderColumns, n, jobInstance, (w, nWorkers, i) -> {
             Long orderId = longs().lowerBound(1000).get();
             String userId = from(userIdList).get();
             Item item = from(itemList).get();
             Long itemId = item.getId();
             String itemName = item.getItemName();
-            Integer itemCount = ints().range(1, 10).get();
+            Integer itemCount = ints().range(1, 5).get();
             BigDecimal amount = item.getItemPrice().multiply(BigDecimal.valueOf(itemCount));
             Date createTime = localDates().between(tenYearsAge, now).mapToDate().get();
 
@@ -234,7 +257,7 @@ public class DataMockService {
         return new ArrayList<>(orderList);
     }
 
-    private Set<Long> importSampleExpressData(int n, List<Order> orderList) {
+    private void importInitExpressData(JobInstance jobInstance, int n, List<Order> orderList) {
         Set<Long> expressIdSet = new ConcurrentSkipListSet<>();
         int nOrders = orderList.size();
 
@@ -243,7 +266,7 @@ public class DataMockService {
             addresses.add(addresses().get());
         }
 
-        concurrentBatchLoader.batchInsert("Express", "expresses", expressColumns, n, (w, nWorkers, i) -> {
+        concurrentBatchLoader.batchInsert("Express", "expresses", expressColumns, n, jobInstance, (w, nWorkers, i) -> {
             int index = ((w - 1) * (n / nWorkers) + i) % nOrders;
             Long expressId = longs().lowerBound(1000).get();
             Order order = orderList.get(index);
@@ -271,8 +294,6 @@ public class DataMockService {
 
             return fields;
         });
-
-        return expressIdSet;
     }
 
     private void importIncrementalData(
@@ -292,9 +313,9 @@ public class DataMockService {
         for (int workerId = 1; workerId <= nWorkers; workerId++) {
             threadPool.execute(() -> {
                 try (
-                        Connection conn = dataSource.getConnection();
-                        BatchLoader orderLoader = new PreparedBatchLoader(conn, getInsertSQL("orders", orderColumns));
-                        BatchLoader expressLoader = new PreparedBatchLoader(conn, getInsertSQL("expresses", expressColumns));
+                    Connection conn = dataSource.getConnection();
+                    BatchLoader orderLoader = new PreparedBatchLoader(conn, getInsertSQL("orders", orderColumns));
+                    BatchLoader expressLoader = new PreparedBatchLoader(conn, getInsertSQL("expresses", expressColumns));
                 ) {
                     // If the primary key use the auto random feature, we need to enable
                     // this flag to allow insert explicit value to TiDB.
@@ -421,7 +442,7 @@ public class DataMockService {
     private String getInsertSQL(String tableName, String[] headers) {
         String columns = String.join(", ", headers);
         String values = String.join(", ", Arrays.stream(headers).map(header -> "?").toArray(String[]::new));
-        return String.format("INSERT INTO %s (%s) VALUES (%s);", tableName, columns, values);
+        return String.format("INSERT IGNORE INTO %s (%s) VALUES (%s);", tableName, columns, values);
     }
 
 }

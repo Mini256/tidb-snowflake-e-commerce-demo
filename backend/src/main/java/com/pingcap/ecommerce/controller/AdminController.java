@@ -1,5 +1,6 @@
 package com.pingcap.ecommerce.controller;
 
+import com.pingcap.ecommerce.dto.ImportDataDTO;
 import com.pingcap.ecommerce.dto.SnowflakeDataSourceConfig;
 import com.pingcap.ecommerce.dto.TiDBDataSourceConfig;
 import com.pingcap.ecommerce.service.DataMockService;
@@ -62,8 +63,9 @@ public class AdminController {
     }
 
     @PostMapping("/data-source/tidb/import-data")
-    public MessageVO<?> importInitDataToTiDB() {
-        dataMockService.importData();
+    public MessageVO<?> importInitDataToTiDB(@RequestBody(required = false) ImportDataDTO importDataDTO) {
+        if (importDataDTO == null) importDataDTO = new ImportDataDTO();
+        dataMockService.importData(importDataDTO);
         return MessageVO.success();
     }
 

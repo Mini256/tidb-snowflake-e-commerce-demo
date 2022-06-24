@@ -1,13 +1,18 @@
 package com.pingcap.ecommerce.config;
 
+import com.pingcap.ecommerce.model.JobInstance;
+import com.pingcap.ecommerce.model.JobStatus;
 import com.pingcap.ecommerce.service.DataService;
 import com.pingcap.ecommerce.service.DynamicDataSourceService;
+import com.pingcap.ecommerce.util.job.JobManager;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.util.StopWatch;
+
+import java.math.BigInteger;
 
 @Slf4j
 @EnableScheduling
@@ -18,6 +23,8 @@ public class ScheduleConfiguration {
     private final DataService dataService;
 
     private final DynamicDataSourceService dynamicDataSourceService;
+
+    private JobManager jobManager;
 
     /**
      * Calculated today orders every 30 seconds.
@@ -58,7 +65,7 @@ public class ScheduleConfiguration {
      * 6. Provide data for item recommend service.
      *
      */
-    @Scheduled(cron = "0 0 2 * * *")
+    @Scheduled(cron = "${ecommerce.calcLabelsCron}")
     public void calcUsersAndItemsLabelJob() {
         if (!dynamicDataSourceService.isTiDBConfigured() || !dynamicDataSourceService.isSnowflakeConfigured()) {
             return;
@@ -75,7 +82,16 @@ public class ScheduleConfiguration {
 
         stopWatch.start("Calculate user labels.");
         dataService.calcUserLabels();
-        dataService.pullBackUserLabelsToTiDB();
+
+        // Write back user labels from Snowflake to TiDB.
+        JobInstance jobInstance = jobManager.findOrCreateJobInstance("write-back-user-labels", BigInteger.ZERO);
+        if (JobStatus.RUNNING.equals(jobInstance.getStatus())) {
+            log.warn("Skipping the write back job, because the last job instance is still running.");
+        } else {
+            jobInstance.setMaxProcess(dataService.countUserLabels());
+            jobManager.startJob(jobInstance, dataService::pullBackUserLabelsToTiDB);
+        }
+
         stopWatch.stop();
 
         log.info(stopWatch.prettyPrint());

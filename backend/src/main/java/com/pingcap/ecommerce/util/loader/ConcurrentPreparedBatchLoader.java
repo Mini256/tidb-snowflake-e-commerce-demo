@@ -1,5 +1,7 @@
-package com.pingcap.ecommerce.loader;
+package com.pingcap.ecommerce.util.loader;
 
+import com.pingcap.ecommerce.model.JobInstance;
+import com.pingcap.ecommerce.util.job.JobManager;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -18,7 +20,10 @@ import java.util.concurrent.Executors;
 public class ConcurrentPreparedBatchLoader implements ConcurrentBatchLoader {
 
   private final SqlSessionFactory sqlSessionFactory;
-  public void batchInsert(String name, String tableName, String[] headers, int n, ValuesGenerator generator) {
+
+  private final JobManager jobManager;
+
+  public void batchInsert(String name, String tableName, String[] headers, int n, JobInstance jobInstance, ValuesGenerator generator) {
     String insertSQL = getInsertSQL(tableName, headers);
 
     try {
@@ -50,7 +55,9 @@ public class ConcurrentPreparedBatchLoader implements ConcurrentBatchLoader {
                   }
 
                   loader.insertValues(values);
-
+                  if (i % 2000 == 0) {
+                    jobManager.updateJobInstanceProcess(jobInstance.getId(), 2000);
+                  }
                   i++;
                 }
 

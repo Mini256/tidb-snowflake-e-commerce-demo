@@ -7,6 +7,10 @@
     <result property="avgAmount" column="AVG_AMOUNT" javaType="java.math.BigDecimal" jdbcType="DECIMAL" />
   </resultMap>
 
+  <select id="countUserLabels" resultType="java.math.BigInteger">
+    SELECT COUNT(*) FROM "user_labels"
+  </select>
+
   <select id="getUserLabels" resultMap="UserLabel">
     SELECT user_id, user_label, avg_amount
     FROM "user_labels"

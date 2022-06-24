@@ -1,13 +1,20 @@
 package com.pingcap.ecommerce.controller;
 
 import com.pingcap.ecommerce.model.HotItem;
+import com.pingcap.ecommerce.model.JobInstance;
 import com.pingcap.ecommerce.service.DataService;
+import com.pingcap.ecommerce.util.job.JobManager;
+import com.pingcap.ecommerce.vo.MessageVO;
 import com.pingcap.ecommerce.vo.PageResultVO;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigInteger;
 import java.util.List;
+
+import static com.pingcap.ecommerce.vo.MessageVO.SUCCESS;
 
 @RestController
 @RequestMapping("/api/data")
@@ -16,33 +23,44 @@ public class DataController {
 
     private final DataService dataService;
 
+    private final JobManager jobManager;
+
     /**
      * Data service manual trigger.
      */
 
     @PostMapping("/user-labels/calc")
-    public void calcUserLabels() {
-        dataService.calcUserLabels();
+    public MessageVO<?> calcUserLabels() {
+        return MessageVO.stopWatchWrapper(dataService::calcUserLabels);
     }
 
     @PostMapping("/user-labels/pull-back")
-    public void pullBackUserLabels() {
-        dataService.pullBackUserLabelsToTiDB();
+    public MessageVO<?> pullBackUserLabels(@RequestParam(required = false) boolean recreate) {
+        BigInteger maxProcess = dataService.countUserLabels();
+        JobInstance jobInstance = jobManager.findOrCreateJobInstance("write-back-user-labels", maxProcess, recreate);
+        if (jobInstance.isRunning()) {
+            return MessageVO.of(HttpStatus.CONFLICT.value(), "The last job instance is still running.", jobInstance);
+        } else if (jobInstance.isCompleted()) {
+            return MessageVO.of(HttpStatus.CONFLICT.value(), "The last job instance is completed.", jobInstance);
+        } else {
+            jobManager.startJobAsync(jobInstance, dataService::pullBackUserLabelsToTiDB);
+            return MessageVO.of(SUCCESS, "Start a new instance successfully.", jobInstance);
+        }
     }
 
     @PostMapping("/hot-items/high-label/calc")
-    public void calcHighLabelItems() {
-        dataService.calcHighLabelItems();
+    public MessageVO<?> calcHighLabelItems() {
+        return MessageVO.stopWatchWrapper(dataService::calcHighLabelItems);
     }
 
     @PostMapping("/hot-items/low-label/calc")
-    public void calcLowLabelItems() {
-        dataService.calcLowLabelItems();
+    public MessageVO<?> calcLowLabelItems() {
+        return MessageVO.stopWatchWrapper(dataService::calcLowLabelItems);
     }
 
     @PostMapping("/hot-items/pull-back")
-    public void pullBackHotItems() {
-        dataService.pullBackHotItemsToTiDB();
+    public MessageVO<?> pullBackHotItems() {
+        return MessageVO.stopWatchWrapper(dataService::pullBackHotItemsToTiDB);
     }
 
     /**
@@ -60,7 +78,7 @@ public class DataController {
     }
 
     @GetMapping("/hot-items/recommended")
-    public PageResultVO<HotItem> getRecommended(@RequestParam(required = false) String userId, Pageable pageable) {
+    public PageResultVO<HotItem> getRecommendedHotItem(@RequestParam(required = false) String userId, Pageable pageable) {
         return dataService.getRecommendedHotItems(userId, pageable);
     }
 
