@@ -27,7 +27,7 @@ const TiDBStepContent = (props: { handleNext: () => void }) => {
 
   const [host, setHost] = React.useState("127.0.0.1");
   const [port, setPort] = React.useState("4000");
-  const [database, setDatabase] = React.useState("ecommerce");
+  const [database, setDatabase] = React.useState("test");
   const [user, setUser] = React.useState("root");
   const [password, setPassword] = React.useState("");
 
@@ -107,6 +107,7 @@ const TiDBStepContent = (props: { handleNext: () => void }) => {
           onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
             setDatabase(event.target.value);
           }}
+          helperText="A new db will be created if not exist."
         />
         <TextField
           size="small"
@@ -386,29 +387,17 @@ const CreateSchemaContent = (props: {
 
   return (
     <>
-      {/* <CreateSchemaSQL /> */}
-      <Box sx={{ mb: 2 }}>
-        <div>
-          <div>
-            {isCreated && !!tables.length && <CreateSchema data={tables} />}
-          </div>
-          <LoadingButton
-            variant="contained"
-            loading={isLoading}
-            onClick={isCreated ? handleContinueClick : handleCreateClick}
-            sx={{ mt: 1, mr: 1 }}
-          >
-            {isCreated ? `Continue` : `Create`}
-          </LoadingButton>
-          <Button
-            onClick={handleBack}
-            sx={{ mt: 1, mr: 1 }}
-            disabled={isLoading}
-          >
-            Back
-          </Button>
-          {errMsg && <FormHelperText error>{errMsg}</FormHelperText>}
-        </div>
+      <Box sx={{ mb: 2, display: "flex", gap: "1rem" }}>
+        {isCreated && !!tables.length && <CreateSchema data={tables} />}
+        <LoadingButton
+          variant="contained"
+          loading={isLoading}
+          onClick={isCreated ? handleContinueClick : handleCreateClick}
+          // sx={{ mt: 1, mr: 1 }}
+        >
+          {isCreated ? `Continue` : `Create`}
+        </LoadingButton>
+        {errMsg && <FormHelperText error>{errMsg}</FormHelperText>}
       </Box>
     </>
   );
@@ -424,8 +413,41 @@ const ImportDataContent = (props: {
   const [isCreated, setIsCreated] = React.useState(false);
 
   const [errMsg, setErrMsg] = React.useState("");
+  const [statusMsg, setStatusMsg] = React.useState("");
 
   const [httpClient, _] = useHttpClient();
+
+  const handleQueryStatus = async () => {
+    try {
+      const res = await httpClient.get(
+        `/api/jobs/name/import-initial-user-data/instances/last`
+      );
+      return res.data;
+    } catch (error: any) {
+      console.error(error);
+      setErrMsg(
+        error?.response?.data?.message ||
+          `${error?.code} ${error?.message}` ||
+          ""
+      );
+      setIsLoading(false);
+    }
+  };
+
+  const queryInterval = () => {
+    let timer: any;
+    timer = setInterval(async () => {
+      const res: any = await handleQueryStatus();
+      const { status, cost } = res.data;
+      if (["FINISHED", "FAIL"].includes(status)) {
+        setStatusMsg(`${status} in ${cost}`);
+        setIsCreated(true);
+        setIsLoading(false);
+        clearInterval(timer);
+      }
+      setStatusMsg(`${status} ...`);
+    }, 1000);
+  };
 
   const handleCreateClick = async () => {
     try {
@@ -437,8 +459,9 @@ const ImportDataContent = (props: {
       if (res?.status !== 200) {
         throw new Error(`${res.status} ${res.data}`);
       }
-      setIsCreated(true);
-      setIsLoading(false);
+      queryInterval();
+      // setIsCreated(true);
+      // setIsLoading(false);
     } catch (error: any) {
       console.error(error);
       setErrMsg(
@@ -476,6 +499,7 @@ const ImportDataContent = (props: {
           </Button>
         </div>
         {errMsg && <FormHelperText error>{errMsg}</FormHelperText>}
+        {statusMsg && !errMsg && <FormHelperText>{statusMsg}</FormHelperText>}
       </Box>
     </>
   );
