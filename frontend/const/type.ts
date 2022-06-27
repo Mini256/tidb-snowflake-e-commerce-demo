@@ -19,3 +19,7 @@ export type TableRowType = {
   totalSize: number;
   createdTime: string;
 };
+
+export type LabelType = "user" | "item" | "order" | "express";
+
+export type StatusType = "RUNNING" | "FINISHED" | "FAIL";

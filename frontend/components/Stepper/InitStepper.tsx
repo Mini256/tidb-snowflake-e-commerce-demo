@@ -19,6 +19,8 @@ import {
 } from "components/SidePanel/Walkthrough";
 import { useHttpClient } from "lib";
 import { TableRowType } from "const/type";
+import { ImportDataStatus } from "components/Card/InitialImportDataStatus";
+import { LabelType, StatusType } from "const/type";
 
 const TiDBStepContent = (props: { handleNext: () => void }) => {
   const { handleNext } = props;
@@ -325,13 +327,13 @@ const SnowflakeStepContent = (props: {
           >
             Continue
           </LoadingButton>
-          <Button
+          {/* <Button
             disabled={isLoading}
             onClick={handleBack}
             sx={{ mt: 1, mr: 1 }}
           >
             Back
-          </Button>
+          </Button> */}
           {errMsg && <FormHelperText error>{errMsg}</FormHelperText>}
         </div>
       </Box>
@@ -410,66 +412,36 @@ const ImportDataContent = (props: {
   const { handleNext, handleBack } = props;
 
   const [isLoading, setIsLoading] = React.useState(false);
+  const [showStatusBox, setShowStatusBox] = React.useState(false);
   const [isCreated, setIsCreated] = React.useState(false);
-
   const [errMsg, setErrMsg] = React.useState("");
-  const [statusMsg, setStatusMsg] = React.useState("");
 
-  const [httpClient, _] = useHttpClient();
+  const [userStatus, setUserStatus] = React.useState<StatusType | undefined>();
+  const [itemStatus, setItemStatus] = React.useState<StatusType | undefined>();
+  const [orderStatus, setOrderStatus] = React.useState<
+    StatusType | undefined
+  >();
+  const [expressStatus, setExpressStatus] = React.useState<
+    StatusType | undefined
+  >();
 
-  const handleQueryStatus = async () => {
-    try {
-      const res = await httpClient.get(
-        `/api/jobs/name/import-initial-user-data/instances/last`
-      );
-      return res.data;
-    } catch (error: any) {
-      console.error(error);
-      setErrMsg(
-        error?.response?.data?.message ||
-          `${error?.code} ${error?.message}` ||
-          ""
-      );
-      setIsLoading(false);
-    }
-  };
-
-  const queryInterval = () => {
-    let timer: any;
-    timer = setInterval(async () => {
-      const res: any = await handleQueryStatus();
-      const { status, cost } = res.data;
-      if (["FINISHED", "FAIL"].includes(status)) {
-        setStatusMsg(`${status} in ${cost}`);
-        setIsCreated(true);
-        setIsLoading(false);
-        clearInterval(timer);
-      }
-      setStatusMsg(`${status} ...`);
-    }, 1000);
-  };
+  const [httpClient, url] = useHttpClient();
 
   const handleCreateClick = async () => {
     try {
-      setErrMsg("");
       setIsLoading(true);
       const res = await httpClient.post(
         `/api/admin/data-source/tidb/import-data`
       );
-      if (res?.status !== 200) {
-        throw new Error(`${res.status} ${res.data}`);
-      }
-      queryInterval();
-      // setIsCreated(true);
-      // setIsLoading(false);
+      setShowStatusBox(true);
     } catch (error: any) {
       console.error(error);
+      setIsLoading(false);
       setErrMsg(
         error?.response?.data?.message ||
           `${error?.code} ${error?.message}` ||
           ""
       );
-      setIsLoading(false);
     }
   };
 
@@ -477,11 +449,105 @@ const ImportDataContent = (props: {
     handleNext();
   };
 
+  const handleSuccess = (type: LabelType) => {
+    switch (type) {
+      case "user":
+        setUserStatus("FINISHED");
+        break;
+      case "item":
+        setItemStatus("FINISHED");
+        break;
+      case "order":
+        setOrderStatus("FINISHED");
+        break;
+      case "express":
+        setExpressStatus("FINISHED");
+        break;
+      default:
+        break;
+    }
+  };
+  const handleError = (type: LabelType, err: any) => {
+    switch (type) {
+      case "user":
+        setUserStatus("FAIL");
+        break;
+      case "item":
+        setItemStatus("FAIL");
+        break;
+      case "order":
+        setOrderStatus("FAIL");
+        break;
+      case "express":
+        setExpressStatus("FAIL");
+        break;
+      default:
+        break;
+    }
+  };
+
+  React.useEffect(() => {
+    const sum = [userStatus, itemStatus, orderStatus, expressStatus].filter(
+      (i) => ["FINISHED", "FAIL"].includes(i || "")
+    ).length;
+    if (sum === 4) {
+      setIsLoading(false);
+      setIsCreated(true);
+    }
+  }, [userStatus, itemStatus, orderStatus, expressStatus]);
+
   return (
     <>
       {/* <CreateSchemaSQL /> */}
       <Box sx={{ mb: 2 }}>
         <div>
+          {showStatusBox && (
+            <Box
+              sx={{ display: "flex", flexDirection: "column", gap: ".5rem" }}
+            >
+              <ImportDataStatus
+                label="user"
+                url={url}
+                handleSuccess={() => {
+                  handleSuccess("user");
+                }}
+                handleError={(err: any) => {
+                  handleError("user", err);
+                }}
+              />
+              <ImportDataStatus
+                label="item"
+                url={url}
+                handleSuccess={() => {
+                  handleSuccess("item");
+                }}
+                handleError={(err: any) => {
+                  handleError("item", err);
+                }}
+              />
+              <ImportDataStatus
+                label="order"
+                url={url}
+                handleSuccess={() => {
+                  handleSuccess("order");
+                }}
+                handleError={(err: any) => {
+                  handleError("order", err);
+                }}
+              />
+              <ImportDataStatus
+                label="express"
+                url={url}
+                handleSuccess={() => {
+                  handleSuccess("express");
+                }}
+                handleError={(err: any) => {
+                  handleError("express", err);
+                }}
+              />
+            </Box>
+          )}
+
           <LoadingButton
             variant="contained"
             loading={isLoading}
@@ -490,16 +556,16 @@ const ImportDataContent = (props: {
           >
             {isCreated ? `Continue` : `Import`}
           </LoadingButton>
-          <Button
+          {/* <Button
             onClick={handleBack}
             sx={{ mt: 1, mr: 1 }}
             disabled={isLoading}
           >
             Back
-          </Button>
+          </Button> */}
         </div>
         {errMsg && <FormHelperText error>{errMsg}</FormHelperText>}
-        {statusMsg && !errMsg && <FormHelperText>{statusMsg}</FormHelperText>}
+        {/* {statusMsg && !errMsg && <FormHelperText>{statusMsg}</FormHelperText>} */}
       </Box>
     </>
   );
