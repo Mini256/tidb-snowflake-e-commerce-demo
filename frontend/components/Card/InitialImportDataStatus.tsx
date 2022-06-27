@@ -4,6 +4,7 @@ import FormHelperText from "@mui/material/FormHelperText";
 import CircularProgress from "@mui/material/CircularProgress";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import ErrorIcon from "@mui/icons-material/Error";
+import InfoIcon from "@mui/icons-material/Info";
 
 import { useHttpClient } from "lib";
 import { LabelType, StatusType } from "const/type";
@@ -17,8 +18,8 @@ interface ImportDataStatusProps {
 }
 
 interface StatusContentProps {
-  status: StatusType;
-  label: LabelType;
+  status: StatusType | undefined;
+  label: string;
   text?: string;
 }
 
@@ -89,13 +90,17 @@ export const ImportDataStatus = (props: ImportDataStatusProps) => {
   return (
     <>
       <Box sx={{ display: "flex", alignItems: "center", gap: ".5rem" }}>
-        <StatusContent status={status} label={label} text={statusMsg} />
+        <StatusContent
+          status={status}
+          label={`${labelDesc[label]} Data`}
+          text={statusMsg}
+        />
       </Box>
     </>
   );
 };
 
-const StatusContent = (props: StatusContentProps) => {
+export const StatusContent = (props: StatusContentProps) => {
   const { status, label, text } = props;
 
   switch (status) {
@@ -105,29 +110,35 @@ const StatusContent = (props: StatusContentProps) => {
           <CircularProgress size="1rem" />
           <FormHelperText
             sx={{ marginTop: 0 }}
-          >{`Job [${labelDesc[label]} Data]: Importing...`}</FormHelperText>
+          >{`Job ${label}: Running...`}</FormHelperText>
         </>
       );
     case "FINISHED":
       return (
         <>
           <CheckCircleIcon fontSize="small" color="success" />
-          <FormHelperText sx={{ marginTop: 0 }}>{`Job [${
-            labelDesc[label]
-          } Data]: Finished. ${text || ""}`}</FormHelperText>
+          <FormHelperText sx={{ marginTop: 0 }}>{`Job ${label}: Finished. ${
+            text || ""
+          }`}</FormHelperText>
         </>
       );
     case "FAIL":
       return (
         <>
           <ErrorIcon fontSize="small" color="error" />
-          <FormHelperText sx={{ marginTop: 0 }}>{`Job [${
-            labelDesc[label]
-          } Data]: Error. ${text || ""}`}</FormHelperText>
+          <FormHelperText error sx={{ marginTop: 0 }}>{`Job ${label}: Error. ${
+            text || ""
+          }`}</FormHelperText>
         </>
       );
     default:
-      break;
+      return (
+        <>
+          <InfoIcon fontSize="small" color="info" />
+          <FormHelperText sx={{ marginTop: 0 }}>
+            {`Job ${label}: Not Running.`}
+          </FormHelperText>
+        </>
+      );
   }
-  return <></>;
 };

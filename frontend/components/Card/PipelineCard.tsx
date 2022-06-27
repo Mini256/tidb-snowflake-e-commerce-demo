@@ -10,6 +10,7 @@ import Grid from "@mui/material/Grid";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import ShoppingBag from "@mui/icons-material/ShoppingBag";
+import LoadingButton from "@mui/lab/LoadingButton";
 
 import { CommonCard } from "components/Card/IndexCard";
 import ActionButton from "components/Button/ActionButton";
@@ -19,6 +20,9 @@ import {
   CALC_HIGH_LABEL_ITEMS_CODE,
   CALC_LOW_LABEL_ITEMS_CODE,
 } from "const/SQL";
+import { StatusContent } from "components/Card/InitialImportDataStatus";
+import { StatusType } from "const/type";
+import { useHttpClient } from "lib";
 
 export const Etl2SnowflakeVideoCard = () => {
   return (
@@ -130,19 +134,148 @@ export const OfflineAnalysisCard = () => {
 };
 
 export const WritebackCard = () => {
+  const [wbLabelStatus, setWbLabelStatus] = React.useState<
+    StatusType | undefined
+  >();
+  const [wbLabelDesc, setWbLabelDesc] = React.useState("");
+
+  const [wbHotItemsStatus, setWbHotItemsStatus] = React.useState<
+    StatusType | undefined
+  >();
+  const [wbHotItemsDesc, setWbHotItemsDesc] = React.useState("");
+
+  const [isLoading, setIsLoading] = React.useState(false);
+
+  const [httpClient, _] = useHttpClient();
+
+  const triggerHotItemsWb = async () => {
+    setWbHotItemsStatus("RUNNING");
+    try {
+      const res = await httpClient.post(`/api/data/hot-items/pull-back`);
+      const { status, cost, message } = res.data;
+      setWbHotItemsDesc(`Cost ${cost.toFixed(2)}s.`);
+      setWbHotItemsStatus("FINISHED");
+      return res.data;
+    } catch (error: any) {
+      console.error(error);
+      // setIsLoading(false);
+      setWbHotItemsStatus("FAIL");
+      setWbHotItemsDesc(
+        error?.response?.data?.message ||
+          `${error?.code} ${error?.message}` ||
+          ""
+      );
+      return { data: { status: "ERROR", error } };
+    }
+  };
+
+  const triggerLabelWb = async () => {
+    setWbLabelStatus("RUNNING");
+    try {
+      const res = await httpClient.post(
+        `/api/data/user-labels/pull-back?recreate=true`
+      );
+      return res.data;
+    } catch (error: any) {
+      console.error(error);
+      // setIsLoading(false);
+      setWbLabelStatus("FAIL");
+      setWbLabelDesc(
+        error?.response?.data?.message ||
+          `${error?.code} ${error?.message}` ||
+          ""
+      );
+      return { data: { status: "ERROR", error } };
+    }
+  };
+
+  const handleQueryStatus = async () => {
+    try {
+      const res = await httpClient.get(
+        `/api/jobs/name/write-back-user-labels/instances/last`
+      );
+      return res.data;
+    } catch (error: any) {
+      console.error(error);
+      // setIsLoading(false);
+      setWbLabelStatus("FAIL");
+      setWbLabelDesc(
+        error?.response?.data?.message ||
+          `${error?.code} ${error?.message}` ||
+          ""
+      );
+      return { data: { status: "ERROR", error } };
+    }
+  };
+
+  const queryInterval = () => {
+    let timer: any;
+    timer = setInterval(async () => {
+      const res: any = await handleQueryStatus();
+      const { status, cost, message } = res.data;
+      switch (status) {
+        case "ERROR":
+          clearInterval(timer);
+          break;
+        case "FINISHED":
+          setWbLabelStatus("FINISHED");
+          setWbLabelDesc(`Cost ${cost.toFixed(2)}s.`);
+          clearInterval(timer);
+          break;
+        case "FAIL":
+          setWbLabelStatus("FAIL");
+          setWbLabelDesc(message);
+          clearInterval(timer);
+          break;
+        default:
+          break;
+      }
+    }, 5000);
+  };
+
+  const handleCreateBtnClick = async () => {
+    setIsLoading(true);
+    await triggerHotItemsWb();
+    await triggerLabelWb();
+    queryInterval();
+  };
+
+  React.useEffect(() => {
+    const result = [wbLabelStatus, wbHotItemsStatus].filter((i) =>
+      ["FINISHED", "FAIL"].includes(i || "")
+    );
+    if (result.length === 2) {
+      setIsLoading(false);
+    }
+  }, [wbLabelStatus, wbHotItemsStatus]);
+
   return (
     <CommonCard title="Write Back from Snowflake to TiDB">
       <Typography variant="body1" gutterBottom>
         Write back the analysis result data from Snowflake to TiDB.
       </Typography>
-      <ActionButton
-        text="Write Back User Labels To TiDB"
-        url="/api/data/user-labels/pull-back"
-      />
-      <ActionButton
-        text="Write Back Hot Items To TiDB"
-        url="/api/data/hot-items/pull-back"
-      />
+      <Box sx={{ display: "flex", alignItems: "center", gap: ".5rem" }}>
+        <StatusContent
+          status={wbHotItemsStatus}
+          label={`[Write Back Hot Items To TiDB]`}
+          text={wbHotItemsDesc}
+        />
+      </Box>
+      <Box sx={{ display: "flex", alignItems: "center", gap: ".5rem" }}>
+        <StatusContent
+          status={wbLabelStatus}
+          label={`[Write Back User Labels To TiDB]`}
+          text={wbLabelDesc}
+        />
+      </Box>
+      <LoadingButton
+        variant="contained"
+        loading={isLoading}
+        onClick={handleCreateBtnClick}
+        sx={{ mt: 1, mr: 1 }}
+      >
+        Write Back
+      </LoadingButton>
     </CommonCard>
   );
 };
