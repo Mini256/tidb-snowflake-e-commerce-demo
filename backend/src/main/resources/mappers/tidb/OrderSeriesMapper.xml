@@ -27,7 +27,7 @@
     SELECT ts, type, amount, total
     FROM s_orders
     WHERE type = 'ALL' AND ts > CURRENT_DATE
-    <if test="startTimestamp != null">
+    <if test="lastDateTime != null">
       AND ts > #{lastDateTime}
     </if>
     ORDER BY ts ASC;
