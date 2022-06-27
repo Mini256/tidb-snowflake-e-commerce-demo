@@ -71,7 +71,7 @@ CREATE TABLE IF NOT EXISTS s_orders (
 
 CREATE TABLE IF NOT EXISTS job_instances (
     `id` BIGINT(20) PRIMARY KEY AUTO_INCREMENT,
-    `job_name` VARCHAR(255) NOT NULL COMMENT 'job_name',
+    `job_name` VARCHAR(255) NOT NULL COMMENT 'job name',
     `status` ENUM('CREATED', 'RUNNING', 'FINISHED', 'FAIL') NOT NULL COMMENT 'job status',
     `current_process` BIGINT(20) DEFAULT 0,
     `max_process` BIGINT(20) DEFAULT 0,
@@ -79,4 +79,12 @@ CREATE TABLE IF NOT EXISTS job_instances (
     `start_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT 'job start time',
     `update_time` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'update time',
     `complete_time` DATETIME COMMENT 'the complete time of the job, fail ot finish'
-)
+);
+
+CREATE TABLE IF NOT EXISTS table_stats_history (
+     `id` BIGINT(20) PRIMARY KEY AUTO_RANDOM,
+     `db_name` VARCHAR(255) NOT NULL,
+     `table_name` VARCHAR(255) NOT NULL,
+     `row_total` BIGINT(20) DEFAULT 0 NOT NULL COMMENT 'the total number of rows',
+     `ts` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT 'job create time'
+);

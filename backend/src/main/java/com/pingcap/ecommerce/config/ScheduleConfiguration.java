@@ -4,6 +4,7 @@ import com.pingcap.ecommerce.model.JobInstance;
 import com.pingcap.ecommerce.model.JobStatus;
 import com.pingcap.ecommerce.service.DataService;
 import com.pingcap.ecommerce.service.DynamicDataSourceService;
+import com.pingcap.ecommerce.service.TableStatsService;
 import com.pingcap.ecommerce.util.job.JobManager;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,12 +25,14 @@ public class ScheduleConfiguration {
 
     private final DynamicDataSourceService dynamicDataSourceService;
 
+    private final TableStatsService tableStatsService;
+
     private JobManager jobManager;
 
     /**
-     * Calculated today orders every 30 seconds.
+     * Calculated today orders every 10 minutes.
      */
-    @Scheduled(cron = "*/30 * * * * *")
+    @Scheduled(cron = "0 */10 * * * *")
     public void calcTodayOrdersJob() {
         if (!dynamicDataSourceService.isTiDBConfigured()) {
             return;
@@ -47,6 +50,19 @@ public class ScheduleConfiguration {
         stopWatch.stop();
 
         log.info("Finished calculating today orders and amount, cost: {} s.", stopWatch.getTotalTimeSeconds());
+    }
+
+    /**
+     * Calc table stats history every minute.
+     */
+    @Scheduled(cron = "0 * * * * *")
+    public void calcTableStatsHistory() {
+        if (!dynamicDataSourceService.isTiDBConfigured()) {
+            return;
+        }
+        log.info("Recording table stats...");
+        tableStatsService.recordTableStats();
+        log.info("Finished table stats record.");
     }
 
     /**

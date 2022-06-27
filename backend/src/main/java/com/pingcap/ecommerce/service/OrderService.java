@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.ZonedDateTime;
 import java.util.*;
 
 @Slf4j
@@ -62,8 +63,8 @@ public class OrderService {
         return orderTotalVO;
     }
 
-    public List<OrderSeries> getLatestOrderTotalAndAmountHistory(Long startTimestamp) {
-       return orderSeriesMapper.selectLatestAllTypeAmountAndTotalHistory(startTimestamp);
+    public List<OrderSeries> getLatestOrderTotalAndAmountHistory(ZonedDateTime lastDateTime) {
+       return orderSeriesMapper.selectLatestAllTypeAmountAndTotalHistory(lastDateTime);
     }
 
     public List<OrderSeries> getLatestGroupTypeAmountAndTotal() {

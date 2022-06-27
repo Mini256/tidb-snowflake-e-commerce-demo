@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.ZonedDateTime;
 import java.util.Date;
 
 @Data
@@ -12,9 +13,7 @@ import java.util.Date;
 @NoArgsConstructor
 public class OrderSeries {
 
-    private Date ts;
-
-    private Long timestamp;
+    private ZonedDateTime ts;
 
     private String type;
 
