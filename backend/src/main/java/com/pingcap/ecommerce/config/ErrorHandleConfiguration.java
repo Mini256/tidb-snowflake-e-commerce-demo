@@ -39,6 +39,7 @@ public class ErrorHandleConfiguration {
 
   @ExceptionHandler(FailedToConnectException.class)
   public ResponseEntity<?> handleDataSourceConnectExceptions(FailedToConnectException ex) {
+    ex.printStackTrace();
     MessageVO<?> resultVO = new MessageVO<>(HttpStatus.BAD_REQUEST.value(), ex.getMessage());
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(resultVO);
   }

@@ -33,9 +33,13 @@ public class AdminController {
     @GetMapping("/config/check")
     public MessageVO<?> checkConfig() {
         boolean tidbConfigured = dataSourceService.isTiDBConfigured();
+        boolean tidbSchemaCreated = dataSourceService.isTiDBSchemaCreated();
         boolean snowflakeConfigured = dataSourceService.isSnowflakeConfigured();
-        boolean ready = tidbConfigured && snowflakeConfigured;
-        return MessageVO.success(new ConfigCheckVO(ready, tidbConfigured, snowflakeConfigured));
+        boolean snowflakeSchemaCreated = dataSourceService.isSnowflakeSchemaCreated();
+        boolean ready = tidbConfigured && tidbSchemaCreated && snowflakeConfigured && snowflakeSchemaCreated;
+        return MessageVO.success(new ConfigCheckVO(
+            ready, tidbConfigured, tidbSchemaCreated, snowflakeConfigured, snowflakeSchemaCreated
+        ));
     }
 
     /**
@@ -49,7 +53,7 @@ public class AdminController {
     }
 
     @PostMapping("/data-source/tidb")
-    public MessageVO<?> setTiDBDataSource(@RequestBody TiDBDataSourceConfig cfg) {
+    public MessageVO<?> setTiDBDataSource(@RequestBody TiDBDataSourceConfig cfg) throws SQLException {
         String password = new String(Base64.getDecoder().decode(cfg.getPassword()));
         cfg.setPassword(password);
         dataSourceService.configTiDBDataSource(cfg);
@@ -95,7 +99,7 @@ public class AdminController {
     }
 
     @PostMapping("/data-source/snowflake")
-    public MessageVO<?> setSnowflakeDataSource(@RequestBody SnowflakeDataSourceConfig cfg) {
+    public MessageVO<?> setSnowflakeDataSource(@RequestBody SnowflakeDataSourceConfig cfg) throws SQLException {
         String password = new String(Base64.getDecoder().decode(cfg.getPassword()));
         cfg.setPassword(password);
         dataSourceService.configSnowflakeDataSource(cfg);

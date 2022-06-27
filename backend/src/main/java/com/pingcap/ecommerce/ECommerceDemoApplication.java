@@ -41,6 +41,7 @@ public class ECommerceDemoApplication implements CommandLineRunner {
         dynamicDataSourceService.configTiDBDataSource(tiDBConfig);
       } catch (Exception e) {
         log.error("Failed to connect the configured TiDB data source: {}", e.getMessage());
+        e.printStackTrace();
       }
     }
 
@@ -50,6 +51,7 @@ public class ECommerceDemoApplication implements CommandLineRunner {
         dynamicDataSourceService.configSnowflakeDataSource(snowflakeConfig);
       } catch (Exception e) {
         log.error("Failed to connect the configured Snowflake data source: {}", e.getMessage());
+        e.printStackTrace();
       }
     }
   }

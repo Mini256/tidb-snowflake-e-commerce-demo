@@ -6,6 +6,7 @@ import org.springframework.jdbc.datasource.lookup.AbstractRoutingDataSource;
 
 import javax.sql.DataSource;
 
+import java.sql.SQLException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -47,16 +48,22 @@ public class DynamicDataSource extends AbstractRoutingDataSource {
         return !Objects.equals(currentKey, DEFAULT_KEY);
     }
 
-    public void changeDataSource(String key, DataSource dataSource) {
+    public void changeDataSource(String key, DataSource dataSource) throws SQLException {
+        DataSource oldDataSource = this.getDataSource();
         Map<Object, Object> map = Collections.singletonMap(key, dataSource);
         this.currentKey = key;
         this.setTargetDataSources(map);
         this.setDefaultTargetDataSource(dataSource);
         this.afterPropertiesSet();
+
+        if (oldDataSource instanceof HikariDataSource) {
+            HikariDataSource pool = oldDataSource.unwrap(HikariDataSource.class);
+            pool.close();
+        }
     }
 
     public DataSource getDataSource() {
-        return this.getDataSource();
+        return super.getResolvedDefaultDataSource();
     }
 
 }

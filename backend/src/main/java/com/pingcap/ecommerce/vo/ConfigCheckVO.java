@@ -11,6 +11,10 @@ public class ConfigCheckVO {
 
     private boolean tidbConfigured;
 
+    private boolean tidbSchemaCreated;
+
     private boolean snowflakeConfigured;
+
+    private boolean snowflakeSchemaCreated;
 
 }

@@ -34,7 +34,7 @@ public class ScheduleConfiguration {
      */
     @Scheduled(cron = "0 */10 * * * *")
     public void calcTodayOrdersJob() {
-        if (!dynamicDataSourceService.isTiDBConfigured()) {
+        if (!dynamicDataSourceService.isTiDBReady()) {
             return;
         }
 
@@ -57,7 +57,7 @@ public class ScheduleConfiguration {
      */
     @Scheduled(cron = "0 * * * * *")
     public void calcTableStatsHistory() {
-        if (!dynamicDataSourceService.isTiDBConfigured()) {
+        if (!dynamicDataSourceService.isTiDBReady()) {
             return;
         }
         log.info("Recording table stats...");
@@ -83,7 +83,7 @@ public class ScheduleConfiguration {
      */
     @Scheduled(cron = "${ecommerce.calcLabelsCron}")
     public void calcUsersAndItemsLabelJob() {
-        if (!dynamicDataSourceService.isTiDBConfigured() || !dynamicDataSourceService.isSnowflakeConfigured()) {
+        if (!dynamicDataSourceService.isTiDBReady() || !dynamicDataSourceService.isSnowflakeReady()) {
             return;
         }
 
