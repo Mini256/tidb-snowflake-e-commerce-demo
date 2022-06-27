@@ -48,7 +48,7 @@
       <if test="tableName != null">
         AND table_name = #{tableName}
       </if>
-      <if test="lastTs != null">
+      <if test="lastDateTime != null">
         AND ts > #{lastDateTime}
       </if>
     </where>
