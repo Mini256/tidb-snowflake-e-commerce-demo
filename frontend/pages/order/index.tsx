@@ -84,46 +84,48 @@ export default function OrderPage() {
   ];
 
   useEffect(() => {
-    (async () => {
-      setLoading(true);
+    endpoint &&
+      (async () => {
+        setLoading(true);
 
-      try {
-        const q = Object.assign({}, query, {
-          page: page - 1,
-          size: pageSize,
-        });
-        const url = `/api/orders?${qs.stringify(q)}`;
-        const res = await httpClient.get(url);
-        const orderPage: ResultVO<OrderVO> = res.data;
-        const { content = [], pageNum, rowTotal } = orderPage;
+        try {
+          const q = Object.assign({}, query, {
+            page: page - 1,
+            size: pageSize,
+          });
+          const url = `/api/orders?${qs.stringify(q)}`;
+          const res = await httpClient.get(url);
+          const orderPage: ResultVO<OrderVO> = res.data;
+          const { content = [], pageNum, rowTotal } = orderPage;
 
-        content.map((orderVO) => {
-          orderVO.id = orderVO.orderId;
-          orderVO.orderDate = new Date(orderVO.orderDate);
-          return orderVO;
-        });
+          content.map((orderVO) => {
+            orderVO.id = orderVO.orderId;
+            orderVO.orderDate = new Date(orderVO.orderDate);
+            return orderVO;
+          });
 
-        setRows(content || []);
-        setPage(pageNum || 1);
-        setRowCount(rowTotal || 0);
-      } finally {
-        setLoading(false);
-      }
-    })();
+          setRows(content || []);
+          setPage(pageNum || 1);
+          setRowCount(rowTotal || 0);
+        } finally {
+          setLoading(false);
+        }
+      })();
   }, [query, page, endpoint]);
 
   // User autocomplete.
   useEffect(() => {
-    (async () => {
-      let url = `/api/users/autocomplete`;
-      if (userKeyword !== undefined) {
-        url = `/api/users/autocomplete?keyword=${userKeyword}`;
-      }
-      const res = await httpClient.get(url);
-      const userList: UserVO[] = res.data;
-      setUserAutocompleteOptions(userList || []);
-    })();
-  }, [userKeyword]);
+    endpoint &&
+      (async () => {
+        let url = `/api/users/autocomplete`;
+        if (userKeyword !== undefined) {
+          url = `/api/users/autocomplete?keyword=${userKeyword}`;
+        }
+        const res = await httpClient.get(url);
+        const userList: UserVO[] = res.data;
+        setUserAutocompleteOptions(userList || []);
+      })();
+  }, [userKeyword, endpoint]);
 
   return (
     <DashboardLayout>

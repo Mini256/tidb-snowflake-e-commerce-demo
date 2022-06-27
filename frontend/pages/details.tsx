@@ -19,7 +19,7 @@ import { ResultVO } from "./order";
 import ItemCard from "components/Card/ItemCard";
 import { DashboardLayout } from "components/CommonLayout";
 
-import { useHttpClient } from "../lib";
+import { useHttpClient } from "lib";
 
 interface HomePageProps {}
 
@@ -41,73 +41,76 @@ export default function HomePage(props: HomePageProps) {
 
   // Fetch latest items list.
   useEffect(() => {
-    (async () => {
-      const q = Object.assign(
-        {},
-        {
-          page: page,
-          size: pageSize,
-        }
-      );
-      const url = `/api/items?${qs.stringify(q)}`;
-      const res = await httpClient.get(url);
-      const orderPage: ResultVO<Item> = res.data;
-      const { content = [], pageNum, rowTotal } = orderPage;
+    endpoint &&
+      (async () => {
+        const q = Object.assign(
+          {},
+          {
+            page: page,
+            size: pageSize,
+          }
+        );
+        const url = `/api/items?${qs.stringify(q)}`;
+        const res = await httpClient.get(url);
+        const orderPage: ResultVO<Item> = res.data;
+        const { content = [], pageNum, rowTotal } = orderPage;
 
-      content.map((item) => {
-        item.createTime = new Date(item.createTime);
-        item.updateTime = new Date(item.updateTime);
-        return item;
-      });
+        content.map((item) => {
+          item.createTime = new Date(item.createTime);
+          item.updateTime = new Date(item.updateTime);
+          return item;
+        });
 
-      setLatestItems(content || []);
-    })();
+        setLatestItems(content || []);
+      })();
   }, [endpoint]);
 
   // Fetch recommended items list.
   useEffect(() => {
-    (async () => {
-      if (userSelected === undefined) return;
-      console.log(userSelected);
+    endpoint &&
+      (async () => {
+        if (userSelected === undefined) return;
+        console.log(userSelected);
 
-      const q = Object.assign(
-        {},
-        {
-          userId: userSelected?.userId,
-        }
-      );
-      const url = `/api/data/hot-items/recommended?${qs.stringify(q)}`;
-      const res = await httpClient.get(url);
-      const items: Item[] = res.data;
+        const q = Object.assign(
+          {},
+          {
+            userId: userSelected?.userId,
+          }
+        );
+        const url = `/api/data/hot-items/recommended?${qs.stringify(q)}`;
+        const res = await httpClient.get(url);
+        const items: Item[] = res.data;
 
-      items.map((item) => {
-        item.createTime = new Date(item.createTime);
-        item.updateTime = new Date(item.updateTime);
-        return item;
-      });
+        items.map((item) => {
+          item.createTime = new Date(item.createTime);
+          item.updateTime = new Date(item.updateTime);
+          return item;
+        });
 
-      setUserRecommendedItems(items);
-    })();
+        setUserRecommendedItems(items);
+      })();
   }, [userSelected, endpoint]);
 
   // User autocomplete.
   useEffect(() => {
-    (async () => {
-      let url = `/api/users/autocomplete`;
-      if (userKeyword !== undefined) {
-        url = `/api/users/autocomplete?keyword=${userKeyword}`;
-      }
-      const res = await httpClient.get(url);
-      const userList: UserVO[] = res.data;
+    endpoint &&
+      (async () => {
+        let url = `/api/users/autocomplete`;
+        if (userKeyword !== undefined) {
+          url = `/api/users/autocomplete?keyword=${userKeyword}`;
+        }
+        const res = await httpClient.get(url);
+        const userList: UserVO[] = res.data;
 
-      userList.map((item) => {
-        item.createTime = new Date(item.createTime);
-        item.updateTime = new Date(item.updateTime);
-        return item;
-      });
+        userList.map((item) => {
+          item.createTime = new Date(item.createTime);
+          item.updateTime = new Date(item.updateTime);
+          return item;
+        });
 
-      setUserAutocompleteOptions(userList || []);
-    })();
+        setUserAutocompleteOptions(userList || []);
+      })();
   }, [userKeyword, endpoint]);
 
   return (
