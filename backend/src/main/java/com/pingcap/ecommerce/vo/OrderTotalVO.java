@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.ZonedDateTime;
 import java.util.Date;
 
 @Data
@@ -12,7 +13,7 @@ import java.util.Date;
 @NoArgsConstructor
 public class OrderTotalVO {
 
-    private Date updateTime;
+    private ZonedDateTime updateTime;
 
     private BigDecimal totalAmount = BigDecimal.ZERO;
 

@@ -3,15 +3,19 @@ package com.pingcap.ecommerce.controller;
 import com.pingcap.ecommerce.dto.ImportDataDTO;
 import com.pingcap.ecommerce.dto.SnowflakeDataSourceConfig;
 import com.pingcap.ecommerce.dto.TiDBDataSourceConfig;
+import com.pingcap.ecommerce.model.TableStats;
 import com.pingcap.ecommerce.service.DataMockService;
 import com.pingcap.ecommerce.service.DynamicDataSourceService;
+import com.pingcap.ecommerce.service.TableStatsService;
 import com.pingcap.ecommerce.vo.ConfigCheckVO;
 import com.pingcap.ecommerce.vo.MessageVO;
 import com.pingcap.ecommerce.vo.TableInfo;
 import lombok.AllArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.SQLException;
+import java.time.ZonedDateTime;
 import java.util.Base64;
 import java.util.List;
 
@@ -23,6 +27,8 @@ public class AdminController {
     private final DynamicDataSourceService dataSourceService;
 
     private final DataMockService dataMockService;
+
+    private final TableStatsService tableStatsService;
 
     @GetMapping("/config/check")
     public MessageVO<?> checkConfig() {
@@ -62,15 +68,19 @@ public class AdminController {
         return MessageVO.success(tidbSchemaTables);
     }
 
+    @GetMapping("/data-source/tidb/table-stats-history")
+    public MessageVO<?> getTableStatsHistory(
+        @RequestParam(required = false) String tableName,
+        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) ZonedDateTime lastDateTime
+    ) {
+        List<TableStats> tableStats = tableStatsService.getTableStats(tableName, lastDateTime);
+        return MessageVO.success(tableStats);
+    }
+
     @PostMapping("/data-source/tidb/import-data")
     public MessageVO<?> importInitDataToTiDB(@RequestBody(required = false) ImportDataDTO importDataDTO) {
         if (importDataDTO == null) importDataDTO = new ImportDataDTO();
         dataMockService.importData(importDataDTO);
-        return MessageVO.success();
-    }
-
-    @GetMapping("/data-source/tidb/import-data-process")
-    public MessageVO<?> importInitDataToTiDBProcess() {
         return MessageVO.success();
     }
 

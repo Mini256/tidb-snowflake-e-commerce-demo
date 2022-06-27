@@ -4,6 +4,7 @@ import com.pingcap.ecommerce.model.OrderSeries;
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Component;
 
+import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -18,7 +19,7 @@ public interface OrderSeriesMapper {
 
     OrderSeries selectLatestAllTypeAmountAndTotal();
 
-    List<OrderSeries> selectLatestAllTypeAmountAndTotalHistory(Long startTimestamp);
+    List<OrderSeries> selectLatestAllTypeAmountAndTotalHistory(ZonedDateTime lastDateTime);
 
     List<OrderSeries> selectLatestGroupTypeAmountAndTotal();
 

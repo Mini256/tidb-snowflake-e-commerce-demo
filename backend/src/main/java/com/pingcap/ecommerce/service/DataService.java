@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigInteger;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -45,7 +46,7 @@ public class DataService {
     private final JobManager jobManager;
 
     public void calcTodayOrderTotalAndAmount() {
-        Date now = new Date();
+        ZonedDateTime now = ZonedDateTime.now();
         OrderTotalVO orderTotalAndAmount = orderMapper.getOrderTotalAndAmount();
         OrderSeries orderSeries = new OrderSeries();
         orderSeries.setType("ALL");
@@ -56,7 +57,7 @@ public class DataService {
     }
 
     public void calcTodayOrderTotalAndAmountGroupByType() {
-        Date now = new Date();
+        ZonedDateTime now = ZonedDateTime.now();
         List<OrderTypeTotalVO> orderTotalAndAmountByType = orderMapper.getOrderTotalAndAmountByType();
         List<OrderSeries> seriesList = new ArrayList<>();
 

@@ -3,7 +3,6 @@ package com.pingcap.ecommerce.service;
 import com.pingcap.ecommerce.config.DynamicDataSource;
 import com.pingcap.ecommerce.config.Env;
 import com.pingcap.ecommerce.dao.snowflake.SnowflakeSchemaMapper;
-import com.pingcap.ecommerce.dao.snowflake.SnowflakeUserLabelMapper;
 import com.pingcap.ecommerce.dao.tidb.SchemaMapper;
 import com.pingcap.ecommerce.dto.SnowflakeDataSourceConfig;
 import com.pingcap.ecommerce.dto.TiDBDataSourceConfig;
@@ -19,7 +18,6 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.datasource.init.ScriptUtils;
 import org.springframework.stereotype.Service;
 
-import javax.sql.DataSource;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -77,7 +75,7 @@ public class DynamicDataSourceService {
     }
 
     public void configTiDBDataSource(TiDBDataSourceConfig cfg) {
-        String flags = "rewriteBatchedStatements=true&allowLoadLocalInfile=true&zeroDateTimeBehavior=convertToNull";
+        String flags = "rewriteBatchedStatements=true&allowLoadLocalInfile=true&zeroDateTimeBehavior=convertToNull&serverTimezone=UTC";
         String jdbcURL = String.format("jdbc:mysql://%s:%s/%s?%s", cfg.getHost(), cfg.getPort(), cfg.getDatabase(), flags);
         HikariDataSource ds = buildDataSource(TIDB_DRIVER_NAME, jdbcURL, cfg.getUser(), cfg.getPassword());
         cfg.setUrl(jdbcURL);
@@ -110,7 +108,7 @@ public class DynamicDataSourceService {
         Connection conn = tidbDatasource.getConnection();
         log.info("Executing DDL in the file {}.", TIDB_INIT_SCHEMA_SQL_FILE);
         ScriptUtils.executeSqlScript(conn, sqlFileResource);
-        log.info("Executing DDL in the file {}.", TIDB_INIT_SCHEMA_SQL_FILE);
+        log.info("Finished execute DDL in the file {}.", TIDB_INIT_SCHEMA_SQL_FILE);
     }
 
     public List<TableInfo> getTiDBSchemaTables() {
@@ -179,7 +177,7 @@ public class DynamicDataSourceService {
         Connection conn = snowflakeDatasource.getConnection();
         log.info("Executing DDL in the file {}.", SNOWFLAKE_INIT_SCHEMA_SQL_FILE);
         ScriptUtils.executeSqlScript(conn, sqlFileResource);
-        log.info("Executing DDL in the file {}.", SNOWFLAKE_INIT_SCHEMA_SQL_FILE);
+        log.info("Finished execute DDL in the file {}.", SNOWFLAKE_INIT_SCHEMA_SQL_FILE);
     }
 
     public List<TableInfo> getSnowflakeSchemaTables() {

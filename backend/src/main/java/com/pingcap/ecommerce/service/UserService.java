@@ -1,6 +1,5 @@
 package com.pingcap.ecommerce.service;
 
-import com.pingcap.ecommerce.dao.tidb.SchemaMapper;
 import com.pingcap.ecommerce.dao.tidb.UserMapper;
 import com.pingcap.ecommerce.dto.TiDBDataSourceConfig;
 import com.pingcap.ecommerce.vo.PageResultVO;
