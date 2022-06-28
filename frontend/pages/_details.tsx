@@ -14,7 +14,7 @@ import {
 import qs from "qs";
 import { useState, useEffect } from "react";
 import { UserVO } from "./customer";
-import { Item } from "./item";
+import { ItemType } from "const/type";
 import { ResultVO } from "./order";
 import ItemCard from "components/Card/ItemCard";
 import { DashboardLayout } from "components/CommonLayout";
@@ -28,9 +28,11 @@ export default function HomePage(props: HomePageProps) {
 
   const [page, setPage] = useState<number>(1);
   const [pageSize, setPageSize] = useState<number>(16);
-  const [latestItems, setLatestItems] = useState<Item[]>([]);
+  const [latestItems, setLatestItems] = useState<ItemType[]>([]);
 
-  const [userRecommendedItems, setUserRecommendedItems] = useState<Item[]>([]);
+  const [userRecommendedItems, setUserRecommendedItems] = useState<ItemType[]>(
+    []
+  );
   const [userKeyword, setUserKeyword] = useState<string>();
   const [userAutocompleteOptions, setUserAutocompleteOptions] = useState<any[]>(
     []
@@ -52,7 +54,7 @@ export default function HomePage(props: HomePageProps) {
         );
         const url = `/api/items?${qs.stringify(q)}`;
         const res = await httpClient.get(url);
-        const orderPage: ResultVO<Item> = res.data;
+        const orderPage: ResultVO<ItemType> = res.data;
         const { content = [], pageNum, rowTotal } = orderPage;
 
         content.map((item) => {
@@ -80,7 +82,7 @@ export default function HomePage(props: HomePageProps) {
         );
         const url = `/api/data/hot-items/recommended?${qs.stringify(q)}`;
         const res = await httpClient.get(url);
-        const items: Item[] = res.data;
+        const items: ItemType[] = res.data;
 
         items.map((item) => {
           item.createTime = new Date(item.createTime);

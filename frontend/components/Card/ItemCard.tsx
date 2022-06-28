@@ -1,8 +1,8 @@
 import { Card, Box, Stack, Typography } from "@mui/material";
-import { Item } from "pages/item";
+import { ItemType } from "const/type";
 
 export interface ItemCardProps {
-  item: Item;
+  item: ItemType;
 }
 
 export default function ItemCard(props: ItemCardProps) {

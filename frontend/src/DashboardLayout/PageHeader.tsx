@@ -8,7 +8,7 @@ export interface BreadcrumbLink {
 
 export interface PageHeaderProps {
   title: string;
-  links: BreadcrumbLink[];
+  links?: BreadcrumbLink[];
 }
 
 export function PageHeader(props: PageHeaderProps) {

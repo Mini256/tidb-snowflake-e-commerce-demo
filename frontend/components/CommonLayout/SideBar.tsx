@@ -35,11 +35,11 @@ const items: any[] = [
   //   icon: <Home fontSize="small" />,
   //   title: "Introduction",
   // },
-  {
-    href: "/details",
-    icon: <LocalOfferIcon fontSize="small" />,
-    title: "Details",
-  },
+  // {
+  //   href: "/details",
+  //   icon: <LocalOfferIcon fontSize="small" />,
+  //   title: "Details",
+  // },
   {
     href: "/dashboard",
     icon: <DashboardIcon fontSize="small" />,
