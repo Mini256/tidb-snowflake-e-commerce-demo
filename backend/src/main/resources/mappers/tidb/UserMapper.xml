@@ -78,7 +78,7 @@
     LIMIT #{offset}, #{pageSize};
   </select>
 
-  <select id="getUsersWithLabelCount" resultType="_long">
+  <select id="getUsersWithLabelCount" resultType="java.math.BigInteger">
     SELECT count(*)
     FROM users u
     LEFT JOIN user_labels ul on u.id = ul.user_id;

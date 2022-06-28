@@ -5,10 +5,11 @@
     <result property="databaseName" column="database_name" javaType="java.lang.String" jdbcType="VARCHAR" />
     <result property="schemaName" column="schema_name" javaType="java.lang.String" jdbcType="VARCHAR" />
     <result property="tableName" column="name" javaType="java.lang.String" jdbcType="VARCHAR" />
-    <result property="tableRows" column="rows" javaType="java.math.BigDecimal" jdbcType="BIGINT" />
-    <result property="createdTime" column="created_on" javaType="java.util.Date" jdbcType="VARCHAR" />
-    <result property="dataSize" column="bytes" javaType="java.math.BigDecimal" jdbcType="BIGINT" />
-    <result property="totalSize" column="bytes" javaType="java.math.BigDecimal" jdbcType="BIGINT" />
+    <result property="tableRows" column="rows" javaType="java.math.BigInteger" jdbcType="BIGINT" />
+    <!-- FIXME: Error attempting to get column 'created_on' from result set.  -->
+    <!--<result property="createdTime" column="created_on" javaType="java.time.LocalDateTime" jdbcType="VARCHAR" />-->
+    <result property="dataSize" column="bytes" javaType="java.math.BigInteger" jdbcType="BIGINT" />
+    <result property="totalSize" column="bytes" javaType="java.math.BigInteger" jdbcType="BIGINT" />
   </resultMap>
 
   <select id="useJSONResultFormat">

@@ -2,17 +2,16 @@ package com.pingcap.ecommerce.service;
 
 import com.pingcap.ecommerce.dao.tidb.OrderMapper;
 import com.pingcap.ecommerce.dao.tidb.OrderSeriesMapper;
-import com.pingcap.ecommerce.dto.TiDBDataSourceConfig;
 import com.pingcap.ecommerce.model.OrderSeries;
 import com.pingcap.ecommerce.vo.OrderTotalVO;
 import com.pingcap.ecommerce.vo.OrderVO;
 import com.pingcap.ecommerce.vo.PageResultVO;
-import com.pingcap.ecommerce.vo.StatsMeta;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.math.BigInteger;
 import java.time.ZonedDateTime;
 import java.util.*;
 
@@ -29,20 +28,17 @@ public class OrderService {
 
     private final TableStatsService tableStatsService;
 
-    private final DynamicDataSourceService dataSourceService;
-
     public PageResultVO<OrderVO> getOrders(String userId, Pageable pageable) {
         List<OrderVO> orders = orderMapper.getOrders(userId, pageable);
-        long rowCount = getRowsCount(userId);
+        BigInteger rowCount = getRowCount(userId);
         return PageResultVO.of(orders, rowCount, pageable.getPageNumber(), pageable.getPageSize());
     }
 
-    public Long getRowsCount(String userId) {
+    public BigInteger getRowCount(String userId) {
         if (userId == null || userId.isEmpty()) {
-            TiDBDataSourceConfig dataSourceConfig = dataSourceService.getTidbDataSourceConfig();
-            StatsMeta statsMeta = tableStatsService.getTableStatsMeta(dataSourceConfig.getDatabase(), ORDERS_TABLE_NAME);
-            if (statsMeta != null) {
-                return statsMeta.getRowCount();
+            BigInteger rowTotal = tableStatsService.getTableInfoRows(ORDERS_TABLE_NAME);
+            if (rowTotal != null) {
+                return rowTotal;
             }
         }
         return orderMapper.getOrdersCount(userId);

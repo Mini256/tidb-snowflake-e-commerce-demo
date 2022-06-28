@@ -36,4 +36,5 @@ public class StatisticController {
     public List<OrderSeries> getTodayOrderGroupTypeTotalAndAmount() {
         return orderService.getLatestGroupTypeAmountAndTotal();
     }
+
 }

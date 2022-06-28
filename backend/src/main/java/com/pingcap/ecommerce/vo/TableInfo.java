@@ -4,8 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
-import java.util.Date;
+import java.math.BigInteger;
+import java.time.ZonedDateTime;
 
 @Data
 @AllArgsConstructor
@@ -20,15 +20,15 @@ public class TableInfo {
 
     private String kind;
 
-    private BigDecimal tableRows = BigDecimal.ZERO;
+    private BigInteger tableRows = BigInteger.ZERO;
 
-    private BigDecimal dataSize = BigDecimal.ZERO;
+    private BigInteger dataSize = BigInteger.ZERO;
 
-    private BigDecimal indexSize = BigDecimal.ZERO;
+    private BigInteger indexSize = BigInteger.ZERO;
 
-    private BigDecimal totalSize = BigDecimal.ZERO;
+    private BigInteger totalSize = BigInteger.ZERO;
 
-    private Date createdTime;
+    private ZonedDateTime createdTime;
 
     public TableInfo(String databaseName, String schemaName, String tableName, String kind) {
         this.databaseName = databaseName;

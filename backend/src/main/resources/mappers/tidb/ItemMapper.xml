@@ -30,7 +30,7 @@
     LIMIT #{pageable.offset}, #{pageable.pageSize};
   </select>
 
-  <select id="getItemsCount" resultType="_long">
+  <select id="getItemsCount" resultType="java.math.BigInteger">
     SELECT count(*)
     FROM items i
     <where>

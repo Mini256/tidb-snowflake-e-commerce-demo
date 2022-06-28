@@ -87,7 +87,7 @@
     ORDER BY id
   </select>
 
-  <select id="getOrdersCount" resultType="_long">
+  <select id="getOrdersCount" resultType="java.math.BigInteger">
     SELECT count(*)
     FROM orders o
     LEFT JOIN users u on o.user_id = u.id

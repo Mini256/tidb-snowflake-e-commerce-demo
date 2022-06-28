@@ -4,7 +4,7 @@ import com.mysql.cj.jdbc.MysqlDataSource;
 import com.pingcap.ecommerce.config.DynamicDataSource;
 import com.pingcap.ecommerce.config.Env;
 import com.pingcap.ecommerce.dao.snowflake.SnowflakeSchemaMapper;
-import com.pingcap.ecommerce.dao.tidb.SchemaMapper;
+import com.pingcap.ecommerce.dao.tidb.TableStatsMapper;
 import com.pingcap.ecommerce.dto.SnowflakeDataSourceConfig;
 import com.pingcap.ecommerce.dto.TiDBDataSourceConfig;
 import com.pingcap.ecommerce.exception.DataSourceNotFoundException;
@@ -63,7 +63,7 @@ public class DynamicDataSourceService {
 
     private final DynamicDataSource snowflakeDatasource;
 
-    private final SchemaMapper schemaMapper;
+    private final TableStatsMapper tableStatsMapper;
 
     private final SnowflakeSchemaMapper snowflakeSchemaMapper;
 
@@ -71,13 +71,13 @@ public class DynamicDataSourceService {
         Env env,
         @Qualifier("TiDBDynamicDataSource") DynamicDataSource tidbDatasource,
         @Qualifier("SnowflakeDynamicDataSource") DynamicDataSource snowflakeDatasource,
-        SchemaMapper schemaMapper,
+        TableStatsMapper tableStatsMapper,
         SnowflakeSchemaMapper snowflakeSchemaMapper
     ) {
         this.env = env;
         this.tidbDatasource = tidbDatasource;
         this.snowflakeDatasource = snowflakeDatasource;
-        this.schemaMapper = schemaMapper;
+        this.tableStatsMapper = tableStatsMapper;
         this.snowflakeSchemaMapper = snowflakeSchemaMapper;
     }
 
@@ -225,16 +225,9 @@ public class DynamicDataSourceService {
         List<TableInfo> tableInfos = new ArrayList<>();
 
         try {
-            tableInfos = schemaMapper.getTableInfos(schemaName);
+            tableInfos = tableStatsMapper.getTableInfos(schemaName, null);
         } catch (Exception e) {
-            log.warn("Failed to get tidb tables information from SCHEMA_INFORMATION table, fallback to use `SHOW TABLES`: {}.", e.getMessage());
-        }
-
-        if (tableInfos.isEmpty()) {
-            List<String> tableNames = schemaMapper.getTableNames();
-            for (String tableName : tableNames) {
-                tableInfos.add(new TableInfo("def", schemaName, tableName, "BASE TABLE"));
-            }
+            log.warn("Failed to get tidb tables information from SCHEMA_INFORMATION table: {}.", e.getMessage());
         }
 
         return tableInfos;

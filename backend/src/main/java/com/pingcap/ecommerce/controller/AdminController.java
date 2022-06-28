@@ -77,7 +77,7 @@ public class AdminController {
         @RequestParam(required = false) String tableName,
         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) ZonedDateTime lastDateTime
     ) {
-        List<TableStats> tableStats = tableStatsService.getTableStats(tableName, lastDateTime);
+        List<TableStats> tableStats = tableStatsService.getTableStatsHistory(tableName, lastDateTime);
         return MessageVO.success(tableStats);
     }
 

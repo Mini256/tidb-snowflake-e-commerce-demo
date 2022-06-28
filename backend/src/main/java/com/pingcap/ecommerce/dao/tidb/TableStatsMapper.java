@@ -1,7 +1,7 @@
 package com.pingcap.ecommerce.dao.tidb;
 
 import com.pingcap.ecommerce.model.TableStats;
-import com.pingcap.ecommerce.vo.StatsMeta;
+import com.pingcap.ecommerce.vo.TableInfo;
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Component;
 
@@ -12,7 +12,9 @@ import java.util.List;
 @Component
 public interface TableStatsMapper {
 
-    List<StatsMeta> getTableStatsMetaList(String dbName, String tableName);
+    List<String> getTableNames();
+
+    List<TableInfo> getTableInfos(String dbName, String tableName);
 
     int insertTableStatsList(List<TableStats> tableStatsList);
 

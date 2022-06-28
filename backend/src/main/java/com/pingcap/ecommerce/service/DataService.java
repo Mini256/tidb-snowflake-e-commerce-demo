@@ -12,15 +12,15 @@ import com.pingcap.ecommerce.vo.PageResultVO;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigInteger;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -165,7 +165,7 @@ public class DataService {
      */
     public PageResultVO<HotItem> getRecommendedHotItems(String userId, Pageable pageable) {
         List<HotItem> hotItems = hotItemMapper.getRecommendedHotItems(userId, pageable);
-        List<String> userIds = hotItems.stream().map(HotItem::getUserId).toList();
+        Set<String> userIds = hotItems.stream().map(HotItem::getUserId).collect(Collectors.toSet());
 
         if (!userIds.isEmpty()) {
             List<User> userByIds = userMapper.getUserByIds(userIds);
@@ -175,7 +175,12 @@ public class DataService {
             );
         }
 
-        return PageResultVO.of(hotItems, 10, pageable.getPageNumber(), pageable.getPageSize());
+        BigInteger rowTotal = getRowCount(userId);
+        return PageResultVO.of(hotItems, rowTotal, pageable.getPageNumber(), pageable.getPageSize());
+    }
+
+    public BigInteger getRowCount(String userId) {
+        return hotItemMapper.getRecommendedHotItemsCount(userId);
     }
 
     public List<HotItem> getHighLabelItems() {

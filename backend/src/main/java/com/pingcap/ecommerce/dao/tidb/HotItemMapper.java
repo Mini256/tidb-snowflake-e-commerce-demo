@@ -5,6 +5,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
+import java.math.BigInteger;
 import java.util.List;
 
 @Mapper
@@ -16,6 +17,8 @@ public interface HotItemMapper {
     List<HotItem> getLowLabelItems();
 
     List<HotItem> getRecommendedHotItems(String userId, Pageable pageable);
+
+    BigInteger getRecommendedHotItemsCount(String userId);
 
     long batchInsertHotItems(List<HotItem> hotItems);
 

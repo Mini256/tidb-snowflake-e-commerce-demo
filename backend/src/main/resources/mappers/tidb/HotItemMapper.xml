@@ -40,6 +40,17 @@
     LIMIT #{pageable.offset}, #{pageable.pageSize}
   </select>
 
+  <select id="getRecommendedHotItemsCount" resultType="java.math.BigInteger">
+    SELECT COUNT(*)
+    FROM user_labels ul
+    LEFT JOIN hot_items hi ON ul.user_label = hi.item_label
+    <where>
+      <if test="userId != null">
+        user_id = #{userId}
+      </if>
+    </where>
+  </select>
+
   <insert id="batchInsertHotItems" parameterType="com.pingcap.ecommerce.model.HotItem">
     INSERT INTO hot_items(item_id, item_name, item_price, item_type, item_desc, item_label) VALUES
     <foreach item="item" index="index" collection="hotItems" separator=",">
@@ -53,4 +64,5 @@
       #{item}
     </foreach>
   </delete>
+
 </mapper>

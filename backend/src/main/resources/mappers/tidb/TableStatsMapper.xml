@@ -1,33 +1,65 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.pingcap.ecommerce.dao.tidb.TableStatsMapper">
-  <resultMap id="StatsMeta" type="com.pingcap.ecommerce.vo.StatsMeta">
-    <result property="dbName" column="Db_name" javaType="java.lang.String" jdbcType="VARCHAR" />
-    <result property="tableName" column="Table_name" javaType="java.lang.String" jdbcType="VARCHAR" />
-    <result property="partitionName" column="Partition_name" javaType="java.lang.String" jdbcType="VARCHAR" />
-    <result property="updateTime" column="Update_time" javaType="java.util.Date" jdbcType="VARCHAR" />
-    <result property="modifyCount" column="Modify_count" javaType="java.lang.Long" jdbcType="BIGINT" />
-    <result property="rowCount" column="Row_count" javaType="java.lang.Long" jdbcType="BIGINT" />
-  </resultMap>
+  <!--
+    You can view the column definitions of the `INFORMATION_SCHEMA.TABLES` table with the following SQL:
 
+    DESC INFORMATION_SCHEMA.TABLES;
+  -->
+  <resultMap id="TableInfo" type="com.pingcap.ecommerce.vo.TableInfo">
+    <result property="databaseName" column="TABLE_CATALOG" javaType="java.lang.String" jdbcType="VARCHAR" />
+    <result property="schemaName" column="TABLE_SCHEMA" javaType="java.lang.String" jdbcType="VARCHAR" />
+    <result property="tableName" column="TABLE_NAME" javaType="java.lang.String" jdbcType="VARCHAR" />
+    <result property="kind" column="TABLE_TYPE" javaType="java.lang.String" jdbcType="VARCHAR" />
+    <result property="createdTime" column="CREATE_TIME" javaType="java.time.ZonedDateTime" jdbcType="VARCHAR" />
+    <result property="tableRows" column="TABLE_ROWS" javaType="java.math.BigInteger" jdbcType="BIGINT" />
+    <result property="dataSize" column="DATA_SIZE" javaType="java.math.BigInteger" jdbcType="BIGINT" />
+    <result property="indexSize" column="INDEX_SIZE" javaType="java.math.BigInteger" jdbcType="BIGINT" />
+    <result property="totalSize" column="TOTAL_SIZE" javaType="java.math.BigInteger" jdbcType="BIGINT" />
+  </resultMap>
   <resultMap id="TableStats" type="com.pingcap.ecommerce.model.TableStats">
     <result property="id" column="id" javaType="java.lang.Long" jdbcType="BIGINT" />
     <result property="dbName" column="db_name" javaType="java.lang.String" jdbcType="VARCHAR" />
     <result property="tableName" column="table_name" javaType="java.lang.String" jdbcType="VARCHAR" />
-    <result property="rowTotal" column="row_total" javaType="java.lang.Long" jdbcType="BIGINT" />
+    <result property="rowTotal" column="row_total" javaType="java.math.BigInteger" jdbcType="BIGINT" />
     <result property="ts" column="ts" javaType="java.time.ZonedDateTime" jdbcType="VARCHAR" />
   </resultMap>
+  <!--
+    In TiDB, you can use the `SHOW TABLES` command to view which database tables are in the current database,
+    but it only displays the table name.
 
-  <select id="getTableStatsMetaList" resultMap="StatsMeta">
-    SHOW STATS_META
+    Reference: https://docs.pingcap.com/tidb/stable/sql-statement-show-tables
+  -->
+  <select id="getTableNames" resultType="string">
+    SHOW TABLES;
+  </select>
+  <!--
+    Since every user on MySQL has permission to access the `INFORMATION_SCHEMA` database,
+    we can get the rows count of each table by querying the `TABLES` table.
+
+    Reference: https://dev.mysql.com/doc/refman/8.0/en/information-schema-introduction.html#information-schema-privileges
+  -->
+  <select id="getTableInfos" resultMap="TableInfo">
+    SELECT
+      TABLE_CATALOG,
+      TABLE_SCHEMA,
+      TABLE_NAME,
+      TABLE_TYPE,
+      CREATE_TIME,
+      TABLE_ROWS,
+      DATA_LENGTH AS DATA_SIZE,
+      INDEX_LENGTH AS INDEX_SIZE,
+      DATA_LENGTH + INDEX_LENGTH AS TOTAL_SIZE
+    FROM
+      INFORMATION_SCHEMA.TABLES
     <where>
       <if test="dbName != null">
-        db_name = #{dbName}
+        TABLE_SCHEMA = #{dbName}
       </if>
       <if test="tableName != null">
-        AND table_name = #{tableName}
+        AND TABLE_NAME LIKE #{tableName}
       </if>
-    </where>
+    </where>;
   </select>
 
   <insert id="insertTableStatsList" parameterType="com.pingcap.ecommerce.model.TableStats">
@@ -39,7 +71,7 @@
   </insert>
 
   <select id="getTableStatsHistory" resultMap="TableStats">
-    SELECT *
+    SELECT id, db_name, table_name, row_total, ts
     FROM table_stats_history tst
     <where>
       <if test="dbName != null">

@@ -7,7 +7,9 @@ import org.apache.ibatis.annotations.Mapper;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
+import java.math.BigInteger;
 import java.util.List;
+import java.util.Set;
 
 @Mapper
 @Component
@@ -25,11 +27,11 @@ public interface UserMapper {
 
     List<String> getUserIds(Pageable pageable);
 
-    List<User> getUserByIds(List<String> userIds);
+    List<User> getUserByIds(Set<String> userIds);
 
     List<UserVO> searchUsersForAutoComplete(String keyword);
 
     List<UserVO> getUsersWithLabel(Pageable pageable);
 
-    long getUsersWithLabelCount();
+    BigInteger getUsersWithLabelCount();
 }

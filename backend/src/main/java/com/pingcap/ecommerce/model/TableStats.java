@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigInteger;
 import java.time.ZonedDateTime;
 
 @Data
@@ -17,11 +18,11 @@ public class TableStats {
 
     private String tableName;
 
-    private Long rowTotal;
+    private BigInteger rowTotal;
 
     private ZonedDateTime ts;
 
-    public TableStats(String dbName, String tableName, Long rowTotal) {
+    public TableStats(String dbName, String tableName, BigInteger rowTotal) {
         this.dbName = dbName;
         this.tableName = tableName;
         this.rowTotal = rowTotal;

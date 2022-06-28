@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
+import java.math.BigInteger;
 import java.util.List;
 
 @Mapper
@@ -20,6 +21,6 @@ public interface ItemMapper {
 
     List<Item> getItemsBaseInfosByPageMeta(PageMeta<Long> pageMeta);
 
-    long getItemsCount(String type);
+    BigInteger getItemsCount(String type);
 
 }
