@@ -90,6 +90,7 @@
   <select id="getOrdersCount" resultType="_long">
     SELECT count(*)
     FROM orders o
+    LEFT JOIN users u on o.user_id = u.id
     <where>
       <if test="userId != null">
         AND u.id = #{userId}
