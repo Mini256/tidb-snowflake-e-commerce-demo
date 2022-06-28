@@ -57,11 +57,11 @@ export default function HomePage(props: HomePageProps) {
         const orderPage: ResultVO<ItemType> = res.data;
         const { content = [], pageNum, rowTotal } = orderPage;
 
-        content.map((item) => {
-          item.createTime = new Date(item.createTime);
-          item.updateTime = new Date(item.updateTime);
-          return item;
-        });
+        // content.map((item) => {
+        //   item.createTime = new Date(item.createTime);
+        //   item.updateTime = new Date(item.updateTime);
+        //   return item;
+        // });
 
         setLatestItems(content || []);
       })();
@@ -84,11 +84,11 @@ export default function HomePage(props: HomePageProps) {
         const res = await httpClient.get(url);
         const items: ItemType[] = res.data;
 
-        items.map((item) => {
-          item.createTime = new Date(item.createTime);
-          item.updateTime = new Date(item.updateTime);
-          return item;
-        });
+        // items.map((item) => {
+        //   item.createTime = new Date(item.createTime);
+        //   item.updateTime = new Date(item.updateTime);
+        //   return item;
+        // });
 
         setUserRecommendedItems(items);
       })();
