@@ -23,6 +23,7 @@ import {
 import { StatusContent } from "components/Card/InitialImportDataStatus";
 import { StatusType } from "const/type";
 import { useHttpClient } from "lib";
+import { PipelineConfig } from "components/SidePanel/Walkthrough";
 
 export const Etl2SnowflakeVideoCard = () => {
   return (
@@ -31,7 +32,8 @@ export const Etl2SnowflakeVideoCard = () => {
         We will use tools like <a href="https://etleap.com/">ETLeap</a> to
         import data from TiDB to Snowflake.
       </Typography>
-      <video
+      <PipelineConfig />
+      {/* <video
         width="100%"
         height="100%"
         autoPlay
@@ -44,7 +46,7 @@ export const Etl2SnowflakeVideoCard = () => {
           src="https://user-images.githubusercontent.com/55385323/172923035-6327f6ff-f141-4c48-ba87-56a1ddbce6d7.mp4"
           type="video/mp4"
         />
-      </video>
+      </video> */}
     </CommonCard>
   );
 };

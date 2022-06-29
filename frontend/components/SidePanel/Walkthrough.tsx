@@ -352,37 +352,166 @@ export const SnowflakeConfig = () => {
             content={`SNOWSQL_HOST=GQ01328.ap-northeast-1.aws.snowflakecomputing.com\nSNOWSQL_ACCOUNT=GQ01328\nSNOWSQL_WAREHOUSE=PC_ETLEAP_WH\nSNOWSQL_DATABASE=PC_ETLEAP_DB\nSNOWSQL_SCHEMA=PUBLIC\nSNOWSQL_USER=<admin username>\nSNOWSQL_ROLE=ACCOUNTADMIN\nSNOWSQL_PWD=<admin password>`}
           />
         </WalkthroughContent>
+      </WalkthroughTemplate>
+    </>
+  );
+};
 
-        {/* <WalkthroughContent title="10. Create data pipeline from Snowflake to TiDB">
+export const PipelineConfig = () => {
+  return (
+    <>
+      <WalkthroughTemplate header="ETL from TiDB to Snowflake">
+        <WalkthroughContent title="1. Choose ETLeap Card:">
+          <Typography
+            component="img"
+            src="https://user-images.githubusercontent.com/56986964/176418692-6b93e8bc-f138-4b77-bcd8-6c4eb9a4b767.png"
+            sx={{ width: "100%", paddingTop: "1rem", paddingBottom: "1rem" }}
+          />
+        </WalkthroughContent>
+
+        <WalkthroughContent title="2. Launch ETLeap:">
+          <Typography
+            component="img"
+            src="https://user-images.githubusercontent.com/56986964/176419016-0ca3a5e4-2ba9-4bd6-b352-9e1ddee128c2.png"
+            sx={{ width: "100%", paddingTop: "1rem", paddingBottom: "1rem" }}
+          />
+        </WalkthroughContent>
+
+        <WalkthroughContent title="3. Create Etleap Integration:">
+          <Typography
+            component="img"
+            src="https://user-images.githubusercontent.com/56986964/176426006-10fcf420-c9c2-46ee-8ff6-ae8402a1a456.png"
+            sx={{ width: "100%", paddingTop: "1rem", paddingBottom: "1rem" }}
+          />
+        </WalkthroughContent>
+
+        <WalkthroughContent title="4. Choose MySQL as Integration type:">
+          <Typography
+            component="img"
+            src="https://user-images.githubusercontent.com/56986964/176426346-aa1a7565-8758-476e-b8e3-e3c31053de9b.png"
+            sx={{ width: "100%", paddingTop: "1rem", paddingBottom: "1rem" }}
+          />
+        </WalkthroughContent>
+
+        <WalkthroughContent title="5. Configure Integration:">
           <Typography variant="body1">
-            After ETLeap account activated, ETLeap will create a database{" "}
-            <InlineCode>PC_ETLEAP_DB</InlineCode> on Snowflake, and config
-            connection automatically。
+            On Step 3, input correct TiDB Cloud address and port. Do rememeber
+            to cancel "Validate SSL Certificate"
           </Typography>
           <Typography
             component="img"
-            src="https://user-images.githubusercontent.com/5086433/173547399-541060c6-ca6b-431a-8cca-0fdc4996d303.png"
-            sx={{
-              width: "100%",
-              paddingTop: "1rem",
-              paddingBottom: "1rem",
-            }}
+            src="https://user-images.githubusercontent.com/56986964/176426719-89590bce-27f6-414c-a96a-7ef3dc1d9a15.png"
+            sx={{ width: "100%", paddingTop: "1rem", paddingBottom: "1rem" }}
           />
-          <Typography variant="body1">You can follow this guide:</Typography>
+          <Typography variant="body1">
+            Step 4. Input the TiDB user and password as same as the one used in
+            initial page.
+          </Typography>
           <Typography
-            component="video"
-            src="https://user-images.githubusercontent.com/55385323/172923035-6327f6ff-f141-4c48-ba87-56a1ddbce6d7.mp4"
-            // autoPlay
-            // loop
-            muted
-            controls
-            sx={{
-              width: "100%",
-              paddingTop: "1rem",
-              paddingBottom: "1rem",
-            }}
+            component="img"
+            src="https://user-images.githubusercontent.com/56986964/176427150-ea8cc6ea-ed86-45a5-88f0-9c90702251a6.png"
+            sx={{ width: "100%", paddingTop: "1rem", paddingBottom: "1rem" }}
           />
-        </WalkthroughContent> */}
+          <Typography variant="body1">
+            Step 5. Input the same TiDB database name as the one used in initial
+            page.
+          </Typography>
+          <Typography
+            component="img"
+            src="https://user-images.githubusercontent.com/56986964/176427430-2dd0f6d3-2a0c-46e6-b55f-392924181dc4.png"
+            sx={{ width: "100%", paddingTop: "1rem", paddingBottom: "1rem" }}
+          />
+        </WalkthroughContent>
+
+        <WalkthroughContent title="6. Choose tables to be imported:">
+          <Typography
+            component="img"
+            src="https://user-images.githubusercontent.com/56986964/176427975-3874dbeb-dc83-4ebe-b183-3fbbe52271be.png"
+            sx={{ width: "100%", paddingTop: "1rem", paddingBottom: "1rem" }}
+          />
+        </WalkthroughContent>
+
+        <WalkthroughContent title="7. Choose destination:">
+          <Typography variant="body1">
+            By default, you should choose the schema "PUBLIC".
+          </Typography>
+          <Typography
+            component="img"
+            src="https://user-images.githubusercontent.com/56986964/176428753-72f1d2a1-ffe2-44a4-8f52-15430f0fc75b.png"
+            sx={{ width: "100%", paddingTop: "1rem", paddingBottom: "1rem" }}
+          />
+
+          <Typography variant="body1">
+            If you did't use the default schema on initial page, you should
+            grant privilege manually on snowflake. Otherwise you can not choose
+            the one you want.
+          </Typography>
+          <Typography variant="body1">Create a worksheet.</Typography>
+          <Typography
+            component="img"
+            src="https://user-images.githubusercontent.com/56986964/176429693-8b933379-7ff8-407b-9b2b-65788be386a3.png"
+            sx={{ width: "100%", paddingTop: "1rem", paddingBottom: "1rem" }}
+          />
+          <Typography variant="body1">
+            Choose the schema you want to use in ETLeap, then input and run:
+          </Typography>
+          <InlineCode>
+            GRANT ALL PRIVILEGES ON SCHEMA "ECOMMERCE" TO ROLE PC_ETLEAP_ROLE;
+          </InlineCode>
+          <Typography
+            component="img"
+            src="https://user-images.githubusercontent.com/56986964/176430074-dc24cebb-2ca6-463f-b740-8f0874b7ad0e.png"
+            sx={{ width: "100%", paddingTop: "1rem", paddingBottom: "1rem" }}
+          />
+          <Typography variant="body1">
+            Go back to ETLeap page and click "Refresh Schema List".
+          </Typography>
+          <Typography
+            component="img"
+            src="https://user-images.githubusercontent.com/56986964/176430547-fc2c40b6-0ee1-49d6-9f61-27058a20d821.png"
+            sx={{ width: "100%", paddingTop: "1rem", paddingBottom: "1rem" }}
+          />
+        </WalkthroughContent>
+
+        <WalkthroughContent title="8. Edit settings:">
+          <Typography
+            component="img"
+            src="https://user-images.githubusercontent.com/56986964/176430806-6414e3c1-2cab-4f7e-9027-9f033a8c1562.png"
+            sx={{ width: "100%", paddingTop: "1rem", paddingBottom: "1rem" }}
+          />
+          <Typography
+            component="img"
+            src="https://user-images.githubusercontent.com/56986964/176430972-edcbe1a1-3688-450e-bc50-a3ea98a2ef5c.png"
+            sx={{ width: "100%", paddingTop: "1rem", paddingBottom: "1rem" }}
+          />
+          <Typography variant="body1">
+            Add column <InlineCode>create_time</InlineCode>
+          </Typography>
+          <Typography
+            component="img"
+            src="https://user-images.githubusercontent.com/56986964/176431081-a008d000-0cad-457c-8518-495e9e793d77.png"
+            sx={{ width: "100%", paddingTop: "1rem", paddingBottom: "1rem" }}
+          />
+        </WalkthroughContent>
+
+        <WalkthroughContent title="9. Start ETLing:">
+          <Typography
+            component="img"
+            src="https://user-images.githubusercontent.com/56986964/176431397-17e59468-1404-4bdf-9c3a-fb4c93dab74f.png"
+            sx={{ width: "100%", paddingTop: "1rem", paddingBottom: "1rem" }}
+          />
+        </WalkthroughContent>
+
+        <WalkthroughContent title="10. Check status:">
+          <Typography variant="body1">
+            You can check status on home page. And wait for all jobs finished.
+          </Typography>
+          <Typography
+            component="img"
+            src="https://user-images.githubusercontent.com/56986964/176431690-969b76d8-aab4-4caf-a5ab-6e1a29f8c6d9.png"
+            sx={{ width: "100%", paddingTop: "1rem", paddingBottom: "1rem" }}
+          />
+        </WalkthroughContent>
       </WalkthroughTemplate>
     </>
   );

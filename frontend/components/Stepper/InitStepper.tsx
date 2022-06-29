@@ -29,7 +29,7 @@ const TiDBStepContent = (props: { handleNext: () => void }) => {
 
   const [host, setHost] = React.useState("127.0.0.1");
   const [port, setPort] = React.useState("4000");
-  const [database, setDatabase] = React.useState("test");
+  const [database, setDatabase] = React.useState("ECOMMERCE");
   const [user, setUser] = React.useState("root");
   const [password, setPassword] = React.useState("");
 
@@ -165,7 +165,7 @@ const SnowflakeStepContent = (props: {
   const [account, setAccount] = React.useState("");
   const [wh, setWh] = React.useState("PC_ETLEAP_WH");
   const [db, setDb] = React.useState("PC_ETLEAP_DB");
-  const [schema, setSchema] = React.useState("ECOMMERCE");
+  const [schema, setSchema] = React.useState("PUBLIC");
   const [user, setUser] = React.useState("");
   const [role, setRole] = React.useState("ACCOUNTADMIN");
   const [password, setPassword] = React.useState("");
