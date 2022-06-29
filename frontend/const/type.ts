@@ -5,6 +5,8 @@ export type ConfigCheckResType = {
     ready: boolean;
     snowflakeConfigured: boolean;
     tidbConfigured: boolean;
+    tidbSchemaCreated: boolean;
+    snowflakeSchemaCreated: boolean;
   };
 };
 
