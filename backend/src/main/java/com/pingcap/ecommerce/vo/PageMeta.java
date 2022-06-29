@@ -8,8 +8,13 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PageMeta<K> {
+
     private int pageNum;
+
     private int PageSize;
+
     private K startKey;
+
     private K endKey;
+
 }

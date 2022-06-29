@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pingcap.ecommerce.dao.tidb.OrderStatsMapper">
+  <resultMap id="OrderStats" type="com.pingcap.ecommerce.model.OrderStats">
+      <result property="ts" column="ts" javaType="java.time.ZonedDateTime" jdbcType="VARCHAR" />
+      <result property="type" column="type" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <result property="amount" column="amount" javaType="java.math.BigDecimal" jdbcType="DECIMAL" />
+      <result property="total" column="total" javaType="java.math.BigInteger" jdbcType="BIGINT" />
+      <result property="customers" column="customers" javaType="java.math.BigInteger" jdbcType="BIGINT" />
+  </resultMap>
+  <insert id="insertOrderStats" parameterType="com.pingcap.ecommerce.model.OrderStats">
+    INSERT INTO order_stats_history(ts, type, amount, total, customers) VALUES (#{ts}, #{type}, #{amount}, #{total}, #{customers});
+  </insert>
+  <insert id="insertOrderStatsList">
+    INSERT INTO order_stats_history(ts, type, amount, total, customers) VALUES
+    <foreach item="item" index="index" collection="orderStatsList" separator="," nullable="true">
+      (#{item.ts}, #{item.type}, #{item.amount}, #{item.total}, #{item.customers})
+    </foreach>
+  </insert>
+  <select id="getTodayOrderStats" resultMap="OrderStats">
+    SELECT ts, type, amount, total, customers
+    FROM order_stats_history
+    WHERE type = 'ALL'
+    ORDER BY ts DESC
+    LIMIT 1;
+  </select>
+  <select id="getTodayOrderStatsTrends" resultMap="OrderStats">
+    SELECT ts, type, amount, total, customers
+    FROM order_stats_history
+    WHERE type = 'ALL' AND ts > CURRENT_DATE
+    <if test="lastDateTime != null">
+      AND ts > #{lastDateTime}
+    </if>
+    ORDER BY ts ASC;
+  </select>
+  <select id="getTodayOrderStatsGroupByType" resultMap="OrderStats">
+    SELECT ts, type, amount, total, customers
+    FROM order_stats_history
+    WHERE type != 'ALL' AND ts = (SELECT MAX(ts) FROM order_stats_history WHERE type != 'ALL')
+    ORDER BY amount DESC;
+  </select>
+</mapper>

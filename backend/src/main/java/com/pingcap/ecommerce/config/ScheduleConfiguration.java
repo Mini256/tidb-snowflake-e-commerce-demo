@@ -4,6 +4,7 @@ import com.pingcap.ecommerce.model.JobInstance;
 import com.pingcap.ecommerce.model.JobStatus;
 import com.pingcap.ecommerce.service.DataService;
 import com.pingcap.ecommerce.service.DynamicDataSourceService;
+import com.pingcap.ecommerce.service.OrderService;
 import com.pingcap.ecommerce.service.TableStatsService;
 import com.pingcap.ecommerce.util.job.JobManager;
 import lombok.AllArgsConstructor;
@@ -23,6 +24,8 @@ public class ScheduleConfiguration {
 
     private final DataService dataService;
 
+    private final OrderService orderService;
+
     private final DynamicDataSourceService dynamicDataSourceService;
 
     private final TableStatsService tableStatsService;
@@ -38,18 +41,18 @@ public class ScheduleConfiguration {
             return;
         }
 
-        log.info("Calculating today orders.");
-        StopWatch stopWatch = new StopWatch("calc-today-orders");
+        log.info("Calculating today orders stats.");
+        StopWatch sw = new StopWatch("calc-today-orders");
 
-        stopWatch.start("Calculate today orders and amount.");
-        dataService.calcTodayOrderTotalAndAmount();
-        stopWatch.stop();
+        sw.start("Calculate today orders stats.");
+        orderService.calcTodayOrderStats();
+        sw.stop();
 
-        stopWatch.start("Calculate today orders and amount group by type.");
-        dataService.calcTodayOrderTotalAndAmountGroupByType();
-        stopWatch.stop();
+        sw.start("Calculate today orders stats group by type.");
+        orderService.calcTodayOrderStatsGroupByType();
+        sw.stop();
 
-        log.info("Finished calculating today orders and amount, cost: {} s.", stopWatch.getTotalTimeSeconds());
+        log.info("Finished calculating today stats, cost: {} s.", sw.getTotalTimeSeconds());
     }
 
     /**

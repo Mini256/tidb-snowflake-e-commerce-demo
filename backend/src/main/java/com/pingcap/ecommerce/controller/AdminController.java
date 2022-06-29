@@ -36,6 +36,7 @@ public class AdminController {
         boolean tidbSchemaCreated = dataSourceService.isTiDBSchemaCreated();
         boolean snowflakeConfigured = dataSourceService.isSnowflakeConfigured();
         boolean snowflakeSchemaCreated = dataSourceService.isSnowflakeSchemaCreated();
+
         boolean ready = tidbConfigured && tidbSchemaCreated && snowflakeConfigured && snowflakeSchemaCreated;
         return MessageVO.success(new ConfigCheckVO(
             ready, tidbConfigured, tidbSchemaCreated, snowflakeConfigured, snowflakeSchemaCreated

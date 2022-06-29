@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.ZonedDateTime;
 import java.util.Date;
 
 @Data
@@ -17,8 +18,8 @@ public class User {
 
   private String password;
 
-  private Date createTime;
+  private ZonedDateTime createTime;
 
-  private Date updateTime;
+  private ZonedDateTime updateTime;
 
 }

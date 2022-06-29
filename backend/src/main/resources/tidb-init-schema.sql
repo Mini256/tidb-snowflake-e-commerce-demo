@@ -60,8 +60,8 @@ CREATE TABLE IF NOT EXISTS user_labels (
     PRIMARY KEY (user_id)
 );
 
-CREATE TABLE IF NOT EXISTS s_orders (
-    `ts` TIMESTAMP COMMENT 'timestamp',
+CREATE TABLE IF NOT EXISTS order_stats_history (
+    `ts` DATETIME COMMENT 'order stats record time',
     `type` VARCHAR(255) COMMENT 'item type',
     `amount` DECIMAL(40, 2),
     `total` BIGINT,
@@ -86,5 +86,5 @@ CREATE TABLE IF NOT EXISTS table_stats_history (
      `db_name` VARCHAR(255) NOT NULL,
      `table_name` VARCHAR(255) NOT NULL,
      `row_total` BIGINT(20) DEFAULT 0 NOT NULL COMMENT 'the total number of rows',
-     `ts` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT 'job create time'
+     `ts` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT 'table stats record time'
 );

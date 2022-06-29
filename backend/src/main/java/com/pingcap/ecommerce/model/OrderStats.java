@@ -5,13 +5,13 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.time.ZonedDateTime;
-import java.util.Date;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class OrderSeries {
+public class OrderStats {
 
     private ZonedDateTime ts;
 
@@ -19,6 +19,8 @@ public class OrderSeries {
 
     private BigDecimal amount;
 
-    private Long total;
+    private BigInteger total;
+
+    private BigInteger customers;
 
 }

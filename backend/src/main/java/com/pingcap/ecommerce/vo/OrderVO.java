@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.ZonedDateTime;
 import java.util.Date;
 
 @Data
@@ -14,7 +15,7 @@ public class OrderVO {
 
   private Long orderId;
 
-  private Date orderDate;
+  private ZonedDateTime orderDate;
 
   private String userId;
 

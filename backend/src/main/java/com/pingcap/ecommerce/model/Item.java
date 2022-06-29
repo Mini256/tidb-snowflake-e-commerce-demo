@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.ZonedDateTime;
 import java.util.Date;
 
 @Data
@@ -22,9 +23,9 @@ public class Item {
 
     private String itemDesc;
 
-    private Date createTime;
+    private ZonedDateTime createTime;
 
-    private Date updateTime;
+    private ZonedDateTime updateTime;
 
     public Item(Long id, String itemName, BigDecimal itemPrice) {
         this.id = id;

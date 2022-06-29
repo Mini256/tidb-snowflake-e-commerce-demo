@@ -7,8 +7,8 @@
     <result property="itemName" column="item_name" javaType="java.lang.String" jdbcType="VARCHAR" />
     <result property="itemType" column="item_type" javaType="java.lang.String" jdbcType="VARCHAR" />
     <result property="itemDesc" column="item_desc" javaType="java.lang.String" jdbcType="VARCHAR" />
-    <result property="updateTime" column="update_time" javaType="java.util.Date" jdbcType="VARCHAR" />
-    <result property="createTime" column="create_time" javaType="java.util.Date" jdbcType="VARCHAR" />
+    <result property="updateTime" column="update_time" javaType="java.time.ZonedDateTime" jdbcType="VARCHAR" />
+    <result property="createTime" column="create_time" javaType="java.time.ZonedDateTime" jdbcType="VARCHAR" />
   </resultMap>
   <resultMap id="PageMeta" type="com.pingcap.ecommerce.vo.PageMeta">
     <result property="pageNum" column="page_num" javaType="java.lang.Integer" jdbcType="INTEGER" />

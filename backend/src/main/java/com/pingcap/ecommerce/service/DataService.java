@@ -6,8 +6,6 @@ import com.pingcap.ecommerce.dao.snowflake.SnowflakeUserLabelMapper;
 import com.pingcap.ecommerce.dao.tidb.*;
 import com.pingcap.ecommerce.model.*;
 import com.pingcap.ecommerce.util.job.JobManager;
-import com.pingcap.ecommerce.vo.OrderTotalVO;
-import com.pingcap.ecommerce.vo.OrderTypeTotalVO;
 import com.pingcap.ecommerce.vo.PageResultVO;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,8 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigInteger;
-import java.time.ZonedDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -39,41 +35,7 @@ public class DataService {
 
     private final HotItemMapper hotItemMapper;
 
-    private final OrderMapper orderMapper;
-
-    private final OrderSeriesMapper orderSeriesMapper;
-
     private final JobManager jobManager;
-
-    public void calcTodayOrderTotalAndAmount() {
-        ZonedDateTime now = ZonedDateTime.now();
-        OrderTotalVO orderTotalAndAmount = orderMapper.getOrderTotalAndAmount();
-        OrderSeries orderSeries = new OrderSeries();
-        orderSeries.setType("ALL");
-        orderSeries.setTs(now);
-        orderSeries.setAmount(orderTotalAndAmount.getTotalAmount());
-        orderSeries.setTotal(orderTotalAndAmount.getTotalCount());
-        orderSeriesMapper.insertOrderSeries(orderSeries);
-    }
-
-    public void calcTodayOrderTotalAndAmountGroupByType() {
-        ZonedDateTime now = ZonedDateTime.now();
-        List<OrderTypeTotalVO> orderTotalAndAmountByType = orderMapper.getOrderTotalAndAmountByType();
-        List<OrderSeries> seriesList = new ArrayList<>();
-
-        for (OrderTypeTotalVO vo : orderTotalAndAmountByType) {
-            OrderSeries series = new OrderSeries();
-            series.setTs(now);
-            series.setType(vo.getItemType());
-            series.setTotal(vo.getTotalCount());
-            series.setAmount(vo.getTotalAmount());
-            seriesList.add(series);
-        }
-
-        if (seriesList.size() > 0) {
-            orderSeriesMapper.insertOrderSeriesList(seriesList);
-        }
-    }
 
     /**
      * User labels.
@@ -117,7 +79,7 @@ public class DataService {
     }
 
     /**
-     * Items.
+     * Item Labels.
      */
 
     @Transactional("SecondaryTransactionManager")

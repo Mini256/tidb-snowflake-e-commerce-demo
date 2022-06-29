@@ -5,16 +5,16 @@
       <result property="id" column="id" javaType="java.lang.String" jdbcType="VARCHAR" />
       <result property="username" column="username" javaType="java.lang.String" jdbcType="VARCHAR" />
       <result property="password" column="password" javaType="java.lang.String" jdbcType="VARCHAR" />
-      <result property="createTime" column="create_time" javaType="java.util.Date" jdbcType="VARCHAR" />
-      <result property="updateTime" column="update_time" javaType="java.util.Date" jdbcType="VARCHAR" />
+      <result property="createTime" column="create_time" javaType="java.time.ZonedDateTime" jdbcType="VARCHAR" />
+      <result property="updateTime" column="update_time" javaType="java.time.ZonedDateTime" jdbcType="VARCHAR" />
   </resultMap>
   <resultMap id="UserVO" type="com.pingcap.ecommerce.vo.UserVO">
       <result property="userId" column="id" javaType="java.lang.String" jdbcType="VARCHAR" />
       <result property="username" column="username" javaType="java.lang.String" jdbcType="VARCHAR" />
       <result property="userLabel" column="user_label" javaType="java.lang.String" jdbcType="VARCHAR" />
       <result property="avgAmount" column="avg_amount" javaType="java.math.BigDecimal" jdbcType="DECIMAL" />
-      <result property="createTime" column="create_time" javaType="java.util.Date" jdbcType="VARCHAR" />
-      <result property="updateTime" column="update_time" javaType="java.util.Date" jdbcType="VARCHAR" />
+      <result property="createTime" column="create_time" javaType="java.time.ZonedDateTime" jdbcType="VARCHAR" />
+      <result property="updateTime" column="update_time" javaType="java.time.ZonedDateTime" jdbcType="VARCHAR" />
   </resultMap>
   <resultMap id="PageMeta" type="com.pingcap.ecommerce.vo.PageMeta">
     <result property="pageNum" column="page_num" javaType="java.lang.Integer" jdbcType="INTEGER" />

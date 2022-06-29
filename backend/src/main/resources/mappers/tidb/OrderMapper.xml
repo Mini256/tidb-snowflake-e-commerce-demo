@@ -3,7 +3,7 @@
 <mapper namespace="com.pingcap.ecommerce.dao.tidb.OrderMapper">
   <resultMap id="OrderVO" type="com.pingcap.ecommerce.vo.OrderVO">
     <result property="orderId" column="order_id" javaType="java.lang.Long" jdbcType="BIGINT" />
-    <result property="orderDate" column="order_date" javaType="java.util.Date" jdbcType="VARCHAR" />
+    <result property="orderDate" column="order_date" javaType="java.time.ZonedDateTime" jdbcType="VARCHAR" />
     <result property="username" column="username" javaType="java.lang.String" jdbcType="VARCHAR" />
     <result property="userId" column="user_id" javaType="java.lang.String" jdbcType="VARCHAR" />
     <result property="itemId" column="item_id" javaType="java.lang.Long" jdbcType="BIGINT" />
@@ -12,14 +12,12 @@
     <result property="status" column="status" javaType="java.lang.String" jdbcType="VARCHAR" />
     <result property="currentAddress" column="current_address" javaType="java.lang.String" jdbcType="VARCHAR" />
   </resultMap>
-  <resultMap id="OrderTotalVO" type="com.pingcap.ecommerce.vo.OrderTotalVO">
-    <result property="totalAmount" column="total_amount" javaType="java.math.BigDecimal" jdbcType="DECIMAL" />
-    <result property="totalCount" column="total_cnt" javaType="java.lang.Long" jdbcType="BIGINT" />
-  </resultMap>
-  <resultMap id="OrderTypeTotalVO" type="com.pingcap.ecommerce.vo.OrderTypeTotalVO">
-    <result property="totalAmount" column="total_type_amount" javaType="java.math.BigDecimal" jdbcType="DECIMAL" />
-    <result property="totalCount" column="total_type_cnt" javaType="java.lang.Long" jdbcType="BIGINT" />
-    <result property="itemType" column="item_type" javaType="java.lang.String" jdbcType="VARCHAR" />
+  <resultMap id="OrderStats" type="com.pingcap.ecommerce.model.OrderStats">
+    <result property="ts" column="ts" javaType="java.time.ZonedDateTime" jdbcType="VARCHAR" />
+    <result property="type" column="type" javaType="java.lang.String" jdbcType="VARCHAR" />
+    <result property="amount" column="amount" javaType="java.math.BigDecimal" jdbcType="DECIMAL" />
+    <result property="total" column="total" javaType="java.math.BigInteger" jdbcType="BIGINT" />
+    <result property="customers" column="customers" javaType="java.math.BigInteger" jdbcType="BIGINT" />
   </resultMap>
   <resultMap id="PageMeta" type="com.pingcap.ecommerce.vo.PageMeta" >
     <result property="pageNum" column="page_num" javaType="java.lang.Integer" jdbcType="INTEGER" />
@@ -114,23 +112,29 @@
     WHERE o.user_id = #{userId}
     ORDER BY o.create_time DESC;
   </select>
-  <select id="getOrderTotalAndAmount" resultMap="OrderTotalVO">
+  <!-- Real-time data analysis with TiFlash -->
+  <select id="calcTodayOrderStats" resultMap="OrderStats">
     SELECT
-      /*+ read_from_storage(tiflash[orders]), MAX_EXECUTION_TIME(120000) */
-      coalesce(sum(amount), 0) as total_amount,
-      coalesce(count(id), 0) as total_cnt
-    FROM orders
-    WHERE create_time > current_date;
+      /*+ read_from_storage(tiflash[o]), MAX_EXECUTION_TIME(120000) */
+      NOW() AS ts,
+      'ALL' AS type,
+      COALESCE(SUM(amount), 0) as amount,
+      COALESCE(COUNT(id), 0) as total,
+      COALESCE(COUNT(DISTINCT user_id), 0) as customers
+    FROM orders o
+    WHERE create_time > CURRENT_DATE;
   </select>
-  <select id="getOrderTotalAndAmountByType" resultMap="OrderTypeTotalVO">
+  <select id="calcTodayOrderStatsGroupByType" resultMap="OrderStats">
     SELECT
-      /*+ read_from_storage(tiflash[orders]), MAX_EXECUTION_TIME(120000) */
-      coalesce(sum(amount), 0) as total_type_amount,
-      coalesce(count(o.id), 0) as total_type_cnt,
-      item_type
+      /*+ read_from_storage(tiflash[o]), MAX_EXECUTION_TIME(120000) */
+      NOW() AS ts,
+      item_type AS type,
+      COALESCE(SUM(amount), 0) as amount,
+      COALESCE(COUNT(o.id), 0) as total,
+      COALESCE(COUNT(DISTINCT user_id), 0) as customers
     FROM orders o
     LEFT JOIN items i ON o.item_id = i.id
-    WHERE o.create_time > current_date
+    WHERE o.create_time > CURRENT_DATE
     GROUP BY item_type
   </select>
 </mapper>

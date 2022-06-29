@@ -1,7 +1,6 @@
 package com.pingcap.ecommerce.dao.tidb;
 
-import com.pingcap.ecommerce.vo.OrderTotalVO;
-import com.pingcap.ecommerce.vo.OrderTypeTotalVO;
+import com.pingcap.ecommerce.model.OrderStats;
 import com.pingcap.ecommerce.vo.OrderVO;
 import com.pingcap.ecommerce.vo.PageMeta;
 import org.apache.ibatis.annotations.Mapper;
@@ -27,8 +26,8 @@ public interface OrderMapper {
 
     List<OrderVO> getOrdersByUserId(String userId);
 
-    OrderTotalVO getOrderTotalAndAmount();
+    OrderStats calcTodayOrderStats();
 
-    List<OrderTypeTotalVO> getOrderTotalAndAmountByType();
+    List<OrderStats> calcTodayOrderStatsGroupByType();
 
 }

@@ -1,9 +1,8 @@
 package com.pingcap.ecommerce.service;
 
 import com.pingcap.ecommerce.dao.tidb.OrderMapper;
-import com.pingcap.ecommerce.dao.tidb.OrderSeriesMapper;
-import com.pingcap.ecommerce.model.OrderSeries;
-import com.pingcap.ecommerce.vo.OrderTotalVO;
+import com.pingcap.ecommerce.dao.tidb.OrderStatsMapper;
+import com.pingcap.ecommerce.model.OrderStats;
 import com.pingcap.ecommerce.vo.OrderVO;
 import com.pingcap.ecommerce.vo.PageResultVO;
 import lombok.AllArgsConstructor;
@@ -24,7 +23,7 @@ public class OrderService {
 
     private final OrderMapper orderMapper;
 
-    private final OrderSeriesMapper orderSeriesMapper;
+    private final OrderStatsMapper orderSeriesMapper;
 
     private final TableStatsService tableStatsService;
 
@@ -48,22 +47,27 @@ public class OrderService {
         return orderMapper.getOrdersByUserId(userId);
     }
 
-    public OrderTotalVO getLatestOrderTotalAndAmount() {
-        OrderTotalVO orderTotalVO = new OrderTotalVO();
-        OrderSeries orderSeries = orderSeriesMapper.selectLatestAllTypeAmountAndTotal();
-        if (orderSeries != null) {
-            orderTotalVO.setUpdateTime(orderSeries.getTs());
-            orderTotalVO.setTotalAmount(orderSeries.getAmount());
-            orderTotalVO.setTotalCount(orderSeries.getTotal());
+    public void calcTodayOrderStats() {
+        OrderStats orderStats = orderMapper.calcTodayOrderStats();
+        orderSeriesMapper.insertOrderStats(orderStats);
+    }
+
+    public void calcTodayOrderStatsGroupByType() {
+        List<OrderStats> orderStatsList = orderMapper.calcTodayOrderStatsGroupByType();
+        if (!orderStatsList.isEmpty()) {
+            orderSeriesMapper.insertOrderStatsList(orderStatsList);
         }
-        return orderTotalVO;
     }
 
-    public List<OrderSeries> getLatestOrderTotalAndAmountHistory(ZonedDateTime lastDateTime) {
-       return orderSeriesMapper.selectLatestAllTypeAmountAndTotalHistory(lastDateTime);
+    public OrderStats getTodayOrderStats() {
+        return orderSeriesMapper.getTodayOrderStats();
     }
 
-    public List<OrderSeries> getLatestGroupTypeAmountAndTotal() {
-        return orderSeriesMapper.selectLatestGroupTypeAmountAndTotal();
+    public List<OrderStats> getTodayOrderStatsTrends(ZonedDateTime lastDateTime) {
+       return orderSeriesMapper.getTodayOrderStatsTrends(lastDateTime);
+    }
+
+    public List<OrderStats> getTodayOrderStatsGroupByType() {
+        return orderSeriesMapper.getTodayOrderStatsGroupByType();
     }
 }

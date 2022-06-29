@@ -40,7 +40,7 @@ public class DynamicDataSourceService {
     private static final String TIDB_INIT_SCHEMA_SQL_FILE = "tidb-init-schema.sql";
 
     private static final String[] TIDB_REQUIRED_TABLES = new String[]{
-        "users", "orders", "items", "expresses", "hot_items", "user_labels", "s_orders", "job_instances", "table_stats_history"
+        "users", "orders", "items", "expresses", "hot_items", "user_labels", "order_stats_history", "job_instances", "table_stats_history"
     };
 
     private static final String SNOWFLAKE_INIT_SCHEMA_SQL_FILE = "snowflake-init-schema.sql";
