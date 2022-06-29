@@ -17,4 +17,6 @@ public class ConfigCheckVO {
 
     private boolean snowflakeSchemaCreated;
 
+    private boolean importInitDataJobAllFinished;
+
 }

@@ -74,9 +74,21 @@ public class DataMockService {
         "Home & Kitchen"
     );
 
+    private static final String IMPORT_INITIAL_USER_DATA_JOB_NAME = "import-initial-user-data";
+    private static final String IMPORT_INITIAL_ITEM_DATA_JOB_NAME = "import-initial-item-data";
+    private static final String IMPORT_INITIAL_ORDER_DATA_JOB_NAME = "import-initial-order-data";
+    private static final String IMPORT_INITIAL_EXPRESS_DATA_JOB_NAME = "import-initial-express-data";
+    private static final String IMPORT_INCREMENTAL_DATA_JOB_NAME = "import-increment-data";
+    private static final List<String> IMPORT_DATA_JOB_NAMES = List.of(
+        IMPORT_INITIAL_USER_DATA_JOB_NAME, IMPORT_INITIAL_ITEM_DATA_JOB_NAME, IMPORT_INITIAL_ORDER_DATA_JOB_NAME,
+        IMPORT_INITIAL_EXPRESS_DATA_JOB_NAME, IMPORT_INCREMENTAL_DATA_JOB_NAME
+    );
+
     private final ConcurrentPreparedBatchLoader concurrentBatchLoader;
 
     private final DynamicDataSource TiDBDataSource;
+
+    private final JobService jobService;
 
     private final JobManager jobManager;
 
@@ -87,12 +99,14 @@ public class DataMockService {
     public DataMockService(
         ConcurrentPreparedBatchLoader concurrentBatchLoader,
         @Qualifier("TiDBDynamicDataSource") DynamicDataSource TiDBDataSource,
+        JobService jobService,
         JobManager jobManager,
         UserMapper userMapper,
         ItemMapper itemMapper
     ) {
         this.concurrentBatchLoader = concurrentBatchLoader;
         this.TiDBDataSource = TiDBDataSource;
+        this.jobService = jobService;
         this.jobManager = jobManager;
         this.userMapper = userMapper;
         this.itemMapper = itemMapper;
@@ -108,12 +122,12 @@ public class DataMockService {
         List<String> userIdList;
         List<Item> itemList;
 
-        if (userMapper.existsAnyUsers() == null) {
+        if (userMapper.existsAnyUsers() == null || recreate) {
             log.info("Importing initial data...");
 
             // Import users data.
             AtomicReference<Set<String>> userIdSetRef = new AtomicReference<>();
-            JobInstance importUserJobInstance = jobManager.findOrCreateJobInstance("import-initial-user-data", BigInteger.valueOf(nUsers), recreate);
+            JobInstance importUserJobInstance = jobManager.findOrCreateJobInstance(IMPORT_INITIAL_USER_DATA_JOB_NAME, BigInteger.valueOf(nUsers), recreate);
             jobManager.startJob(importUserJobInstance, (instance) -> {
                 userIdSetRef.set(importInitUserData(instance, nUsers));
             });
@@ -121,7 +135,7 @@ public class DataMockService {
 
             // Import items data.
             AtomicReference<List<Item>> itemListRef = new AtomicReference<>();
-            JobInstance importItemsJobInstance = jobManager.findOrCreateJobInstance("import-initial-item-data", BigInteger.valueOf(nItems), recreate);
+            JobInstance importItemsJobInstance = jobManager.findOrCreateJobInstance(IMPORT_INITIAL_ITEM_DATA_JOB_NAME, BigInteger.valueOf(nItems), recreate);
             jobManager.startJob(importItemsJobInstance, (instance) -> {
                 itemListRef.set(importInitItemData(instance, nItems));
             });
@@ -129,14 +143,14 @@ public class DataMockService {
 
             // Import orders data.
             AtomicReference<List<Order>> orderListRef = new AtomicReference<>();
-            JobInstance importOrdersJobInstance = jobManager.findOrCreateJobInstance("import-initial-order-data", BigInteger.valueOf(nOrders), recreate);
+            JobInstance importOrdersJobInstance = jobManager.findOrCreateJobInstance(IMPORT_INITIAL_ORDER_DATA_JOB_NAME, BigInteger.valueOf(nOrders), recreate);
             jobManager.startJob(importOrdersJobInstance, (instance) -> {
                 orderListRef.set(importInitOrderData(instance, nOrders, userIdList, itemList));
             });
             List<Order> orderList =orderListRef.get();
 
             // Import expresses data.
-            JobInstance importExpressesJobInstance = jobManager.findOrCreateJobInstance("import-initial-express-data", BigInteger.valueOf(nOrders), recreate);
+            JobInstance importExpressesJobInstance = jobManager.findOrCreateJobInstance(IMPORT_INITIAL_EXPRESS_DATA_JOB_NAME, BigInteger.valueOf(nOrders), recreate);
             jobManager.startJob(importExpressesJobInstance, (instance) -> {
                 importInitExpressData(instance, nOrders, orderList);
             });
@@ -296,6 +310,37 @@ public class DataMockService {
         });
     }
 
+    public boolean isImportInitDataJobAllFinished() {
+        JobInstance importUsersJob = jobService.getLastJobInstance(IMPORT_INITIAL_USER_DATA_JOB_NAME);
+        JobInstance importItemsJob = jobService.getLastJobInstance(IMPORT_INITIAL_ITEM_DATA_JOB_NAME);
+        JobInstance importOrdersJob = jobService.getLastJobInstance(IMPORT_INITIAL_ORDER_DATA_JOB_NAME);
+        JobInstance importExpressesJob = jobService.getLastJobInstance(IMPORT_INITIAL_EXPRESS_DATA_JOB_NAME);
+        return (importUsersJob != null && importUsersJob.isCompleted()) &&
+                (importItemsJob != null && importItemsJob.isCompleted()) &&
+                (importOrdersJob != null && importOrdersJob.isCompleted()) &&
+                (importExpressesJob != null && importExpressesJob.isCompleted());
+    }
+
+    public boolean isAnyImportInitDataJobStillRunning() {
+        JobInstance importUsersJob = jobService.getLastJobInstance(IMPORT_INITIAL_USER_DATA_JOB_NAME);
+        JobInstance importItemsJob = jobService.getLastJobInstance(IMPORT_INITIAL_ITEM_DATA_JOB_NAME);
+        JobInstance importOrdersJob = jobService.getLastJobInstance(IMPORT_INITIAL_ORDER_DATA_JOB_NAME);
+        JobInstance importExpressesJob = jobService.getLastJobInstance(IMPORT_INITIAL_EXPRESS_DATA_JOB_NAME);
+        return (importUsersJob != null && importUsersJob.isCompleted()) ||
+                (importItemsJob != null && importItemsJob.isCompleted()) ||
+                (importOrdersJob != null && importOrdersJob.isCompleted()) ||
+                (importExpressesJob != null && importExpressesJob.isCompleted());
+    }
+
+    public List<JobInstance> getImportDataJobInstances() {
+        List<JobInstance> jobInstances = new ArrayList<>();
+        for (String importDataJobName : IMPORT_DATA_JOB_NAMES) {
+            JobInstance jobInstance = jobService.getLastJobInstance(importDataJobName);
+            jobInstances.add(jobInstance);
+        }
+        return jobInstances;
+    }
+
     private void importIncrementalData(
         DataSource dataSource, List<String> userIdList, List<Item> itemList
     ) {
@@ -369,8 +414,8 @@ public class DataMockService {
             List<String> userIds = userMapper.getUserIdsByPageMeta(userPage);
             userIdList.addAll(userIds);
             log.debug(
-                    "Loaded user IDs, page_number={}, page_size={}, start_key = {}, end_key = {}.",
-                    userPage.getPageNum(), userPage.getPageSize(), userPage.getStartKey(), userPage.getEndKey()
+                "Loaded user IDs, page_number={}, page_size={}, start_key = {}, end_key = {}.",
+                userPage.getPageNum(), userPage.getPageSize(), userPage.getStartKey(), userPage.getEndKey()
             );
         }
         log.info("Loaded {} user IDs.", userIdList.size());
@@ -387,8 +432,8 @@ public class DataMockService {
             List<Item> items = itemMapper.getItemsBaseInfosByPageMeta(itemPage);
             itemList.addAll(items);
             log.debug(
-                    "Loaded item base infos, page_number={}, page_size={}, start_key = {}, end_key = {}.",
-                    itemPage.getPageNum(), itemPage.getPageSize(), itemPage.getStartKey(), itemPage.getEndKey()
+                "Loaded item base infos, page_number={}, page_size={}, start_key = {}, end_key = {}.",
+                itemPage.getPageNum(), itemPage.getPageSize(), itemPage.getStartKey(), itemPage.getEndKey()
             );
         }
         log.info("Loaded {} item base infos.", itemList.size());

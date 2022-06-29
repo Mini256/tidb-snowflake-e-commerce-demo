@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.math.BigInteger;
-import java.util.Date;
+import java.time.ZonedDateTime;
 
 @Data
 @AllArgsConstructor
@@ -22,11 +22,11 @@ public class JobInstance {
 
     private Double cost;
 
-    private Date startTime;
+    private ZonedDateTime startTime;
 
-    private Date updateTime;
+    private ZonedDateTime updateTime;
 
-    private Date completeTime;
+    private ZonedDateTime completeTime;
 
     public JobInstance(String jobName, BigInteger maxProcess) {
         this.jobName = jobName;

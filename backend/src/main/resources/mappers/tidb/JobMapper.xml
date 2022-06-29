@@ -8,9 +8,9 @@
     <result property="currentProcess" column="current_process" javaType="java.math.BigInteger" jdbcType="BIGINT" />
     <result property="maxProcess" column="max_process" javaType="java.math.BigInteger" jdbcType="BIGINT" />
     <result property="cost" column="cost" javaType="java.lang.Double" jdbcType="DOUBLE" />
-    <result property="startTime" column="start_time" javaType="java.util.Date" jdbcType="VARCHAR" />
-    <result property="updateTime" column="update_time" javaType="java.util.Date" jdbcType="VARCHAR" />
-    <result property="completeTime" column="complete_time" javaType="java.util.Date" jdbcType="VARCHAR" />
+    <result property="startTime" column="start_time" javaType="java.time.ZonedDateTime" jdbcType="VARCHAR" />
+    <result property="updateTime" column="update_time" javaType="java.time.ZonedDateTime" jdbcType="VARCHAR" />
+    <result property="completeTime" column="complete_time" javaType="java.time.ZonedDateTime" jdbcType="VARCHAR" />
   </resultMap>
 
   <select id="getJobNameList" resultType="string">

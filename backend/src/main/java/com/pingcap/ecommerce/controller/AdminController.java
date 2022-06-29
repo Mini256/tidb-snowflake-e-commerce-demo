@@ -3,6 +3,7 @@ package com.pingcap.ecommerce.controller;
 import com.pingcap.ecommerce.dto.ImportDataDTO;
 import com.pingcap.ecommerce.dto.SnowflakeDataSourceConfig;
 import com.pingcap.ecommerce.dto.TiDBDataSourceConfig;
+import com.pingcap.ecommerce.model.JobInstance;
 import com.pingcap.ecommerce.model.TableStats;
 import com.pingcap.ecommerce.service.DataMockService;
 import com.pingcap.ecommerce.service.DynamicDataSourceService;
@@ -12,6 +13,7 @@ import com.pingcap.ecommerce.vo.MessageVO;
 import com.pingcap.ecommerce.vo.TableInfo;
 import lombok.AllArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.SQLException;
@@ -36,10 +38,12 @@ public class AdminController {
         boolean tidbSchemaCreated = dataSourceService.isTiDBSchemaCreated();
         boolean snowflakeConfigured = dataSourceService.isSnowflakeConfigured();
         boolean snowflakeSchemaCreated = dataSourceService.isSnowflakeSchemaCreated();
+        boolean importInitDataJobAllFinished = dataMockService.isImportInitDataJobAllFinished();
 
-        boolean ready = tidbConfigured && tidbSchemaCreated && snowflakeConfigured && snowflakeSchemaCreated;
+        boolean ready = tidbConfigured && tidbSchemaCreated && snowflakeConfigured && snowflakeSchemaCreated && importInitDataJobAllFinished;
         return MessageVO.success(new ConfigCheckVO(
-            ready, tidbConfigured, tidbSchemaCreated, snowflakeConfigured, snowflakeSchemaCreated
+            ready, tidbConfigured, tidbSchemaCreated, snowflakeConfigured, snowflakeSchemaCreated,
+            importInitDataJobAllFinished
         ));
     }
 
@@ -85,8 +89,19 @@ public class AdminController {
     @PostMapping("/data-source/tidb/import-data")
     public MessageVO<?> importInitDataToTiDB(@RequestBody(required = false) ImportDataDTO importDataDTO) {
         if (importDataDTO == null) importDataDTO = new ImportDataDTO();
+
+        if (!importDataDTO.getRecreate() && dataMockService.isAnyImportInitDataJobStillRunning()) {
+            return MessageVO.of(HttpStatus.CONFLICT.value(), "There are some initial still running.");
+        }
+
         dataMockService.importData(importDataDTO);
         return MessageVO.success();
+    }
+
+    @GetMapping("/data-source/tidb/import-data/status")
+    public MessageVO<?> getImportDataStatus() {
+        List<JobInstance> jobInstances = dataMockService.getImportDataJobInstances();
+        return MessageVO.success(jobInstances);
     }
 
     /**
