@@ -35,7 +35,7 @@ public class ScheduleConfiguration {
     /**
      * Calculated today orders every 10 minutes.
      */
-    @Scheduled(cron = "0 */10 * * * *")
+    @Scheduled(cron = "0 */2 * * * *")
     public void calcTodayOrdersJob() {
         if (!dynamicDataSourceService.isTiDBReady()) {
             return;
@@ -63,9 +63,7 @@ public class ScheduleConfiguration {
         if (!dynamicDataSourceService.isTiDBReady()) {
             return;
         }
-        log.info("Recording table stats...");
         tableStatsService.recordTableStats();
-        log.info("Finished table stats record.");
     }
 
     /**

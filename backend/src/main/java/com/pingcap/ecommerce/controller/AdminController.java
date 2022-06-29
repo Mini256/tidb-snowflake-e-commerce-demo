@@ -8,6 +8,7 @@ import com.pingcap.ecommerce.model.TableStats;
 import com.pingcap.ecommerce.service.DataMockService;
 import com.pingcap.ecommerce.service.DynamicDataSourceService;
 import com.pingcap.ecommerce.service.TableStatsService;
+import com.pingcap.ecommerce.util.job.JobManager;
 import com.pingcap.ecommerce.vo.ConfigCheckVO;
 import com.pingcap.ecommerce.vo.MessageVO;
 import com.pingcap.ecommerce.vo.TableInfo;
@@ -32,6 +33,8 @@ public class AdminController {
 
     private final TableStatsService tableStatsService;
 
+    private final JobManager jobManager;
+
     @GetMapping("/config/check")
     public MessageVO<?> checkConfig() {
         boolean tidbConfigured = dataSourceService.isTiDBConfigured();
@@ -49,7 +52,6 @@ public class AdminController {
         if (snowflakeConfigured) {
             snowflakeSchemaCreated = dataSourceService.isSnowflakeSchemaCreated();
         }
-
 
         boolean ready = tidbConfigured && tidbSchemaCreated && snowflakeConfigured && snowflakeSchemaCreated && importInitDataJobAllFinished;
         return MessageVO.success(new ConfigCheckVO(
@@ -103,6 +105,16 @@ public class AdminController {
 
         if (!importDataDTO.getRecreate() && dataMockService.isAnyImportInitDataJobStillRunning()) {
             return MessageVO.of(HttpStatus.CONFLICT.value(), "There are some initial still running.");
+        }
+
+        // Terminate the existing job instance of import-data.
+        if (importDataDTO.getRecreate()) {
+            List<JobInstance> importDataJobInstances = dataMockService.getImportDataJobInstances();
+            for (JobInstance jobInstance : importDataJobInstances) {
+                if (jobInstance.isRunning()) {
+                    jobManager.terminateJobInstance(jobInstance);
+                }
+            }
         }
 
         dataMockService.importData(importDataDTO);

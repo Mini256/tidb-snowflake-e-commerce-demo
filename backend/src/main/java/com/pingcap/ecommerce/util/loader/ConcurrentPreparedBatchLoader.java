@@ -56,7 +56,13 @@ public class ConcurrentPreparedBatchLoader implements ConcurrentBatchLoader {
 
                   loader.insertValues(values);
                   if (i % 2000 == 0) {
-                    jobManager.updateJobInstanceProcess(jobInstance.getId(), 2000);
+                    JobInstance instance = jobManager.updateJobInstanceProcess(jobInstance.getId(), 2000);
+                    if (instance.isCompleted()) {
+                      countDownLatch.countDown();
+                      throw new InterruptedException(
+                        String.format("Job instance %s has been interrupted, worker thread %d will be closed.", instance.getJobName(), w)
+                      );
+                    }
                   }
                   i++;
                 }

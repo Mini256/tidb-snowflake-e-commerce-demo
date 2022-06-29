@@ -54,8 +54,12 @@ public class JobManager {
     @Transactional
     public JobInstance updateJobInstanceProcess(Long instanceID, int processSteps) {
         JobInstance instance = getJobInstanceByID(instanceID);
-        instance.setCurrentProcess(instance.getCurrentProcess().add(BigInteger.valueOf(processSteps)));
-        jobMapper.updateJobInstance(instance);
+
+        if (!instance.isCompleted()) {
+            instance.setCurrentProcess(instance.getCurrentProcess().add(BigInteger.valueOf(processSteps)));
+            jobMapper.updateJobInstance(instance);
+        }
+
         return instance;
     }
 
@@ -83,12 +87,20 @@ public class JobManager {
             sw.stop();
 
             JobInstance currentInstance = getJobInstanceByID(instance.getId());
-            jobMapper.finishJobInstance(currentInstance);
+            finishJobInstance(currentInstance);
 
             log.info("Finished job {}-{}, cost {}s.", instance.getJobName(), instance.getId(), sw.getTotalTimeSeconds());
         } catch (RuntimeException e) {
-            jobMapper.terminateJobInstance(instance);
+            terminateJobInstance(instance);
         }
+    }
+
+    public void finishJobInstance(JobInstance instance) {
+        jobMapper.finishJobInstance(instance);
+    }
+
+    public void terminateJobInstance(JobInstance instance) {
+        jobMapper.terminateJobInstance(instance);
     }
 
 }

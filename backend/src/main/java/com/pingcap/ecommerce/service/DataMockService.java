@@ -25,12 +25,9 @@ import java.sql.Connection;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.ConcurrentSkipListSet;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static net.andreinc.mockneat.types.enums.StringType.*;
-import static net.andreinc.mockneat.types.enums.StringType.NUMBERS;
 import static net.andreinc.mockneat.unit.address.Addresses.addresses;
 import static net.andreinc.mockneat.unit.objects.From.from;
 import static net.andreinc.mockneat.unit.text.Markovs.markovs;
@@ -74,12 +71,12 @@ public class DataMockService {
         "Home & Kitchen"
     );
 
-    private static final String IMPORT_INITIAL_USER_DATA_JOB_NAME = "import-initial-user-data";
-    private static final String IMPORT_INITIAL_ITEM_DATA_JOB_NAME = "import-initial-item-data";
-    private static final String IMPORT_INITIAL_ORDER_DATA_JOB_NAME = "import-initial-order-data";
-    private static final String IMPORT_INITIAL_EXPRESS_DATA_JOB_NAME = "import-initial-express-data";
-    private static final String IMPORT_INCREMENTAL_DATA_JOB_NAME = "import-increment-data";
-    private static final List<String> IMPORT_DATA_JOB_NAMES = List.of(
+    public static final String IMPORT_INITIAL_USER_DATA_JOB_NAME = "import-initial-user-data";
+    public static final String IMPORT_INITIAL_ITEM_DATA_JOB_NAME = "import-initial-item-data";
+    public static final String IMPORT_INITIAL_ORDER_DATA_JOB_NAME = "import-initial-order-data";
+    public static final String IMPORT_INITIAL_EXPRESS_DATA_JOB_NAME = "import-initial-express-data";
+    public static final String IMPORT_INCREMENTAL_DATA_JOB_NAME = "import-increment-data";
+    public static final List<String> IMPORT_DATA_JOB_NAMES = List.of(
         IMPORT_INITIAL_USER_DATA_JOB_NAME, IMPORT_INITIAL_ITEM_DATA_JOB_NAME, IMPORT_INITIAL_ORDER_DATA_JOB_NAME,
         IMPORT_INITIAL_EXPRESS_DATA_JOB_NAME, IMPORT_INCREMENTAL_DATA_JOB_NAME
     );
@@ -122,7 +119,7 @@ public class DataMockService {
         List<String> userIdList;
         List<Item> itemList;
 
-        if (userMapper.existsAnyUsers() == null || recreate) {
+        if (userMapper.existsAnyUsers() == null) {
             log.info("Importing initial data...");
 
             // Import users data.
@@ -167,7 +164,12 @@ public class DataMockService {
             itemList = loadItemList(itemMapper);
         }
 
-        importIncrementalData(TiDBDataSource, userIdList, itemList);
+        JobInstance importIncrementalDataJobInstance = jobManager.findOrCreateJobInstance(
+            IMPORT_INCREMENTAL_DATA_JOB_NAME, BigInteger.valueOf(-1L), recreate
+        );
+        jobManager.startJob(importIncrementalDataJobInstance, (instance) -> {
+            importIncrementalData(instance, TiDBDataSource, userIdList, itemList);
+        });
     }
 
     private Set<String> importInitUserData(JobInstance jobInstance, int n) {
@@ -311,25 +313,23 @@ public class DataMockService {
     }
 
     public boolean isImportInitDataJobAllFinished() {
-        JobInstance importUsersJob = jobService.getLastJobInstance(IMPORT_INITIAL_USER_DATA_JOB_NAME);
-        JobInstance importItemsJob = jobService.getLastJobInstance(IMPORT_INITIAL_ITEM_DATA_JOB_NAME);
-        JobInstance importOrdersJob = jobService.getLastJobInstance(IMPORT_INITIAL_ORDER_DATA_JOB_NAME);
-        JobInstance importExpressesJob = jobService.getLastJobInstance(IMPORT_INITIAL_EXPRESS_DATA_JOB_NAME);
-        return (importUsersJob != null && importUsersJob.isCompleted()) &&
-                (importItemsJob != null && importItemsJob.isCompleted()) &&
-                (importOrdersJob != null && importOrdersJob.isCompleted()) &&
-                (importExpressesJob != null && importExpressesJob.isCompleted());
+        for (String jobName : IMPORT_DATA_JOB_NAMES) {
+            JobInstance jobInstance = jobService.getLastJobInstance(jobName);
+            if (jobInstance == null || !jobInstance.isCompleted()) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public boolean isAnyImportInitDataJobStillRunning() {
-        JobInstance importUsersJob = jobService.getLastJobInstance(IMPORT_INITIAL_USER_DATA_JOB_NAME);
-        JobInstance importItemsJob = jobService.getLastJobInstance(IMPORT_INITIAL_ITEM_DATA_JOB_NAME);
-        JobInstance importOrdersJob = jobService.getLastJobInstance(IMPORT_INITIAL_ORDER_DATA_JOB_NAME);
-        JobInstance importExpressesJob = jobService.getLastJobInstance(IMPORT_INITIAL_EXPRESS_DATA_JOB_NAME);
-        return (importUsersJob != null && importUsersJob.isCompleted()) ||
-                (importItemsJob != null && importItemsJob.isCompleted()) ||
-                (importOrdersJob != null && importOrdersJob.isCompleted()) ||
-                (importExpressesJob != null && importExpressesJob.isCompleted());
+        for (String jobName : IMPORT_DATA_JOB_NAMES) {
+            JobInstance jobInstance = jobService.getLastJobInstance(jobName);
+            if (jobInstance != null && jobInstance.isRunning()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public List<JobInstance> getImportDataJobInstances() {
@@ -342,66 +342,67 @@ public class DataMockService {
     }
 
     private void importIncrementalData(
-        DataSource dataSource, List<String> userIdList, List<Item> itemList
+        JobInstance jobInstance, DataSource dataSource, List<String> userIdList, List<Item> itemList
     ) {
-        List<String> addresses = new ArrayList<>();
+        // Prepare some random address for express address.
+        List<String> randomAddresses = new ArrayList<>();
         for (int i = 0; i < 2000; i++) {
-            addresses.add(addresses().get());
+            randomAddresses.add(addresses().get());
         }
 
-        log.info("Start to generate and insert data into database...");
+        log.info("Start to generate and insert random orders and expresses into database...");
+        try (
+            Connection conn = dataSource.getConnection();
+            BatchLoader orderLoader = new PreparedBatchLoader(conn, getInsertSQL("orders", orderColumns));
+            BatchLoader expressLoader = new PreparedBatchLoader(conn, getInsertSQL("expresses", expressColumns));
+        ) {
+            // If the primary key use the auto random feature, we need to enable
+            // this flag to allow insert explicit value to TiDB.
+            conn.createStatement().execute("set @@allow_auto_random_explicit_insert = true;");
 
-        int nCores = Runtime.getRuntime().availableProcessors();
-        int nWorkers = Math.min(Math.max(4, nCores), 12);
+            Random random = new Random();
+            int bulkSize = random.nextInt(10, 2000);
+            orderLoader.setBulkSize(bulkSize);
 
-        ExecutorService threadPool = Executors.newFixedThreadPool(nWorkers);
-        for (int workerId = 1; workerId <= nWorkers; workerId++) {
-            threadPool.execute(() -> {
-                try (
-                    Connection conn = dataSource.getConnection();
-                    BatchLoader orderLoader = new PreparedBatchLoader(conn, getInsertSQL("orders", orderColumns));
-                    BatchLoader expressLoader = new PreparedBatchLoader(conn, getInsertSQL("expresses", expressColumns));
-                ) {
-                    // If the primary key use the auto random feature, we need to enable
-                    // this flag to allow insert explicit value to TiDB.
-                    conn.createStatement().execute("set @@allow_auto_random_explicit_insert = true;");
+            int i = 0;
+            while (true) {
+                List<Object> orderValues = getRandomOrderValues(userIdList, itemList);
 
-                    int bulkSize = ints().range(10, 2000).get();
-                    orderLoader.setBulkSize(bulkSize);
-                    Random random = new Random();
-
-                    int i = 0;
-                    while (true) {
-                        List<Object> orderValues = getOrderValues(userIdList, itemList);
-
-                        if (orderValues.isEmpty()) {
-                            continue;
-                        }
-
-                        orderLoader.insertValues(orderValues);
-
-                        Long orderId = (Long) orderValues.get(0);
-                        String userId = (String) orderValues.get(1);
-                        List<Object> expressValues = getExpressValues(addresses, orderId, userId);
-
-                        if (expressValues.isEmpty()) {
-                            continue;
-                        }
-
-                        expressLoader.insertValues(expressValues);
-
-                        if (i % bulkSize == 0) {
-                            bulkSize = random.nextInt(10, 2000);
-                            orderLoader.setBulkSize(bulkSize);
-                            log.info("{} orders and expresses are inserted into database.", bulkSize);
-                            Thread.sleep(random.nextInt(1000, 3000));
-                        }
-                        i++;
-                    }
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
+                if (orderValues.isEmpty()) {
+                    continue;
                 }
-            });
+
+                orderLoader.insertValues(orderValues);
+
+                Long orderId = (Long) orderValues.get(0);
+                String userId = (String) orderValues.get(1);
+                List<Object> expressValues = getRandomExpressValues(randomAddresses, orderId, userId);
+
+                if (expressValues.isEmpty()) {
+                    continue;
+                }
+
+                expressLoader.insertValues(expressValues);
+
+                if (i % bulkSize == 0) {
+                    log.info("{} orders and expresses are inserted into database.", bulkSize);
+                    JobInstance instance = jobManager.updateJobInstanceProcess(jobInstance.getId(), bulkSize);
+
+                    if (instance.isCompleted()) {
+                        throw new InterruptedException(
+                            String.format("Job instance %s has been finished or interrupted.", instance.getJobName())
+                        );
+                    }
+
+                    bulkSize = random.nextInt(10, 2000);
+                    orderLoader.setBulkSize(bulkSize);
+                    Thread.sleep(random.nextInt(1000, 3000));
+                }
+                i++;
+            }
+        } catch (Exception e) {
+            jobManager.terminateJobInstance(jobInstance);
+            throw new RuntimeException(e);
         }
     }
 
@@ -441,7 +442,7 @@ public class DataMockService {
         return itemList;
     }
 
-    private List<Object> getOrderValues(List<String> userIdList, List<Item> itemList) {
+    private List<Object> getRandomOrderValues(List<String> userIdList, List<Item> itemList) {
         Long orderId = longs().lowerBound(1000).get();
         String userId = from(userIdList).get();
         Item item = from(itemList).get();
@@ -463,7 +464,7 @@ public class DataMockService {
         return fields;
     }
 
-    private List<Object> getExpressValues(List<String> addresses, Long orderId, String userId)  {
+    private List<Object> getRandomExpressValues(List<String> addresses, Long orderId, String userId)  {
         Long expressId = longs().lowerBound(1000).get();
         String postId = strings().size(12).types(NUMBERS).get();
         String address = from(addresses).get();
