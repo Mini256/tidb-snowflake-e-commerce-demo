@@ -35,10 +35,21 @@ public class AdminController {
     @GetMapping("/config/check")
     public MessageVO<?> checkConfig() {
         boolean tidbConfigured = dataSourceService.isTiDBConfigured();
-        boolean tidbSchemaCreated = dataSourceService.isTiDBSchemaCreated();
+        boolean tidbSchemaCreated = false;
+        boolean importInitDataJobAllFinished = false;
         boolean snowflakeConfigured = dataSourceService.isSnowflakeConfigured();
-        boolean snowflakeSchemaCreated = dataSourceService.isSnowflakeSchemaCreated();
-        boolean importInitDataJobAllFinished = dataMockService.isImportInitDataJobAllFinished();
+        boolean snowflakeSchemaCreated = false;
+
+        if (tidbConfigured) {
+            tidbSchemaCreated = dataSourceService.isTiDBSchemaCreated();
+        }
+        if (tidbSchemaCreated) {
+            importInitDataJobAllFinished = dataMockService.isImportInitDataJobAllFinished();
+        }
+        if (snowflakeConfigured) {
+            snowflakeSchemaCreated = dataSourceService.isSnowflakeSchemaCreated();
+        }
+
 
         boolean ready = tidbConfigured && tidbSchemaCreated && snowflakeConfigured && snowflakeSchemaCreated && importInitDataJobAllFinished;
         return MessageVO.success(new ConfigCheckVO(
