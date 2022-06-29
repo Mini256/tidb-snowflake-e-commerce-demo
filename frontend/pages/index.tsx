@@ -20,6 +20,7 @@ export default function InitPage(props: InitPageProps) {
   const [isTidbReady, setIsTidbReady] = useState(false);
   const [isTidbSchemaReady, setIsTidbSchemaReady] = useState(false);
   const [isSnowflakeReady, setIsSnowflakeReady] = useState(false);
+  const [isSnowflakeSchemaReady, setIsSnowflakeSchemaReady] = useState(false);
 
   const router = useRouter();
 
@@ -35,13 +36,20 @@ export default function InitPage(props: InitPageProps) {
     tidbStatus: boolean;
     snowflakeStatus: boolean;
     tidbSchemaStatus: boolean;
+    snowflakeSchemaStatus: boolean;
   }) => {
-    const { endpointStatus, tidbStatus, snowflakeStatus, tidbSchemaStatus } =
-      data;
+    const {
+      endpointStatus,
+      tidbStatus,
+      snowflakeStatus,
+      tidbSchemaStatus,
+      snowflakeSchemaStatus,
+    } = data;
     setIsEndpointReady(endpointStatus);
     setIsTidbReady(tidbStatus);
     setIsSnowflakeReady(snowflakeStatus);
     setIsTidbSchemaReady(tidbSchemaStatus);
+    setIsSnowflakeSchemaReady(snowflakeSchemaStatus);
     setShowStepper(true);
   };
 
@@ -85,6 +93,7 @@ export default function InitPage(props: InitPageProps) {
           tidbStatus={isTidbReady}
           snowflakeStatus={isSnowflakeReady}
           tidbSchemaStatus={isTidbSchemaReady}
+          snowflakeSchemaStatus={isSnowflakeSchemaReady}
           endpoint={endpoint}
         />
       )}

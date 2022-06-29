@@ -38,6 +38,7 @@ export interface EndpointBlockProps {
     tidbStatus: boolean;
     snowflakeStatus: boolean;
     tidbSchemaStatus: boolean;
+    snowflakeSchemaStatus: boolean;
   }) => void;
   onInputChange: (arg0: string) => void;
   handleReset: () => void;
@@ -100,6 +101,7 @@ export const EndpointBlock = (props: EndpointBlockProps) => {
         tidbStatus: tidbConfigured,
         snowflakeStatus: snowflakeConfigured,
         tidbSchemaStatus: tidbSchemaCreated,
+        snowflakeSchemaStatus: snowflakeSchemaCreated,
       });
     } catch (error) {
       console.error(error);

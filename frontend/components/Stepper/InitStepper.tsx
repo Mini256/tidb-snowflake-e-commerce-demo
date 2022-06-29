@@ -345,8 +345,9 @@ const SnowflakeStepContent = (props: {
 const CreateSchemaContent = (props: {
   handleNext: () => void;
   handleBack: () => void;
+  type?: "tidb" | "snowflake";
 }) => {
-  const { handleNext, handleBack } = props;
+  const { handleNext, handleBack, type = "tidb" } = props;
 
   const [isLoading, setIsLoading] = React.useState(false);
   const [isCreated, setIsCreated] = React.useState(false);
@@ -360,12 +361,14 @@ const CreateSchemaContent = (props: {
     try {
       setErrMsg("");
       setIsLoading(true);
-      const res = await httpClient.post(`/api/admin/data-source/tidb/schema`);
+      const res = await httpClient.post(
+        `/api/admin/data-source/${type}/schema`
+      );
       if (res?.status !== 200) {
         throw new Error(`${res.status} ${res.data}`);
       }
       const res2 = await httpClient.get(
-        `/api/admin/data-source/tidb/schema/tables`
+        `/api/admin/data-source/${type}/schema/tables`
       );
       if (res2?.status !== 200) {
         throw new Error(`${res2.status} ${res2.data}`);
@@ -583,9 +586,15 @@ export function VerticalLinearStepper(props: {
   tidbStatus?: boolean;
   snowflakeStatus?: boolean;
   tidbSchemaStatus?: boolean;
+  snowflakeSchemaStatus?: boolean;
   endpoint?: string;
 }) {
-  const { tidbStatus, snowflakeStatus, tidbSchemaStatus } = props;
+  const {
+    tidbStatus,
+    snowflakeStatus,
+    tidbSchemaStatus,
+    snowflakeSchemaStatus,
+  } = props;
 
   const [activeStep, setActiveStep] = React.useState(0);
   const [uploading, setUploading] = React.useState(false);
@@ -721,8 +730,35 @@ export function VerticalLinearStepper(props: {
             )}
           </StepContent>
         </Step>
+
+        <Step key="create-schema-snowflake">
+          <StepLabel>Create Snowflake Schema</StepLabel>
+          <StepContent>
+            {snowflakeSchemaStatus ? (
+              <>
+                <Typography>
+                  You have successfully configured Schema.
+                </Typography>
+                <Button
+                  variant="contained"
+                  sx={{ mt: 1, mr: 1 }}
+                  onClick={handleNext}
+                >
+                  Continue
+                </Button>
+              </>
+            ) : (
+              <>
+                <CreateSchemaContent
+                  handleNext={handleNext}
+                  handleBack={handleBack}
+                />
+              </>
+            )}
+          </StepContent>
+        </Step>
       </Stepper>
-      {activeStep === 4 && (
+      {activeStep === 5 && (
         <Paper
           square
           elevation={0}
