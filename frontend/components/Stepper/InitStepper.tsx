@@ -556,6 +556,13 @@ const ImportDataContent = (props: {
           >
             {isCreated ? `Continue` : `Import`}
           </LoadingButton>
+          <Button
+            onClick={handleContinueClick}
+            sx={{ mt: 1, mr: 1 }}
+            disabled={isLoading}
+          >
+            Skip
+          </Button>
           {/* <Button
             onClick={handleBack}
             sx={{ mt: 1, mr: 1 }}
@@ -574,9 +581,10 @@ const ImportDataContent = (props: {
 export function VerticalLinearStepper(props: {
   tidbStatus?: boolean;
   snowflakeStatus?: boolean;
+  tidbSchemaStatus?: boolean;
   endpoint?: string;
 }) {
-  const { tidbStatus, snowflakeStatus } = props;
+  const { tidbStatus, snowflakeStatus, tidbSchemaStatus } = props;
 
   const [activeStep, setActiveStep] = React.useState(0);
   const [uploading, setUploading] = React.useState(false);
@@ -640,7 +648,7 @@ export function VerticalLinearStepper(props: {
         <Step key="create-schema">
           <StepLabel>Create Schema</StepLabel>
           <StepContent>
-            {tidbStatus ? (
+            {tidbSchemaStatus ? (
               <>
                 <Typography>
                   You have successfully configured Schema.
@@ -667,27 +675,12 @@ export function VerticalLinearStepper(props: {
         <Step key="import-data">
           <StepLabel>Import Data</StepLabel>
           <StepContent>
-            {tidbStatus ? (
-              <>
-                <Typography>
-                  You have successfully completed this step.
-                </Typography>
-                <Button
-                  variant="contained"
-                  sx={{ mt: 1, mr: 1 }}
-                  onClick={handleNext}
-                >
-                  Continue
-                </Button>
-              </>
-            ) : (
-              <>
-                <ImportDataContent
-                  handleNext={handleNext}
-                  handleBack={handleBack}
-                />
-              </>
-            )}
+            <>
+              <ImportDataContent
+                handleNext={handleNext}
+                handleBack={handleBack}
+              />
+            </>
           </StepContent>
         </Step>
 

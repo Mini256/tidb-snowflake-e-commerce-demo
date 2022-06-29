@@ -37,6 +37,7 @@ export interface EndpointBlockProps {
     endpointStatus: boolean;
     tidbStatus: boolean;
     snowflakeStatus: boolean;
+    tidbSchemaStatus: boolean;
   }) => void;
   onInputChange: (arg0: string) => void;
   handleReset: () => void;
@@ -77,7 +78,13 @@ export const EndpointBlock = (props: EndpointBlockProps) => {
       }
       const resData: ConfigCheckResType = res.data;
       const {
-        data: { ready, snowflakeConfigured, tidbConfigured },
+        data: {
+          ready,
+          snowflakeConfigured,
+          tidbConfigured,
+          tidbSchemaCreated,
+          snowflakeSchemaCreated,
+        },
         message,
       } = resData;
       setShowSnackBar({
@@ -92,6 +99,7 @@ export const EndpointBlock = (props: EndpointBlockProps) => {
         endpointStatus: ready,
         tidbStatus: tidbConfigured,
         snowflakeStatus: snowflakeConfigured,
+        tidbSchemaStatus: tidbSchemaCreated,
       });
     } catch (error) {
       console.error(error);

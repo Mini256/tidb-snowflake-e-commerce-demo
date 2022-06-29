@@ -62,7 +62,7 @@ export const ImportDataStatus = (props: ImportDataStatusProps) => {
     let timer: any;
     timer = setInterval(async () => {
       const res: any = await handleQueryStatus();
-      const { status, cost } = res.data;
+      const { status, cost } = res?.data || {};
       switch (status) {
         case "ERROR":
           clearInterval(timer);

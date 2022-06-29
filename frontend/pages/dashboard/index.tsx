@@ -17,6 +17,7 @@ export interface TodayOrder {
   updateTime?: string;
   totalCount: number;
   totalAmount: number;
+  customers: number;
 }
 
 export interface ItemTypeSale {
@@ -56,6 +57,7 @@ export default function DashboardPage() {
   const [todayOrders, setTodayOrders] = useState<TodayOrder>({
     totalCount: 0,
     totalAmount: 0,
+    customers: 0,
   });
   const [itemTypeSales, setItemTypeSales] = useState<ItemTypeSale[]>([]);
   const [highPriceItems, setHighPriceItems] = useState<HotItem[]>([]);
@@ -65,34 +67,36 @@ export default function DashboardPage() {
 
   // Load today order total and amount.
   useEffect(() => {
-    (async () => {
-      const { data } = await httpClient.get(
-        "/api/statistic/orders/total-and-amount"
-      );
-      setTodayOrders({
-        totalCount: data.totalCount || 0,
-        totalAmount: data.totalAmount || 0,
-        updateTime: DateTime.fromISO(data.updateTime)
-          .setLocale("en-GB")
-          .toLocaleString(DateTime.DATETIME_MED),
-      });
-    })();
+    endpoint &&
+      (async () => {
+        const _ = await httpClient.post(`/api/orders/stats/today`);
+        const { data } = await httpClient.get(`/api/orders/stats/today`);
+        setTodayOrders({
+          totalCount: data.total || 0,
+          totalAmount: data.amount || 0,
+          customers: data.customers || 0,
+          updateTime: DateTime.fromISO(data.ts)
+            .setLocale("en-GB")
+            .toLocaleString(DateTime.DATETIME_MED),
+        });
+      })();
   }, [endpoint]);
 
   // Load sales by item type.
   useEffect(() => {
-    (async () => {
-      const { data = [] } = await httpClient.get(
-        "/api/statistic/orders/total-and-amount/group-by-type"
-      );
-      data.map((sale: ItemTypeSale) => {
-        sale.id = sale.type;
-        sale.name = sale.type;
-        sale.value = sale.amount;
-        return sale;
-      });
-      setItemTypeSales(data);
-    })();
+    endpoint &&
+      (async () => {
+        const { data = [] } = await httpClient.get(
+          "/api/orders/stats/today/group-by-type"
+        );
+        data.map((sale: ItemTypeSale) => {
+          sale.id = sale.type;
+          sale.name = sale.type;
+          sale.value = sale.amount;
+          return sale;
+        });
+        setItemTypeSales(data);
+      })();
   }, [endpoint]);
 
   // Load hot items list.
@@ -176,7 +180,7 @@ export default function DashboardPage() {
         <Grid item xs={12} md={4} lg={4}>
           <Paper>
             <Title>Today Customers</Title>
-            <Tooltip title={0}>
+            <Tooltip title={todayOrders.customers}>
               <Typography
                 component="p"
                 variant="h4"
@@ -188,7 +192,7 @@ export default function DashboardPage() {
                   color: "#121828",
                 }}
               >
-                {formatNumber(0, 2)}
+                {formatNumber(todayOrders.customers, 2)}
               </Typography>
             </Tooltip>
             <Typography color="text.secondary" sx={{ flex: 1 }}>

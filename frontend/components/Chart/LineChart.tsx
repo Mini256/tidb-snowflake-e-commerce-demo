@@ -17,7 +17,7 @@ export default function LineChart(props: any) {
   const [httpClient, endpoint] = useHttpClient();
 
   const loadTodayOrderHistory = async function () {
-    const url = `/api/statistic/orders/total-and-amount/history`;
+    const url = `/api/orders/stats/today/trends`;
     const res = await httpClient.get(url);
     const n = res.data.length;
     const history = res.data.map((item: any, index: number) => {
