@@ -252,6 +252,7 @@ const SnowflakeStepContent = (props: {
           size="small"
           id="snow-database"
           label="SNOWSQL_DATABASE"
+          helperText={`Database <${db}> will be created if not exist.`}
           variant="outlined"
           margin="dense"
           value={db}
