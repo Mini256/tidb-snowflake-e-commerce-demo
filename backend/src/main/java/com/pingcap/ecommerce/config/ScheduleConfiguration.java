@@ -26,7 +26,7 @@ public class ScheduleConfiguration {
 
     private final OrderService orderService;
 
-    private final DynamicDataSourceService dynamicDataSourceService;
+    private final DynamicDataSourceService dataSourceService;
 
     private final TableStatsService tableStatsService;
 
@@ -37,7 +37,7 @@ public class ScheduleConfiguration {
      */
     @Scheduled(cron = "0 */2 * * * *")
     public void calcTodayOrdersJob() {
-        if (!dynamicDataSourceService.isTiDBReady()) {
+        if (!dataSourceService.isTiDBReady()) {
             return;
         }
 
@@ -60,7 +60,7 @@ public class ScheduleConfiguration {
      */
     @Scheduled(cron = "0 * * * * *")
     public void calcTableStatsHistory() {
-        if (!dynamicDataSourceService.isTiDBReady()) {
+        if (!dataSourceService.isTiDBReady()) {
             return;
         }
         tableStatsService.recordTableStats();
@@ -84,7 +84,7 @@ public class ScheduleConfiguration {
      */
     @Scheduled(cron = "${ecommerce.calcLabelsCron}")
     public void calcUsersAndItemsLabelJob() {
-        if (!dynamicDataSourceService.isTiDBReady() || !dynamicDataSourceService.isSnowflakeReady()) {
+        if (!dataSourceService.isTiDBReady() || !dataSourceService.isSnowflakeReady()) {
             return;
         }
 

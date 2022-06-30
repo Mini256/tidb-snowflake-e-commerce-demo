@@ -131,9 +131,13 @@ public class DynamicDataSourceService {
         int retry = 1;
         int maxRetry = 3;
         while (retry <= maxRetry) {
-            try (
-                Connection conn = ds.getConnection();
-            ) {
+            try (Connection conn = ds.getConnection()) {
+                if (conn == null) {
+                    log.error("Failed to get connection for TiDB data source.");
+                    retry++;
+                    continue;
+                }
+
                 // SHOW DATABASES;
                 Statement showDBStmt = conn.createStatement();
                 ResultSet resultSet = showDBStmt.executeQuery("SHOW DATABASES;");
@@ -284,9 +288,13 @@ public class DynamicDataSourceService {
         int retry = 1;
         int maxRetry = 3;
         while (retry <= maxRetry) {
-            try (
-                Connection conn = ds.getConnection();
-            ) {
+            try (Connection conn = ds.getConnection()) {
+                if (conn == null) {
+                    log.error("Failed to get connection for Snowflake data source.");
+                    retry++;
+                    continue;
+                }
+
                 Statement stmt = conn.createStatement();
                 stmt.execute("ALTER SESSION SET JDBC_QUERY_RESULT_FORMAT='JSON'");
                 stmt.close();
