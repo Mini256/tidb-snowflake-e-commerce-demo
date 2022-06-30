@@ -434,8 +434,12 @@ const ImportDataContent = (props: {
   const handleCreateClick = async () => {
     try {
       setIsLoading(true);
+      setErrMsg("");
       const res = await httpClient.post(
-        `/api/admin/data-source/tidb/import-data`
+        `/api/admin/data-source/tidb/import-data`,
+        {
+          recreate: true,
+        }
       );
       setShowStatusBox(true);
     } catch (error: any) {
@@ -498,6 +502,9 @@ const ImportDataContent = (props: {
       setIsLoading(false);
       setIsCreated(true);
     }
+    if ([userStatus, itemStatus, orderStatus, expressStatus].includes("FAIL")) {
+      setErrMsg("FAIL");
+    }
   }, [userStatus, itemStatus, orderStatus, expressStatus]);
 
   return (
@@ -555,18 +562,21 @@ const ImportDataContent = (props: {
           <LoadingButton
             variant="contained"
             loading={isLoading}
+            disabled={!!errMsg}
             onClick={isCreated ? handleContinueClick : handleCreateClick}
             sx={{ mt: 1, mr: 1 }}
           >
             {isCreated ? `Continue` : `Import`}
           </LoadingButton>
-          <Button
-            onClick={handleContinueClick}
-            sx={{ mt: 1, mr: 1 }}
-            disabled={isLoading}
-          >
-            Skip
-          </Button>
+          {!!errMsg && (
+            <Button
+              onClick={handleCreateClick}
+              sx={{ mt: 1, mr: 1 }}
+              disabled={isLoading}
+            >
+              Retry
+            </Button>
+          )}
           {/* <Button
             onClick={handleBack}
             sx={{ mt: 1, mr: 1 }}
