@@ -104,7 +104,7 @@ public class AdminController {
         if (importDataDTO == null) importDataDTO = new ImportDataDTO();
 
         if (!importDataDTO.getRecreate() && dataMockService.isAnyImportInitDataJobStillRunning()) {
-            return MessageVO.of(HttpStatus.CONFLICT.value(), "There are some initial still running.");
+            return MessageVO.of(HttpStatus.CONFLICT.value(), "There are some data import jobs still running.");
         }
 
         // Terminate the existing job instance of import-data.
