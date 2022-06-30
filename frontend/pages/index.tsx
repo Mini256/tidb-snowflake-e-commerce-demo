@@ -1,152 +1,102 @@
-import { Autocomplete, Box, Link, Container, Grid, Select, Stack, Tab, Tabs, TextField, Typography } from "@mui/material";
-import qs from "qs";
-import { useState, useEffect } from "react";
-import { createHttpClient } from '../src/lib/request'
-import { UserVO } from "./admin/customer";
-import { Item } from "./admin/item";
-import { ResultVO } from "./admin/order";
-import ItemCard from "./ItemCard";
+import { useRouter } from "next/router";
+import { Box, TextField, Typography, Container } from "@mui/material";
+import LoadingButton from "@mui/lab/LoadingButton";
+import Skeleton from "@mui/material/Skeleton";
+import Snackbar from "@mui/material/Snackbar";
+import MuiAlert, { AlertProps } from "@mui/material/Alert";
 
-const httpClient = createHttpClient();
+import { useState, useEffect, forwardRef } from "react";
+import { VerticalLinearStepper } from "components/Stepper/InitStepper";
+import { EndpointBlock } from "components/Block/EndpointBlock";
+import { IntroductionCard } from "components/Card/IntroductionCard";
 
-interface HomePageProps {
+interface InitPageProps {}
 
-}
+export default function InitPage(props: InitPageProps) {
+  const [endpoint, setEndpoint] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [showStepper, setShowStepper] = useState(false);
+  const [isEndpointReady, setIsEndpointReady] = useState(false);
+  const [isTidbReady, setIsTidbReady] = useState(false);
+  const [isTidbSchemaReady, setIsTidbSchemaReady] = useState(false);
+  const [isSnowflakeReady, setIsSnowflakeReady] = useState(false);
+  const [isSnowflakeSchemaReady, setIsSnowflakeSchemaReady] = useState(false);
 
-export default function HomePage(props:HomePageProps) {
-    const [currentTab, setCurrentTab] = useState<string>('latest');
+  const router = useRouter();
 
-    const [page, setPage] = useState<number>(1);
-    const [pageSize, setPageSize] = useState<number>(16);
-    const [latestItems, setLatestItems] = useState<Item[]>([]);
+  useEffect(() => {
+    const query = router.query;
+    const qEndpoint = (query?.endpoint as string) || "";
+    setEndpoint(qEndpoint);
+    setLoading(false);
+  }, [router]);
 
-    const [userRecommendedItems, setUserRecommendedItems] = useState<Item[]>([]);
-    const [userKeyword, setUserKeyword] = useState<string>();
-    const [userAutocompleteOptions, setUserAutocompleteOptions] = useState<any[]>([]);
-    const [userSelected, setUserSelected] = useState<UserVO>();
+  const handleEdnpointSuccess = (data: {
+    endpointStatus: boolean;
+    tidbStatus: boolean;
+    snowflakeStatus: boolean;
+    tidbSchemaStatus: boolean;
+    snowflakeSchemaStatus: boolean;
+  }) => {
+    const {
+      endpointStatus,
+      tidbStatus,
+      snowflakeStatus,
+      tidbSchemaStatus,
+      snowflakeSchemaStatus,
+    } = data;
+    setIsEndpointReady(endpointStatus);
+    setIsTidbReady(tidbStatus);
+    setIsSnowflakeReady(snowflakeStatus);
+    setIsTidbSchemaReady(tidbSchemaStatus);
+    setIsSnowflakeSchemaReady(snowflakeSchemaStatus);
+    setShowStepper(true);
+  };
 
-    // Fetch latest items list.
-    useEffect(() => {
-        (async () => {
-            const q = Object.assign({}, {
-                page: page,
-                size: pageSize
-            })
-            const url = `/api/items?${qs.stringify(q)}`;
-            const res = await httpClient.get(url);
-            const orderPage:ResultVO<Item> = res.data;
-            const { content = [], pageNum, rowTotal } = orderPage;
+  const handleResetEndpoint = () => {
+    setIsEndpointReady(false);
+    setIsTidbReady(false);
+    setIsSnowflakeReady(false);
+    setShowStepper(false);
+  };
 
-            content.map((item) => {
-                item.createTime = new Date(item.createTime);
-                item.updateTime = new Date(item.updateTime);
-                return item;
-            });
+  useEffect(() => {
+    if (isEndpointReady) {
+      router.push(`/dashboard`);
+    }
+  }, [isEndpointReady]);
 
-            setLatestItems(content || []);
-        })()
-    }, []);
-
-    // Fetch recommended items list.
-    useEffect(() => {
-        (async () => {
-            if (userSelected === undefined) return;
-            console.log(userSelected);
-            
-            const q = Object.assign({}, {
-                userId: userSelected?.userId
-            })
-            const url = `/api/data/hot-items/recommended?${qs.stringify(q)}`;
-            const res = await httpClient.get(url);
-            const items:Item[] = res.data;
-
-            items.map((item) => {
-                item.createTime = new Date(item.createTime);
-                item.updateTime = new Date(item.updateTime);
-                return item;
-            });
-
-            setUserRecommendedItems(items);
-        })()
-    }, [userSelected]);
-
-    // User autocomplete.
-    useEffect(() => {
-        (async () => {
-            let url = `/api/users/autocomplete`;
-            if (userKeyword !== undefined) {
-                url = `/api/users/autocomplete?keyword=${userKeyword}`;
-            }
-            const res = await httpClient.get(url);
-            const userList:UserVO[] = res.data;
-
-            userList.map((item) => {
-                item.createTime = new Date(item.createTime);
-                item.updateTime = new Date(item.updateTime);
-                return item;
-            });
-        
-            setUserAutocompleteOptions(userList || []);
-        })()
-    }, [userKeyword]);
-
-    return <Container maxWidth="md" sx={{ mt: 4, mb: 4 }}>
-        <Box mb="20px" key="go-to-dashboard">
-            <Link href="/admin/dashboard">Go to Dashboard</Link>
-        </Box>
-        <Box mb="20px" key="tabs">
-            <Tabs value={currentTab} onChange={(event, val) => {
-                setCurrentTab(val);
-            }}>
-                <Tab label="Latest" key="latest" value="latest" />
-                <Tab label="Recommended" key="recommended"  value="recommended" />
-            </Tabs>
-        </Box>
-        {
-            currentTab === 'latest' && (
-                <Box component="div" key="latest-item-list">
-                    <Grid container spacing={3}>
-                        {latestItems.map((row) => {
-                            return <Grid key={row.id} item xs={12} md={6} lg={3}>
-                                <ItemCard item={row}/>
-                            </Grid>
-                        })}
-                    </Grid>
-                </Box>
-            )
-        }
-        {
-            currentTab === 'recommended' && (
-                <Box component="div" key="recommended-item-list">
-                    <Autocomplete
-                        disablePortal
-                        options={userAutocompleteOptions}
-                        sx={{ width: 300, mb: '20px' }}
-                        size="small"
-                        contentEditable={false}
-                        onInputChange={(event, value) => {
-                            setUserKeyword(value);
-                        }}
-                        onChange={(event, value) => {
-                            setUserSelected(value);
-                        }}
-                        getOptionLabel={(option) => {
-                            return option.username;
-                        }}
-                        isOptionEqualToValue={(option, value) => {
-                            return option.username = value.username;
-                        }}
-                        renderInput={(params) => <TextField {...params} label="Recommend for user:" />}
-                    />
-                    <Grid container spacing={3}>
-                        {userRecommendedItems.map((row) => {
-                            return <Grid key={row.id} item xs={12} md={6} lg={3}>
-                                <ItemCard item={row}/>
-                            </Grid>
-                        })}
-                    </Grid>
-                </Box>
-            )
-        }
+  return (
+    <Container maxWidth="sm" sx={{ margin: "auto" }}>
+      <Typography component="h1" variant="h1">
+        TiDB & Snowflake Demo
+      </Typography>
+      <IntroductionCard />
+      {loading ? (
+        <>
+          <Skeleton animation="wave" height={40} />
+          <Skeleton animation="wave" height={40} />
+        </>
+      ) : (
+        <EndpointBlock
+          key={endpoint}
+          defaultVal={endpoint}
+          onInputChange={(val: string) => {
+            setEndpoint(val);
+          }}
+          handleSuccess={handleEdnpointSuccess}
+          handleReset={handleResetEndpoint}
+        />
+      )}
+      {endpoint && showStepper && !isEndpointReady && (
+        <VerticalLinearStepper
+          tidbStatus={isTidbReady}
+          snowflakeStatus={isSnowflakeReady}
+          tidbSchemaStatus={isTidbSchemaReady}
+          snowflakeSchemaStatus={isSnowflakeSchemaReady}
+          endpoint={endpoint}
+        />
+      )}
     </Container>
+  );
 }

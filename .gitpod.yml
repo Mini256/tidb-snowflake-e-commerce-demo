@@ -8,10 +8,8 @@ image:
 tasks:
   - name: Frontend
     openMode: tab-after
-    before: cd frontend
-    init: npm install
     command: |
-      NEXT_PUBLIC_BASE_URL=$(gp url 8080) npm run dev
+      gp ports await 8080 && gp preview https://tidb-snowflake-e-commerce-demo.vercel.app/?endpoint=$(gp url 8080)
   - name: Backend
     openMode: tab-after
     before: cd backend
@@ -21,6 +19,4 @@ tasks:
 
 ports:
   - port: 8080
-    visibility: public
-  - port: 3000
     visibility: public
