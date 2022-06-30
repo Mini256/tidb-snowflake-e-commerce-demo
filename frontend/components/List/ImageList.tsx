@@ -19,9 +19,9 @@ import {
   Grid,
   Pagination,
   Stack,
+  Typography,
 } from "@mui/material";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-import LabelIcon from "@mui/icons-material/Label";
 import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 
@@ -164,7 +164,7 @@ export function HotItemImageList(props: {
             subtitle={item.itemDesc}
             actionIcon={
               <Stack direction="row" spacing={1} alignItems="center">
-                {item.userLabel && (
+                {/* {item.userLabel && (
                   <Chip
                     icon={<AccountCircleIcon />}
                     label={
@@ -177,21 +177,25 @@ export function HotItemImageList(props: {
                     size="small"
                     color={item.userLabel === "high" ? "error" : "info"}
                   />
-                )}
-                {item.itemLabel && (
+                )} */}
+                {/* {item.itemLabel && (
                   <Chip
-                    icon={<LabelIcon />}
-                    label={
+                    icon={
                       item.itemLabel === "high" ? (
                         <ArrowDropUpIcon />
                       ) : (
                         <ArrowDropDownIcon />
                       )
                     }
+                    label={
+                      <Typography variant="body2">
+                        User Label: {item.itemLabel}
+                      </Typography>
+                    }
                     size="small"
                     color={item.itemLabel === "high" ? "error" : "info"}
                   />
-                )}
+                )} */}
                 <Button
                   startIcon={
                     <AttachMoneyIcon fontSize="small" sx={{ fill: "#fff" }} />

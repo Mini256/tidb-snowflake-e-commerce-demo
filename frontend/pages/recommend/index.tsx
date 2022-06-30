@@ -10,7 +10,13 @@ import {
   Container,
   Grid,
   Pagination,
+  Stack,
+  TablePagination,
 } from "@mui/material";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import LabelIcon from "@mui/icons-material/Label";
+import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 
 import { DashboardLayout } from "components/CommonLayout";
 import { UserVO } from "../customer";
@@ -47,7 +53,7 @@ export interface ResultVO<R> {
 
 export default function ItemPage() {
   const [loading, setLoading] = useState<boolean>(false);
-  const [page, setPage] = useState<number>(1);
+  const [page, setPage] = useState<number>(0);
   const [pageSize, setPageSize] = useState<number>(12);
   const [rowCount, setRowCount] = useState<number>(0);
   const [rows, setRows] = useState<HotItemType[]>([]);
@@ -57,6 +63,8 @@ export default function ItemPage() {
   const [userAutocompleteOptions, setUserAutocompleteOptions] = useState<any[]>(
     []
   );
+
+  const [currentUser, setCurrentUser] = useState<UserVO | undefined>();
 
   const [httpClient, endpoint] = useHttpClient();
 
@@ -116,7 +124,7 @@ export default function ItemPage() {
 
         try {
           const q = Object.assign({}, query, {
-            page: page - 1,
+            page: page,
             size: pageSize,
           });
           const url = `/api/data/hot-items/recommended?${qs.stringify(q)}`;
@@ -130,25 +138,32 @@ export default function ItemPage() {
           });
 
           setRows(content || []);
-          setPage(pageNum || 1);
+          setPage(pageNum || 0);
           setRowCount(rowTotal || 0);
         } finally {
           setLoading(false);
         }
       })();
-  }, [query, page, endpoint]);
+  }, [query, page, endpoint, pageSize]);
 
   // User autocomplete.
   useEffect(() => {
     endpoint &&
       (async () => {
-        let url = `/api/users/autocomplete`;
-        if (userKeyword !== undefined) {
-          url = `/api/users/autocomplete?keyword=${userKeyword}`;
+        const url = `/api/users/autocomplete`;
+        if (userKeyword) {
+          const urlWithQuery = `/api/users/autocomplete?keyword=${userKeyword}`;
+          const res = await httpClient.get(urlWithQuery);
+          const userList: UserVO[] = res.data;
+          const userDetails = userList && !!userList?.length && userList[0];
+          setCurrentUser(userDetails || undefined);
+          setPage(0);
+        } else {
+          const res = await httpClient.get(url);
+          const userList: UserVO[] = res.data;
+          setCurrentUser(undefined);
+          setUserAutocompleteOptions(userList || []);
         }
-        const res = await httpClient.get(url);
-        const userList: UserVO[] = res.data;
-        setUserAutocompleteOptions(userList || []);
       })();
   }, [userKeyword, endpoint]);
 
@@ -258,16 +273,39 @@ export default function ItemPage() {
             <TextField {...params} label="Filter by user:" />
           )}
         />
+        {currentUser && (
+          <Stack direction="row" spacing={1} alignItems="center">
+            <Chip
+              icon={
+                currentUser.userLabel === "high" ? (
+                  <ArrowDropUpIcon />
+                ) : (
+                  <ArrowDropDownIcon />
+                )
+              }
+              label={`User Label: ${currentUser.userLabel}`}
+              size="small"
+              color={currentUser.userLabel === "high" ? "error" : "info"}
+            />
+          </Stack>
+        )}
       </Box>
       <HotItemImageList products={rows} loading={loading} />
-      <Pagination
-        count={10}
+      <TablePagination
+        component="div"
+        count={Math.ceil(rowCount / pageSize)}
         size="small"
         color="primary"
-        onChange={(e, pageIdx) => {
+        page={page}
+        onPageChange={(e, pageIdx) => {
           setPage(pageIdx);
         }}
         sx={{ margin: "1rem auto" }}
+        rowsPerPage={pageSize}
+        onRowsPerPageChange={(e) => {
+          setPageSize(parseInt(e.target.value));
+        }}
+        rowsPerPageOptions={[12, 24, 48]}
       />
       {/* <Box
         component="main"

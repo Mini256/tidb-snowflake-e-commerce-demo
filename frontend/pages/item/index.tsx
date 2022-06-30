@@ -2,7 +2,7 @@ import Head from "next/head";
 import qs from "qs";
 import { useEffect, useState } from "react";
 import { DataGrid, GridColumns } from "@mui/x-data-grid";
-import { Pagination } from "@mui/material";
+import { TablePagination } from "@mui/material";
 
 import { PageHeader } from "src/DashboardLayout/PageHeader";
 import { usdPrice } from "lib/formatter";
@@ -75,7 +75,7 @@ export default function ItemPage() {
         setLoading(false);
       }
     })();
-  }, [query, page, endpoint]);
+  }, [query, page, endpoint, pageSize]);
 
   return (
     <DashboardLayout>
@@ -107,14 +107,21 @@ export default function ItemPage() {
         </Grid>
       </Grid> */}
       <ItemImageLIst products={rows} loading={loading} />
-      <Pagination
-        count={10}
+      <TablePagination
+        component="div"
+        count={Math.ceil(rowCount / pageSize)}
         size="small"
         color="primary"
-        onChange={(e, pageIdx) => {
+        page={page}
+        onPageChange={(e, pageIdx) => {
           setPage(pageIdx);
         }}
         sx={{ margin: "1rem auto" }}
+        rowsPerPage={pageSize}
+        onRowsPerPageChange={(e) => {
+          setPageSize(parseInt(e.target.value));
+        }}
+        rowsPerPageOptions={[12, 24, 48]}
       />
     </DashboardLayout>
   );
