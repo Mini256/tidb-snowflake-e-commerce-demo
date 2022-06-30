@@ -157,6 +157,7 @@ export default function ItemPage() {
           const userList: UserVO[] = res.data;
           const userDetails = userList && !!userList?.length && userList[0];
           setCurrentUser(userDetails || undefined);
+          setUserAutocompleteOptions(userList);
           setPage(0);
         } else {
           const res = await httpClient.get(url);

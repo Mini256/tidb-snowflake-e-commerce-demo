@@ -419,6 +419,7 @@ const ImportDataContent = (props: {
   const [showStatusBox, setShowStatusBox] = React.useState(false);
   const [isCreated, setIsCreated] = React.useState(false);
   const [errMsg, setErrMsg] = React.useState("");
+  const [is409, setIs409] = React.useState(false);
 
   const [userStatus, setUserStatus] = React.useState<StatusType | undefined>();
   const [itemStatus, setItemStatus] = React.useState<StatusType | undefined>();
@@ -434,18 +435,30 @@ const ImportDataContent = (props: {
   const handleCreateClick = async () => {
     try {
       setIsLoading(true);
+      const requestBody: { recreate?: boolean } = {};
+      is409 && (requestBody.recreate = true);
+      setErrMsg("");
+      setIs409(false);
       const res = await httpClient.post(
-        `/api/admin/data-source/tidb/import-data`
+        `/api/admin/data-source/tidb/import-data`,
+        requestBody
       );
-      setShowStatusBox(true);
+      const { status, message } = res.data;
+      if (status === 409) {
+        setIs409(true);
+        setErrMsg(message);
+      } else {
+        setShowStatusBox(true);
+      }
     } catch (error: any) {
       console.error(error);
-      setIsLoading(false);
       setErrMsg(
         error?.response?.data?.message ||
           `${error?.code} ${error?.message}` ||
           ""
       );
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -497,6 +510,9 @@ const ImportDataContent = (props: {
     if (sum === 4) {
       setIsLoading(false);
       setIsCreated(true);
+    }
+    if ([userStatus, itemStatus, orderStatus, expressStatus].includes("FAIL")) {
+      setErrMsg("FAIL");
     }
   }, [userStatus, itemStatus, orderStatus, expressStatus]);
 
@@ -555,18 +571,21 @@ const ImportDataContent = (props: {
           <LoadingButton
             variant="contained"
             loading={isLoading}
+            disabled={!!errMsg}
             onClick={isCreated ? handleContinueClick : handleCreateClick}
             sx={{ mt: 1, mr: 1 }}
           >
             {isCreated ? `Continue` : `Import`}
           </LoadingButton>
-          <Button
-            onClick={handleContinueClick}
-            sx={{ mt: 1, mr: 1 }}
-            disabled={isLoading}
-          >
-            Skip
-          </Button>
+          {!!errMsg && (
+            <Button
+              onClick={handleCreateClick}
+              sx={{ mt: 1, mr: 1 }}
+              disabled={isLoading}
+            >
+              Retry
+            </Button>
+          )}
           {/* <Button
             onClick={handleBack}
             sx={{ mt: 1, mr: 1 }}

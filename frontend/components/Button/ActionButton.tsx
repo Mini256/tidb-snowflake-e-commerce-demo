@@ -14,17 +14,22 @@ export interface ActionButtonProps {
 export default function ActionButton(props: ActionButtonProps) {
   const [loading, setLoading] = useState<boolean>(false);
   const [msg, setMsg] = useState("");
+  const [errMsg, setErrMsg] = useState("");
 
   const [httpClient] = useHttpClient();
 
   const action = async () => {
     setLoading(true);
     try {
+      setErrMsg("");
       const res = await httpClient.post(props.url);
       const { message, cost } = res.data;
       setMsg(cost ? `${message} in ${cost.toFixed(2)}s` : message);
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
+      setErrMsg(
+        err?.response?.data?.message || `${err?.code} ${err?.message}` || ""
+      );
     } finally {
       setLoading(false);
     }
@@ -35,6 +40,7 @@ export default function ActionButton(props: ActionButtonProps) {
         {props.text}
       </LoadingButton>
       {msg && <FormHelperText>{msg}</FormHelperText>}
+      {errMsg && <FormHelperText error>{errMsg}</FormHelperText>}
     </Box>
   );
 }
