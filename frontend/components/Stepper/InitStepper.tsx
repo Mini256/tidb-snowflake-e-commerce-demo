@@ -752,6 +752,7 @@ export function VerticalLinearStepper(props: {
                 <CreateSchemaContent
                   handleNext={handleNext}
                   handleBack={handleBack}
+                  type="snowflake"
                 />
               </>
             )}
