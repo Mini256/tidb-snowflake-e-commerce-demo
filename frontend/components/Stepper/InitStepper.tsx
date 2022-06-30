@@ -446,25 +446,21 @@ const ImportDataContent = (props: {
       const { status, message } = res.data;
       if (status === 409) {
         setIs409(true);
+        setErrMsg(message);
+      } else {
+        setShowStatusBox(true);
       }
-      setShowStatusBox(true);
     } catch (error: any) {
       console.error(error);
-      setIsLoading(false);
       setErrMsg(
         error?.response?.data?.message ||
           `${error?.code} ${error?.message}` ||
           ""
       );
+    } finally {
+      setIsLoading(false);
     }
   };
-
-  React.useEffect(() => {
-    if (is409) {
-      setIsLoading(false);
-      setErrMsg("Another job is running");
-    }
-  }, [is409]);
 
   const handleContinueClick = () => {
     handleNext();
