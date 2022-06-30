@@ -419,6 +419,7 @@ const ImportDataContent = (props: {
   const [showStatusBox, setShowStatusBox] = React.useState(false);
   const [isCreated, setIsCreated] = React.useState(false);
   const [errMsg, setErrMsg] = React.useState("");
+  const [is409, setIs409] = React.useState(false);
 
   const [userStatus, setUserStatus] = React.useState<StatusType | undefined>();
   const [itemStatus, setItemStatus] = React.useState<StatusType | undefined>();
@@ -434,13 +435,18 @@ const ImportDataContent = (props: {
   const handleCreateClick = async () => {
     try {
       setIsLoading(true);
+      const requestBody: { recreate?: boolean } = {};
+      is409 && (requestBody.recreate = true);
       setErrMsg("");
+      setIs409(false);
       const res = await httpClient.post(
         `/api/admin/data-source/tidb/import-data`,
-        {
-          recreate: true,
-        }
+        requestBody
       );
+      const { status, message } = res.data;
+      if (status === 409) {
+        setIs409(true);
+      }
       setShowStatusBox(true);
     } catch (error: any) {
       console.error(error);
@@ -452,6 +458,13 @@ const ImportDataContent = (props: {
       );
     }
   };
+
+  React.useEffect(() => {
+    if (is409) {
+      setIsLoading(false);
+      setErrMsg("Another job is running");
+    }
+  }, [is409]);
 
   const handleContinueClick = () => {
     handleNext();
