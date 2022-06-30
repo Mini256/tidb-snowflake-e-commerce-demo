@@ -18,7 +18,12 @@ import {
   Container,
   Grid,
   Pagination,
+  Stack,
 } from "@mui/material";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import LabelIcon from "@mui/icons-material/Label";
+import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 
 import { ItemType, HotItemType } from "const/type";
 
@@ -158,14 +163,44 @@ export function HotItemImageList(props: {
             title={item.itemName}
             subtitle={item.itemDesc}
             actionIcon={
-              <Button
-                startIcon={
-                  <AttachMoneyIcon fontSize="small" sx={{ fill: "#fff" }} />
-                }
-                sx={{ color: "#fff" }}
-              >
-                {item.itemPrice}
-              </Button>
+              <Stack direction="row" spacing={1} alignItems="center">
+                {item.userLabel && (
+                  <Chip
+                    icon={<AccountCircleIcon />}
+                    label={
+                      item.userLabel === "high" ? (
+                        <ArrowDropUpIcon />
+                      ) : (
+                        <ArrowDropDownIcon />
+                      )
+                    }
+                    size="small"
+                    color={item.userLabel === "high" ? "error" : "info"}
+                  />
+                )}
+                {item.itemLabel && (
+                  <Chip
+                    icon={<LabelIcon />}
+                    label={
+                      item.itemLabel === "high" ? (
+                        <ArrowDropUpIcon />
+                      ) : (
+                        <ArrowDropDownIcon />
+                      )
+                    }
+                    size="small"
+                    color={item.itemLabel === "high" ? "error" : "info"}
+                  />
+                )}
+                <Button
+                  startIcon={
+                    <AttachMoneyIcon fontSize="small" sx={{ fill: "#fff" }} />
+                  }
+                  sx={{ color: "#fff" }}
+                >
+                  {item.itemPrice}
+                </Button>
+              </Stack>
             }
           />
         </ImageListItem>
