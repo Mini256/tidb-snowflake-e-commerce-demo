@@ -76,6 +76,10 @@ public class DataMockService {
     public static final String IMPORT_INITIAL_ORDER_DATA_JOB_NAME = "import-initial-order-data";
     public static final String IMPORT_INITIAL_EXPRESS_DATA_JOB_NAME = "import-initial-express-data";
     public static final String IMPORT_INCREMENTAL_DATA_JOB_NAME = "import-increment-data";
+    public static final List<String> IMPORT_INIT_DATA_JOB_NAMES = List.of(
+            IMPORT_INITIAL_USER_DATA_JOB_NAME, IMPORT_INITIAL_ITEM_DATA_JOB_NAME, IMPORT_INITIAL_ORDER_DATA_JOB_NAME,
+            IMPORT_INITIAL_EXPRESS_DATA_JOB_NAME
+    );
     public static final List<String> IMPORT_DATA_JOB_NAMES = List.of(
         IMPORT_INITIAL_USER_DATA_JOB_NAME, IMPORT_INITIAL_ITEM_DATA_JOB_NAME, IMPORT_INITIAL_ORDER_DATA_JOB_NAME,
         IMPORT_INITIAL_EXPRESS_DATA_JOB_NAME, IMPORT_INCREMENTAL_DATA_JOB_NAME
@@ -313,7 +317,7 @@ public class DataMockService {
     }
 
     public boolean isImportInitDataJobAllFinished() {
-        for (String jobName : IMPORT_DATA_JOB_NAMES) {
+        for (String jobName : IMPORT_INIT_DATA_JOB_NAMES) {
             JobInstance jobInstance = jobService.getLastJobInstance(jobName);
             if (jobInstance == null || !jobInstance.isCompleted()) {
                 return false;
