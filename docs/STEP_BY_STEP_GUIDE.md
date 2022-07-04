@@ -4,6 +4,40 @@ You can find the code here: https://github.com/Mini256/tidb-snowflake-e-commerce
 
 And visit our live demo here: https://tidb-snowflake-e-commerce-demo.vercel.app
 
+## Demo Proposal
+
+![image](https://user-images.githubusercontent.com/5086433/172916424-736fdf79-34b7-4c09-a580-093b71b94144.png)
+
+### Business
+
+Generate business data.
+
+1. Order business: Generate orders table data.
+2. Express business: Generate express table data. The express table and the orders table are stored in different TiDB databases separately. These two tables can be related by order_id.
+3. Other businesses(**Ignore at Demo stage**): Use databases (such as MySQL or Oracle), and synchronize data to a unified TiDB cluster in real time through synchronization tools.
+
+### Data
+
+Collect business data and provide data services.
+
+1. Collect business data through data integration tools such as DM and Flink CDC and write to the unified TiDB cluster.
+2. Data service: Query user tags and recommend hot-selling products to users.
+   1. Generate user tags based on user purchase behavior: whether high-net-worth customers or not.
+   2. Generate two batches of weekly hot-selling products according to the sales data: hot-selling products with high unit price and hot-selling products with low unit price.
+   3. Recommend high-net-worth hot-selling products to high-net-worth users, and low-unit-price hot-selling products to low-net-worth users.
+3. Unified view: Users can query their own orders and the express information associated with the orders in real time.
+4. Real-time analysis: Data analysts analyze the real-time transaction data of the day.
+   1. The total amount, and number of transactions on the day.
+   2. Group by commodity type to display the total amount, and number of transactions.
+
+### Data warehouse
+
+Use Snowflake to complete data warehouse modeling and cold data archiving.
+
+1. Cold data archiving: Store TiDB orders and express yesterday's data in Snowflake.
+2. Data warehouse modeling: Calculate the monthly bill data of each user, and get the monthly summary expenditure data.
+3. Machine Learning (**Ignore at Demo stage**): Mining transaction data through machine learning.
+
 ## Before we start
 
 This is the first page of live demo:
@@ -32,7 +66,9 @@ The backend server will serve port `8080` if run successfully. But in Gitpod wor
 
 ![image](https://user-images.githubusercontent.com/56986964/176807817-024409f2-bc63-41e8-98ed-24c9416d9f00.png)
 
-Gitpod workspace will open a preview tab of live demo after port `8080` is ready. We recommend here to copy the URL or Endpont, paste on our live demo website on your own browser.
+Gitpod workspace will open a preview tab of live demo after port `8080` is ready. We recommend here to copy the URL or Endpoint, paste on our live demo website using your own browser.
+
+> Gitpod Preview browser tab has many limitations, so that we recommend using your own browser tab intstead of Gitpod Preview tab.
 
 ## Visit and config live demo
 
@@ -134,6 +170,8 @@ Click the `Walkthrough` button and you will get a guidance for creating Snowflak
 5. Visit snowflake manage page, then choose `Admin` > `Partner Connect` on left navigation, then choose `ETLeap`:
 
    > This step is for further data pipeline from TiDB to Snowflake.
+   >
+   > **Note**: A Snowflake trial account will **expire** after 30 days and ETLeap will expire after 15 days.
 
    ![image](https://user-images.githubusercontent.com/5086433/173540263-70c34974-31f9-466c-bd4d-3c9845b1fc41.png)
 
