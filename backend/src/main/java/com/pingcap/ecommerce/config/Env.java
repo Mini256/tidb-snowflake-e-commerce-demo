@@ -130,7 +130,9 @@ public class Env {
         try {
             List<String> pairs = new ArrayList<>();
             for (String key : keys) {
-                pairs.add(String.format("%s=%s", key, envVars.get(key)));
+                if (envVars.get(key) != null) {
+                    pairs.add(String.format("%s=%s", key, envVars.get(key)));
+                }
             }
             Files.write(Path.of(ENV_FILEPATH), pairs, StandardCharsets.UTF_8);
         } catch (Exception e) {

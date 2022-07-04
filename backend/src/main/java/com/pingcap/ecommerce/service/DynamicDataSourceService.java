@@ -105,6 +105,7 @@ public class DynamicDataSourceService {
         if (testTiDBDataSource(ds, cfg.getDatabase())) {
             cfg.setUrl(jdbcURLWithDBName);
             HikariDataSource dbPool = buildDataSource(HikariDataSource.class, TIDB_DRIVER_NAME, jdbcURLWithDBName, cfg.getUser(), cfg.getPassword());
+            dbPool.setMaximumPoolSize(30);
             tidbDatasource.changeDataSource(TIDB_DATA_SOURCE_KEY, dbPool);
             this.tidbDataSourceConfig = cfg;
             this.env.setTiDBConfig(cfg);

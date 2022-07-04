@@ -111,7 +111,7 @@ public class AdminController {
         if (importDataDTO.getRecreate()) {
             List<JobInstance> importDataJobInstances = dataMockService.getImportDataJobInstances();
             for (JobInstance jobInstance : importDataJobInstances) {
-                if (jobInstance.isRunning()) {
+                if (jobInstance != null && jobInstance.isRunning()) {
                     jobManager.terminateJobInstance(jobInstance);
                 }
             }

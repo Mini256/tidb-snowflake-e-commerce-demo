@@ -38,7 +38,9 @@ public class DataController {
     public MessageVO<?> pullBackUserLabels(@RequestParam(required = false) boolean recreate) {
         BigInteger maxProcess = dataService.countUserLabels();
         JobInstance jobInstance = jobManager.findOrCreateJobInstance("write-back-user-labels", maxProcess, recreate);
-        if (jobInstance.isRunning()) {
+        if (jobInstance == null) {
+            return MessageVO.of(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Failed to start write back user labels job.", jobInstance);
+        } else if (jobInstance.isRunning()) {
             return MessageVO.of(HttpStatus.CONFLICT.value(), "The last job instance is still running.", jobInstance);
         } else if (jobInstance.isCompleted()) {
             return MessageVO.of(HttpStatus.CONFLICT.value(), "The last job instance is completed.", jobInstance);
