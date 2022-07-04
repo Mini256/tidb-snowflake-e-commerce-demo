@@ -8,6 +8,7 @@ import { DataGrid, GridColumns } from "@mui/x-data-grid";
 import { PageHeader } from "src/DashboardLayout/PageHeader";
 import { usdPrice } from "lib/formatter";
 import { UserVO } from "../customer";
+import { OrderTable } from "components/Table/OrderTable";
 
 import { useHttpClient } from "lib";
 
@@ -83,36 +84,6 @@ export default function OrderPage() {
     },
   ];
 
-  useEffect(() => {
-    endpoint &&
-      (async () => {
-        setLoading(true);
-
-        try {
-          const q = Object.assign({}, query, {
-            page: page - 1,
-            size: pageSize,
-          });
-          const url = `/api/orders?${qs.stringify(q)}`;
-          const res = await httpClient.get(url);
-          const orderPage: ResultVO<OrderVO> = res.data;
-          const { content = [], pageNum, rowTotal } = orderPage;
-
-          content.map((orderVO) => {
-            orderVO.id = orderVO.orderId;
-            orderVO.orderDate = new Date(orderVO.orderDate);
-            return orderVO;
-          });
-
-          setRows(content || []);
-          setPage(pageNum || 1);
-          setRowCount(rowTotal || 0);
-        } finally {
-          setLoading(false);
-        }
-      })();
-  }, [query, page, endpoint]);
-
   // User autocomplete.
   useEffect(() => {
     endpoint &&
@@ -174,24 +145,9 @@ export default function OrderPage() {
               )}
             />
           </Box>
-          <DataGrid
-            rows={rows}
-            columns={columns}
-            loading={loading}
-            rowCount={rowCount}
-            paginationMode="server"
-            sortingMode="server"
-            pageSize={pageSize}
-            rowsPerPageOptions={[10]}
-            checkboxSelection
-            autoHeight
-            disableColumnFilter={true}
-            onPageChange={(page) => {
-              setPage(page);
-            }}
-            onPageSizeChange={(pageSize) => {
-              setPageSize(pageSize);
-            }}
+          <OrderTable
+            key={`order-tabel-${userKeyword}`}
+            userId={query?.userId}
           />
         </Grid>
       </Grid>

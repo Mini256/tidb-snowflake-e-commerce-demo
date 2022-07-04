@@ -44,3 +44,23 @@ export type HotItemType = ItemType & {
   itemId: number;
   itemLabel: string;
 };
+
+export interface ResultVO<R> {
+  content: R[];
+  rowTotal: number;
+  pageNum: number;
+  pageSize: number;
+}
+
+export interface OrderVO {
+  id: number;
+  orderId: number;
+  orderDate: Date;
+  userId: string;
+  username: string;
+  itemId: string;
+  itemName: string;
+  amount: string;
+  status: string;
+  currentAddress: string;
+}
