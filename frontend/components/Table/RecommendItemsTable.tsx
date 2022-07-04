@@ -1,35 +1,35 @@
 import qs from "qs";
 import { useEffect, useState } from "react";
-import { DataGrid } from "@mui/x-data-grid";
+import { TablePagination } from "@mui/material";
 
-import { ORDER_COLUMNS } from "const/index";
-import { ResultVO, OrderVO } from "const/type";
+import { ResultVO, OrderVO, HotItemType } from "const/type";
 import { useHttpClient } from "lib";
+import { HotItemImageList } from "components/List/ImageList";
 
-export const OrderTable = (props: { userId?: string }) => {
+export const RecommendItems = (props: { userId?: string }) => {
   const { userId } = props;
 
   const [page, setPage] = useState(0);
-  const [rows, setRows] = useState<OrderVO[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [pageSize, setPageSize] = useState(12);
   const [rowCount, setRowCount] = useState(0);
-  const [pageSize, setPageSize] = useState(10);
+  const [rows, setRows] = useState<HotItemType[]>([]);
 
   const [httpClient, endpoint] = useHttpClient();
 
-  const fetchOrder = async (data: {
+  const fetchData = async (data: {
     page: number;
     userId?: string;
     size?: number;
   }) => {
-    const url = `/api/orders?${qs.stringify(data)}`;
+    const url = `/api/data/hot-items/recommended?${qs.stringify(data)}`;
     const res = await httpClient.get(url);
-    const orderPage: ResultVO<OrderVO> = res.data;
+    const orderPage: ResultVO<HotItemType> = res.data;
     const { content = [], pageNum, rowTotal } = orderPage;
-    const parsedContent = content.map((orderVO) => {
-      orderVO.id = orderVO.orderId;
-      orderVO.orderDate = new Date(orderVO.orderDate);
-      return orderVO;
+
+    const parsedContent = content.map((item) => {
+      item.id = `${item.userId}-${item.itemId}`;
+      return item;
     });
     return {
       content: parsedContent,
@@ -49,7 +49,7 @@ export const OrderTable = (props: { userId?: string }) => {
           size?: number;
         } = { page, size: pageSize };
         userId && (reqData.userId = userId);
-        const resData = await fetchOrder(reqData);
+        const resData = await fetchData(reqData);
         const {
           content: parsedContent,
           page: pageNum,
@@ -63,28 +63,26 @@ export const OrderTable = (props: { userId?: string }) => {
       }
     };
     endpoint && func();
-  }, [userId, endpoint, page]);
+  }, [endpoint, userId, page]);
 
   return (
     <>
-      <DataGrid
-        rows={rows}
-        columns={ORDER_COLUMNS}
-        loading={isLoading}
-        rowCount={rowCount}
-        paginationMode="server"
-        sortingMode="server"
-        pageSize={pageSize}
-        rowsPerPageOptions={[10]}
-        checkboxSelection
-        autoHeight
-        disableColumnFilter={true}
-        onPageChange={(page) => {
-          setPage(page);
+      <HotItemImageList products={rows} loading={isLoading} />
+      <TablePagination
+        component="div"
+        count={Math.ceil(rowCount / pageSize)}
+        size="small"
+        color="primary"
+        page={page}
+        onPageChange={(e, pageIdx) => {
+          setPage(pageIdx);
         }}
-        onPageSizeChange={(pageSize) => {
-          setPageSize(pageSize);
+        sx={{ margin: "1rem auto" }}
+        rowsPerPage={pageSize}
+        onRowsPerPageChange={(e) => {
+          setPageSize(parseInt(e.target.value));
         }}
+        rowsPerPageOptions={[12, 24, 48]}
       />
     </>
   );
