@@ -229,11 +229,14 @@ And switch to other pages by click left navigation.
 
 ![image](https://user-images.githubusercontent.com/56986964/176831838-88160867-c9d6-41de-b946-77a9a457c3f2.png)
 
-#### 8.1 Create pipeline by ETLeap
+#### 8.1 ETL data from TiDB to Snowflake
 
-TODO
+🚀 You can easily synchronize data from TiDB to Snowflake using the following proven ETL tools: (Click the link to check out the step-by-step guide)
 
-#### 8.2 Perform Offline Analysis on Snowflake
+- [ETLeap](PIPLINE_ETLEAP.md)
+- AirByte (Coming soon!)
+
+#### 8.2 Perform offline analysis on Snowflake
 
 You can see three tabs, each tab perform different calculate job.
 
