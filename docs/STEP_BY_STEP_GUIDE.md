@@ -8,6 +8,8 @@ And visit our live demo here: https://tidb-snowflake-e-commerce-demo.vercel.app
 
 ![image](https://user-images.githubusercontent.com/5086433/172916424-736fdf79-34b7-4c09-a580-093b71b94144.png)
 
+This is a demo of an e-commerce application that uses TiDB as a data center to store business data such as orders, deliveries, user tags, etc. Use snowflake as data warehouse to archive cold data and number bin modeling. This demo analyzes user purchase behavior and selling data, generates user tags and hot selling products, does correlation recommendation, and also analyzes and monitors real-time transaction data.
+
 ### Business
 
 Generate business data.
@@ -16,7 +18,7 @@ Generate business data.
 2. Express business: Generate express table data. The express table and the orders table are stored in different TiDB databases separately. These two tables can be related by order_id.
 3. Other businesses(**Ignore at Demo stage**): Use databases (such as MySQL or Oracle), and synchronize data to a unified TiDB cluster in real time through synchronization tools.
 
-### Data
+### Data Center
 
 Collect business data and provide data services.
 
@@ -130,8 +132,6 @@ Click the `Create` button and the schema will be created.
 
 ![image](https://user-images.githubusercontent.com/56986964/176812098-a10ad959-598c-4d37-8a99-83fe42de5d63.png)
 
-
-
 ### 4. Import initial data
 
 Click the `Import` button and the initial data will be imported.
@@ -154,18 +154,20 @@ Click the `Walkthrough` button and you will get a guidance for creating Snowflak
 
 2. Config version, cloud provider and region: ![image](https://user-images.githubusercontent.com/5086433/173525174-fc608d8d-290e-4cb1-a243-a6da06603980.png)
 
-3. Get details from link in email which will automatically be sent to you after submitting: 
+3. Get details from link in email which will automatically be sent to you after submitting:
 
    Then we can get(for example):
-   \- `SNOWSQL_USERNAME`
-   \- `SNOWSQL_PASSWORD`
-   \- `SNOWSQL_ROLE`: `ACCOUNTADMIN`
+
+   - `SNOWSQL_USERNAME`
+   - `SNOWSQL_PASSWORD`
+   - `SNOWSQL_ROLE`: `ACCOUNTADMIN`
 
 4. Get Snowflake URL from link in email which will automatically be sent to you after activating account: ![image](https://user-images.githubusercontent.com/5086433/173567557-7b96277c-fdf3-4ae8-bdb7-e89c2be1bd71.png)
 
    Then we can get(for example):
-   \- `SNOWSQL_HOST`: `GQ01328.ap-northeast-1.aws.snowflakecomputing.com`
-   \- `SNOWSQL_ACCOUNT`: `GQ01328`
+
+   - `SNOWSQL_HOST`: `GQ01328.ap-northeast-1.aws.snowflakecomputing.com`
+   - `SNOWSQL_ACCOUNT`: `GQ01328`
 
 5. Visit snowflake manage page, then choose `Admin` > `Partner Connect` on left navigation, then choose `ETLeap`:
 
@@ -180,9 +182,10 @@ Click the `Walkthrough` button and you will get a guidance for creating Snowflak
    ![image](https://user-images.githubusercontent.com/5086433/173540930-b355247d-edd0-49ff-810b-2275b34cfbed.png)
 
    Then we can get(for example):
-   \- `SNOWSQL_DATABASE`: `PC_ETLEAP_DB`
-   \- `SNOWSQL_WAREHOUSE`: `PC_ETLEAP_WH`
-   \- `SNOWSQL_SCHEMA`: `PUBLIC`
+
+   - `SNOWSQL_DATABASE`: `PC_ETLEAP_DB`
+   - `SNOWSQL_WAREHOUSE`: `PC_ETLEAP_WH`
+   - `SNOWSQL_SCHEMA`: `PUBLIC`
 
 7. Active `ETLeap`: ![image](https://user-images.githubusercontent.com/5086433/173541215-15b34852-2a48-446a-8054-c4078d8cadd2.png) ![image](https://user-images.githubusercontent.com/5086433/173542047-c0f7970e-462f-4115-8c4f-13d01cb719f7.png)
 
@@ -209,7 +212,7 @@ Click `Continue` and backend will check the connection.
 
 ![image](https://user-images.githubusercontent.com/56986964/176831457-c3e37f6c-f2e5-45db-a982-d59e78fcf17c.png)
 
-### 7. Finish configuration 
+### 7. Finish configuration
 
 After all settled, you can click `Continue` button.
 
