@@ -1,4 +1,4 @@
-# TiDB + Snowflake Demo Step By Step Guidance
+# TiDB Cloud + Snowflake Demo Step By Step Guidance
 
 You can find the code here: https://github.com/Mini256/tidb-snowflake-e-commerce-demo
 
@@ -8,7 +8,7 @@ And visit our live demo here: https://tidb-snowflake-e-commerce-demo.vercel.app
 
 ![image](https://user-images.githubusercontent.com/5086433/172916424-736fdf79-34b7-4c09-a580-093b71b94144.png)
 
-In this demo, we will use TiDB and Snowflake to build an online e-commerce system, which will use TiDB's powerful realtime HTAP capability and Snowflake's offline analysis capability for a large amount of data in the system. This demo uses TiDB as a data center to store business data such as orders, expresses, user labels, etc. Use snowflake as data warehouse to archive cold data and number bin modeling. This demo analyzes user purchase behavior and selling data, generates user labels and hot selling products, does correlation recommendation, and also analyzes and monitors real-time transaction data.
+In this demo, we will use TiDB Cloud and Snowflake to build an online e-commerce system, which will use TiDB's powerful realtime HTAP capability and Snowflake's offline analysis capability for a large amount of data in the system. This demo uses TiDB as a data center to store business data such as orders, expresses, user labels, etc. Use snowflake as data warehouse to archive cold data and number bin modeling. This demo analyzes user purchase behavior and selling data, generates user labels and hot selling products, does correlation recommendation, and also analyzes and monitors real-time transaction data.
 
 > Compared to MySQL, TiDB has lower latency and better scalability in transaction processing.
 
