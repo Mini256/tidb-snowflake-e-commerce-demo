@@ -14,9 +14,8 @@ In this demo, we will use TiDB Cloud and Snowflake to build an online e-commerce
 
 > Compared to MySQL, TiDB has lower latency and better scalability in transaction processing.
 > 1. TiDB supports high-speed access and provides good batch query capability.
-> 2. Line storage with index precise positioning, providing millisecond response, HTAP architecture to support future business development.
-> 3. CBO automatic routing, users do not need to plan the engine used for different queries.
-> 4. Greatly reduce complexity and operation and maintenance costs.
+> 2. Line storage with index precise positioning providing millisecond response, and HTAP architecture can support future business development.
+> 3. Greatly reduce complexity and operation and maintenance costs.
 
 ### Business
 
