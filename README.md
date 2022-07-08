@@ -1,4 +1,4 @@
-# A E-commerce Demo Application
+# E-commerce Demo Application
 
 An E-commerce demo application powered by TiDB and Snowflake.
 
@@ -13,3 +13,7 @@ Click the button below. Then a Gitpod workspace will be created. It will host ba
 </a>
 
 Or you can visit our website directly: [Click here](https://tidb-snowflake-e-commerce-demo.vercel.app/)
+
+## Step by step guidance
+
+[STEP_BY_STEP_GUIDE.md](docs/STEP_BY_STEP_GUIDE.md)

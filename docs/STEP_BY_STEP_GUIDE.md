@@ -8,7 +8,7 @@ And visit our live demo here: https://tidb-snowflake-e-commerce-demo.vercel.app
 
 ![image](https://user-images.githubusercontent.com/5086433/172916424-736fdf79-34b7-4c09-a580-093b71b94144.png)
 
-This is a demo of an e-commerce application that uses TiDB as a data center to store business data such as orders, deliveries, user tags, etc. Use snowflake as data warehouse to archive cold data and number bin modeling. This demo analyzes user purchase behavior and selling data, generates user tags and hot selling products, does correlation recommendation, and also analyzes and monitors real-time transaction data.
+This is a demo of an e-commerce application that uses TiDB as a data center to store business data such as orders, expresses, user labels, etc. Use snowflake as data warehouse to archive cold data and number bin modeling. This demo analyzes user purchase behavior and selling data, generates user labels and hot selling products, does correlation recommendation, and also analyzes and monitors real-time transaction data.
 
 ### Business
 
