@@ -2,6 +2,8 @@
 
 An E-commerce demo application powered by TiDB and Snowflake.
 
+In this demo, we will use TiDB and Snowflake to build an online e-commerce system, which will use TiDB's powerful realtime HTAP capability and Snowflake's offline analysis capability for a large amount of data in the system.
+
 ## Run the demo
 
 You can easily run the demo by Gitpod and our pre-built website.
