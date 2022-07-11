@@ -8,7 +8,7 @@ And visit our live demo here: https://tidb-snowflake-e-commerce-demo.vercel.app
 
 ![image](https://user-images.githubusercontent.com/5086433/172916424-736fdf79-34b7-4c09-a580-093b71b94144.png)
 
-In this demo, we will use TiDB Cloud and Snowflake to build an online e-commerce system, which will use TiDB's powerful realtime HTAP capability and Snowflake's offline analysis capability for a large amount of data in the system. This demo uses TiDB as a data center to store business data such as orders, expresses, user labels, etc. Use snowflake as data warehouse to archive cold data and number bin modeling. This demo analyzes user purchase behavior and selling data, generates user labels and hot selling products, does correlation recommendation, and also analyzes and monitors real-time transaction data.
+In this demo, we will use TiDB Cloud and Snowflake to build an online e-commerce system, which will use TiDB's powerful realtime HTAP capability and Snowflake's offline analysis capability for a large amount of data in the system. This demo uses TiDB to store business data such as orders, expresses, user data, etc. Use Snowflake as data warehouse to archive cold data and data warehouse modeling. This demo will build a simple real-time dashboard to monitor today's product sales situation, as well as will analyzes users' consumption ability and calculate users' labels according to users' purchasing behavior, and calculate popular items at different grade prices according to item sales, so as to build a simple item recommendation function.
 
 > In the traditional e-commerce scenario, especially data reporting part or real-time monitoring part. There was a third part data warehouse used to do pre-aggregation of data and then put it into MySQL to do queries. As the business grows and the report forms become more diversified, the scalability of MySQL becomes a bottleneck. Besides, the complexity of multi-node MySQL's library and table splitting scheme is high, and the operation and maintenance is very difficult.
 
@@ -25,7 +25,7 @@ Generate business data.
 2. Express business: Generate express table data. The express table and the orders table are stored in different TiDB databases separately. These two tables can be related by order_id.
 3. Other businesses(**Ignore at Demo stage**): Use databases (such as MySQL or Oracle), and synchronize data to a unified TiDB cluster in real time through synchronization tools.
 
-### Data Center
+### Data center
 
 Collect business data and provide data services.
 
