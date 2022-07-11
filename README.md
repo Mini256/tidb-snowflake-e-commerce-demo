@@ -18,4 +18,4 @@ Or you can visit our website directly: [Click here](https://tidb-snowflake-e-com
 
 ## 📖 Step by step guidance
 
-[STEP_BY_STEP_GUIDE.md](docs/STEP_BY_STEP_GUIDE.md)
+[Step by Step Guidance](docs/STEP_BY_STEP_GUIDE.md)
