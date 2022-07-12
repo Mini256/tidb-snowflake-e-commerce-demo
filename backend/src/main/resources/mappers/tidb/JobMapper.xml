@@ -69,7 +69,7 @@
   </update>
 
   <update id="finishJobInstance" parameterType="com.pingcap.ecommerce.model.JobInstance">
-    UPDATE job_instances SET status = 'FINISHED',  current_process = #{currentProcess}, cost = NOW() - start_time, complete_time = NOW()
+    UPDATE job_instances SET status = 'FINISHED',  current_process = max_process, cost = NOW() - start_time, complete_time = NOW()
     WHERE id = #{id}
   </update>
 
