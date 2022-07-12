@@ -9,10 +9,10 @@
       <result property="customers" column="customers" javaType="java.math.BigInteger" jdbcType="BIGINT" />
   </resultMap>
   <insert id="insertOrderStats" parameterType="com.pingcap.ecommerce.model.OrderStats">
-    INSERT INTO order_stats_history(ts, type, amount, total, customers) VALUES (#{ts}, #{type}, #{amount}, #{total}, #{customers});
+    INSERT IGNORE INTO order_stats_history(ts, type, amount, total, customers) VALUES (#{ts}, #{type}, #{amount}, #{total}, #{customers});
   </insert>
   <insert id="insertOrderStatsList">
-    INSERT INTO order_stats_history(ts, type, amount, total, customers) VALUES
+    INSERT IGNORE INTO order_stats_history(ts, type, amount, total, customers) VALUES
     <foreach item="item" index="index" collection="orderStatsList" separator="," nullable="true">
       (#{item.ts}, #{item.type}, #{item.amount}, #{item.total}, #{item.customers})
     </foreach>
