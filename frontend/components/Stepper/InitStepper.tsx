@@ -163,8 +163,8 @@ const SnowflakeStepContent = (props: {
 
   const [host, setHost] = React.useState("");
   const [account, setAccount] = React.useState("");
-  const [wh, setWh] = React.useState("PC_ETLEAP_WH");
-  const [db, setDb] = React.useState("PC_ETLEAP_DB");
+  const [wh, setWh] = React.useState("COMPUTE_WH");
+  const [db, setDb] = React.useState("ECOMMERCE");
   const [schema, setSchema] = React.useState("PUBLIC");
   const [user, setUser] = React.useState("");
   const [role, setRole] = React.useState("ACCOUNTADMIN");
@@ -247,18 +247,19 @@ const SnowflakeStepContent = (props: {
           onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
             setWh(event.target.value);
           }}
+          helperText="A new WH will be created if not exist."
         />
         <TextField
           size="small"
           id="snow-database"
           label="SNOWSQL_DATABASE"
-          helperText={`Database <${db}> will be created if not exist.`}
           variant="outlined"
           margin="dense"
           value={db}
           onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
             setDb(event.target.value);
           }}
+          helperText="A new DB will be created if not exist."
         />
         <TextField
           size="small"
