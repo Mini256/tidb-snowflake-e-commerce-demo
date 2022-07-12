@@ -218,7 +218,7 @@ public class DynamicDataSourceService {
         log.info("Executing DDL in the file {}.", TIDB_INIT_SCHEMA_SQL_FILE);
         ScriptUtils.executeSqlScript(conn, sqlFileResource);
         log.info("Finished execute DDL in the file {}.", TIDB_INIT_SCHEMA_SQL_FILE);
-        checkTiDBSchema(conn);
+        this.tidbSchemaCreated = checkTiDBSchema(conn);
     }
 
     public List<TableInfo> getTiDBSchemaTables() {
@@ -398,7 +398,7 @@ public class DynamicDataSourceService {
         log.info("Executing DDL in the file {}.", SNOWFLAKE_INIT_SCHEMA_SQL_FILE);
         ScriptUtils.executeSqlScript(conn, sqlFileResource);
         log.info("Finished execute DDL in the file {}.", SNOWFLAKE_INIT_SCHEMA_SQL_FILE);
-        checkSnowflakeSchema(conn);
+        snowflakeSchemaCreated = checkSnowflakeSchema(conn);
     }
 
     public List<TableInfo> getSnowflakeSchemaTables() {
