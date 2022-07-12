@@ -153,8 +153,6 @@ You can check the status anytime.
 
 Click the `Walkthrough` button and you will get a guidance for creating Snowflake cluster.
 
-![image](https://user-images.githubusercontent.com/56986964/176813458-a3b2224e-fc0e-4060-ad4e-7f6b50076be0.png)
-
 #### 5.1 Create Snowflake Cluster
 
 1. Create Snowflake account([snowflake.com](https://signup.snowflake.com/)): ![image](https://user-images.githubusercontent.com/5086433/173524767-3383bacf-7c6e-46cc-9959-660d35ff17d9.png)
@@ -176,34 +174,11 @@ Click the `Walkthrough` button and you will get a guidance for creating Snowflak
    - `SNOWSQL_HOST`: `GQ01328.ap-northeast-1.aws.snowflakecomputing.com`
    - `SNOWSQL_ACCOUNT`: `GQ01328`
 
-5. Visit snowflake manage page, then choose `Admin` > `Partner Connect` on left navigation, then choose `ETLeap`:
-
-   > This step is for further data pipeline from TiDB to Snowflake.
-   >
-   > **Note**: A Snowflake trial account will **expire** after 30 days and ETLeap will expire after 15 days.
-
-   ![image](https://user-images.githubusercontent.com/5086433/173540263-70c34974-31f9-466c-bd4d-3c9845b1fc41.png)
-
-6. Click `Connect`:
-
-   ![image](https://user-images.githubusercontent.com/5086433/173540930-b355247d-edd0-49ff-810b-2275b34cfbed.png)
-
-   Then we can get(for example):
-
-   - `SNOWSQL_DATABASE`: `PC_ETLEAP_DB`
-   - `SNOWSQL_WAREHOUSE`: `PC_ETLEAP_WH`
-   - `SNOWSQL_SCHEMA`: `PUBLIC`
-
-7. Active `ETLeap`: ![image](https://user-images.githubusercontent.com/5086433/173541215-15b34852-2a48-446a-8054-c4078d8cadd2.png) ![image](https://user-images.githubusercontent.com/5086433/173542047-c0f7970e-462f-4115-8c4f-13d01cb719f7.png)
-
-8. After all settled, we can get all these data:
+5. After all settled, we can get all these data:
 
    ```
    SNOWSQL_HOST=GQ01328.ap-northeast-1.aws.snowflakecomputing.com
    SNOWSQL_ACCOUNT=GQ01328
-   SNOWSQL_WAREHOUSE=PC_ETLEAP_WH
-   SNOWSQL_DATABASE=PC_ETLEAP_DB
-   SNOWSQL_SCHEMA=PUBLIC
    SNOWSQL_USER=<admin username>
    SNOWSQL_ROLE=ACCOUNTADMIN
    SNOWSQL_PWD=<admin password>
@@ -213,7 +188,7 @@ Click the `Walkthrough` button and you will get a guidance for creating Snowflak
 
 Click `Continue` and backend will check the connection.
 
-![image](https://user-images.githubusercontent.com/56986964/176814605-8aa32be0-e01b-4fff-9d03-a792f497214e.png)
+![image](https://user-images.githubusercontent.com/56986964/178400560-09402103-141c-4da7-a17f-f99b5b49252e.png)
 
 ### 6. Create Snowflake Schema
 
