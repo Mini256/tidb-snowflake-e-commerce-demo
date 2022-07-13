@@ -1,10 +1,19 @@
-import Grid from "@mui/material/Grid";
-import { DashboardLayout } from "components/CommonLayout";
-
-import { Box, Button, Chip, TextField } from "@mui/material";
 import qs from "qs";
 import { useEffect, useState } from "react";
-import { DataGrid, GridColumns } from "@mui/x-data-grid";
+import Grid from "@mui/material/Grid";
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableContainer from "@mui/material/TableContainer";
+import TableHead from "@mui/material/TableHead";
+import TableRow from "@mui/material/TableRow";
+import Paper from "@mui/material/Paper";
+import { Box, Button, Chip, Skeleton, TextField } from "@mui/material";
+import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import TablePagination from "@mui/material/TablePagination";
+
+import { DashboardLayout } from "components/CommonLayout";
 import { PageHeader } from "src/DashboardLayout/PageHeader";
 import { usdPrice } from "lib/formatter";
 
@@ -27,9 +36,57 @@ export interface UserVO {
   updateTime: Date;
 }
 
+const TableBodySkeleton = () => {
+  return (
+    <>
+      <TableRow
+        key="tbs-1"
+        sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+      >
+        <TableCell component="th" scope="row">
+          <Skeleton />
+        </TableCell>
+        <TableCell component="th" scope="row">
+          <Skeleton />
+        </TableCell>
+        <TableCell component="th" scope="row">
+          <Skeleton />
+        </TableCell>
+        <TableCell component="th" scope="row">
+          <Skeleton />
+        </TableCell>
+        <TableCell component="th" scope="row">
+          <Skeleton />
+        </TableCell>
+      </TableRow>
+
+      <TableRow
+        key="tbs-2"
+        sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+      >
+        <TableCell component="th" scope="row">
+          <Skeleton />
+        </TableCell>
+        <TableCell component="th" scope="row">
+          <Skeleton />
+        </TableCell>
+        <TableCell component="th" scope="row">
+          <Skeleton />
+        </TableCell>
+        <TableCell component="th" scope="row">
+          <Skeleton />
+        </TableCell>
+        <TableCell component="th" scope="row">
+          <Skeleton />
+        </TableCell>
+      </TableRow>
+    </>
+  );
+};
+
 export default function CustomerPage() {
   const [loading, setLoading] = useState<boolean>(false);
-  const [page, setPage] = useState<number>(1);
+  const [page, setPage] = useState<number>(0);
   const [pageSize, setPageSize] = useState<number>(10);
   const [rowCount, setRowCount] = useState<number>(0);
   const [rows, setRows] = useState<UserVO[]>([]);
@@ -38,71 +95,48 @@ export default function CustomerPage() {
 
   const [httpClient, endpoint] = useHttpClient();
 
-  const columns: GridColumns<UserVO> = [
-    { field: "username", headerName: "Username", flex: 1 },
-    {
-      field: "userLabel",
-      headerName: "User Label",
-      flex: 1,
-      renderCell: ({ value }) => {
-        const color = value === "high" ? "primary" : "info";
-        return value ? (
-          <Chip size="small" label={value} color={color} />
-        ) : (
-          "N/A"
-        );
-      },
-    },
-    {
-      field: "avgAmount",
-      headerName: "Average Amount",
-      flex: 1,
-      ...usdPrice,
-      align: "left",
-      headerAlign: "left",
-    },
-    {
-      field: "createTime",
-      headerName: "Create Time",
-      type: "dateTime",
-      flex: 1,
-    },
-    {
-      field: "updateTime",
-      headerName: "Update Time",
-      type: "dateTime",
-      flex: 1,
-    },
-  ];
+  const renderLabel = (value: string | undefined) => {
+    return value ? (
+      <Chip
+        icon={value === "high" ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />}
+        size="small"
+        label={value}
+        color={value === "high" ? "error" : "info"}
+      />
+    ) : (
+      "N/A"
+    );
+  };
 
   useEffect(() => {
-    (async () => {
-      setLoading(true);
+    endpoint &&
+      (async () => {
+        setLoading(true);
 
-      try {
-        const q = Object.assign({}, query, {
-          page: page - 1,
-          size: pageSize,
-        });
-        const url = `/api/users?${qs.stringify(q)}`;
-        const res = await httpClient.get(url);
-        const orderPage: ResultVO<UserVO> = res.data;
-        const { content = [], pageNum, rowTotal } = orderPage;
+        try {
+          const q = Object.assign({}, query, {
+            page: page,
+            size: pageSize,
+          });
+          const url = `/api/users?${qs.stringify(q)}`;
+          const res = await httpClient.get(url);
+          const orderPage: ResultVO<UserVO> = res.data;
+          const { content = [], pageNum, rowTotal } = orderPage;
 
-        content.map((userVO) => {
-          userVO.id = userVO.userId;
-          userVO.createTime = new Date(userVO.createTime);
-          userVO.updateTime = new Date(userVO.updateTime);
-          return userVO;
-        });
+          content.map((userVO) => {
+            userVO.id = userVO.userId;
+            userVO.createTime = new Date(userVO.createTime);
+            userVO.updateTime = new Date(userVO.updateTime);
+            return userVO;
+          });
 
-        setRows(content || []);
-        setPage(pageNum || 1);
-        setRowCount(rowTotal || 0);
-      } finally {
-        setLoading(false);
-      }
-    })();
+          setRows(content || []);
+          // setPage(pageNum || 1);
+          setRowCount(rowTotal || 0);
+        } finally {
+          setLoading(false);
+        }
+      })();
   }, [query, page, endpoint]);
 
   return (
@@ -146,23 +180,57 @@ export default function CustomerPage() {
               Query
             </Button>
           </Box>
-          <DataGrid
-            rows={rows}
-            columns={columns}
-            loading={loading}
-            rowCount={rowCount}
-            paginationMode="server"
-            sortingMode="server"
-            pageSize={pageSize}
-            rowsPerPageOptions={[10]}
-            checkboxSelection
-            autoHeight
-            disableColumnFilter={true}
-            onPageChange={(page) => {
+          <TableContainer component={Paper}>
+            <Table sx={{ minWidth: 650 }} aria-label="simple table">
+              <TableHead>
+                <TableRow>
+                  <TableCell>User Name</TableCell>
+                  <TableCell align="right">User Label</TableCell>
+                  <TableCell align="right">Average Amount</TableCell>
+                  <TableCell align="right">Create Time</TableCell>
+                  <TableCell align="right">Update Time</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {loading ? (
+                  <TableBodySkeleton />
+                ) : (
+                  rows.map((row) => (
+                    <TableRow
+                      key={row.id}
+                      sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                    >
+                      <TableCell component="th" scope="row">
+                        {row.username}
+                      </TableCell>
+                      <TableCell align="right">
+                        {renderLabel(row.userLabel)}
+                      </TableCell>
+                      <TableCell align="right">
+                        {row.avgAmount ? `$ ${row.avgAmount}` : "N/A"}
+                      </TableCell>
+                      <TableCell align="right">
+                        {row.createTime.toLocaleString()}
+                      </TableCell>
+                      <TableCell align="right">
+                        {row.updateTime.toLocaleString()}
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
+          <TablePagination
+            component="div"
+            count={rowCount}
+            page={page}
+            onPageChange={(_, page) => {
               setPage(page);
             }}
-            onPageSizeChange={(pageSize) => {
-              setPageSize(pageSize);
+            rowsPerPage={pageSize}
+            onRowsPerPageChange={(event) => {
+              setPageSize(parseInt(event.target.value, 10));
             }}
           />
         </Grid>
