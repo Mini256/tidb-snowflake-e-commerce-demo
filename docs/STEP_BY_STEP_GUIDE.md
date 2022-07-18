@@ -6,18 +6,27 @@ And visit our live demo here: https://tidb-snowflake-e-commerce-demo.vercel.app
 
 ## Demo Proposal
 
-![image](https://user-images.githubusercontent.com/5086433/172916424-736fdf79-34b7-4c09-a580-093b71b94144.png)
+In this demo, we use TiDB Cloud and Snowflake to build an online e-commerce system, which uses TiDB's powerful realtime HTAP capability and Snowflake's offline analysis capability for a large amount of data in the system.
 
-In this demo, we will use TiDB Cloud and Snowflake to build an online e-commerce system, which will use TiDB's powerful realtime HTAP capability and Snowflake's offline analysis capability for a large amount of data in the system. This demo uses TiDB to store business data such as orders, expresses, user data, etc. Use Snowflake as data warehouse to archive cold data and data warehouse modeling. This demo will build a simple real-time dashboard to monitor today's product sales situation, as well as will analyzes users' consumption ability and calculate users' labels according to users' purchasing behavior, and calculate popular items at different grade prices according to item sales, so as to build a simple item recommendation function.
-
-> In the traditional e-commerce scenario, especially data reporting part or real-time monitoring part. There was a third part data warehouse used to do pre-aggregation of data and then put it into MySQL to do queries. As the business grows and the report forms become more diversified, the scalability of MySQL becomes a bottleneck. Besides, the complexity of multi-node MySQL's library and table splitting scheme is high, and the operation and maintenance is very difficult.
+In the traditional e-commerce scenario, especially data reporting or real-time monitoring. There was a third party data warehouse used to do pre-aggregation of data and then put it into MySQL to do queries. As the business grows and the report forms become more diversified, the scalability of MySQL becomes a bottleneck. Besides, multi-node MySQL's library and table splitting scheme are complexed, and the operation and maintenance are very difficult.
 
 > Compared to MySQL, TiDB has lower latency and better scalability in TP under many scenarios, especially served as the underlying storage for e-commerce big sales promotion.
+>
 > 1. TiDB supports high-speed access and provides good batch query capability.
 > 2. Row-based storage with index precise positioning providing millisecond response, and HTAP architecture can support future business development.
 > 3. TiDB support real-time analysis (such as the day of the data that can not be timely ETLing, like orders and expresses).
 
-### Business
+This guide is more oriented towards telling you how to configure and use, rather than how to develop. But you can still find our backend code under [here](https://github.com/Mini256/tidb-snowflake-e-commerce-demo/tree/main/backend) and learn how we implement this demo. We still introduce some details on the demo page, such as table structures, the SQL we execute.
+
+## Demo Structure
+
+![image](https://user-images.githubusercontent.com/5086433/172916424-736fdf79-34b7-4c09-a580-093b71b94144.png)
+
+We divide the demo into three layers: Business layer, Data center layer(TiDB Cloud) and Data warehouse layer(Snowflake).
+
+This demo uses TiDB to store business data such as orders, expresses, user data, etc. Use Snowflake as data warehouse to archive cold data and data warehouse modeling. This demo builds a simple real-time dashboard to monitor today's product sales situation, as well as analyzes users' consumption ability and calculate users' labels according to users' purchasing behavior. Besides, it calculates popular items at different grade prices according to item sales, so as to build a simple item recommendation function.
+
+### 1. Business layer
 
 Generate business data.
 
@@ -25,7 +34,7 @@ Generate business data.
 2. Express business: Generate express table data. The express table and the orders table are stored in different TiDB databases separately. These two tables can be related by order_id.
 3. Other businesses(**Ignore at Demo stage**): Use databases (such as MySQL or Oracle), and synchronize data to a unified TiDB cluster in real time through synchronization tools.
 
-### Data center
+### 2. Data center layer
 
 Collect business data and provide data services.
 
@@ -39,7 +48,7 @@ Collect business data and provide data services.
    1. The total amount, and number of transactions on the day.
    2. Group by commodity type to display the total amount, and number of transactions.
 
-### Data warehouse
+### 3. Data warehouse layer
 
 Use Snowflake to complete data warehouse modeling and cold data archiving.
 
