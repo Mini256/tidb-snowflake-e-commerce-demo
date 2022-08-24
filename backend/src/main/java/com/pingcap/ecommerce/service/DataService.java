@@ -73,8 +73,6 @@ public class DataService {
     @Transactional
     public int bulkInsertOverwriteUserLabels(List<UserLabel> userLabels) {
         if (userLabels.isEmpty()) return 0;
-        List<String> userIds = userLabels.stream().map(UserLabel::getUserId).toList();
-        userLabelMapper.bulkDeleteUserLabels(userIds);
         return userLabelMapper.batchInsertUserLabels(userLabels);
     }
 

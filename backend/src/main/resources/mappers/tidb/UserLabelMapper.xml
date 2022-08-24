@@ -11,7 +11,8 @@
     INSERT INTO user_labels(user_id, user_label, avg_amount) VALUES
     <foreach item="item" index="index" collection="userLabels" separator=",">
       (#{item.userId}, #{item.userLabel}, #{item.avgAmount})
-    </foreach>;
+    </foreach>
+    ON DUPLICATE KEY UPDATE user_id = VALUES(user_id), user_label = VALUES(user_label), avg_amount = VALUES(avg_amount);
   </insert>
 
   <delete id="bulkDeleteUserLabels">
