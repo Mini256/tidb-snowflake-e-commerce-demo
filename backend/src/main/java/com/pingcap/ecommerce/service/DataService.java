@@ -52,7 +52,7 @@ public class DataService {
     public void pullBackUserLabelsToTiDB(JobInstance jobInstance) {
         List<UserLabel> userLabels;
         long pageNum = 1;
-        long pageSize = 2000;
+        long pageSize = 20000;
 
         log.info("Pulling back user labels from Snowflake to TiDB.");
         snowflakeSchemaMapper.useJSONResultFormat();
