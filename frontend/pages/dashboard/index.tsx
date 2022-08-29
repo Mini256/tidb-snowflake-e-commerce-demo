@@ -101,7 +101,7 @@ export default function DashboardPage() {
 
   // Load hot items list.
   useEffect(() => {
-    (async () => {
+    endpoint && (async () => {
       const { data = [] } = await httpClient.get(
         "/api/data/hot-items/high-label"
       );
